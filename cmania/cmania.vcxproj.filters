@@ -1,0 +1,118 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="cmania.cpp" />
+    <ClCompile Include="BufferController.ixx">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="ConsoleText.ixx">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="FpsOverlay.ixx">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Game.ixx">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="GameBuffer.ixx">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="TickSource.ixx">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Unicode.ixx">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="ScreenController.ixx">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="MainMenuScreen.ixx">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="SettingsScreen.ixx">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="SongSelectScreen.ixx">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="AsyncConsole.ixx">
+      <Filter>Core\System</Filter>
+    </ClCompile>
+    <ClCompile Include="Hpet.ixx">
+      <Filter>Core\System</Filter>
+    </ClCompile>
+    <ClCompile Include="Win32ConsoleComponent.ixx">
+      <Filter>Core\System</Filter>
+    </ClCompile>
+    <ClCompile Include="BeatmapManagementService.ixx">
+      <Filter>Beatmap</Filter>
+    </ClCompile>
+    <ClCompile Include="Settings.ixx">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="OsuBeatmap.ixx">
+      <Filter>Beatmap</Filter>
+    </ClCompile>
+    <ClCompile Include="OsuStatic.ixx">
+      <Filter>Beatmap</Filter>
+    </ClCompile>
+    <ClCompile Include="String.ixx">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="WinDebug.ixx">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="BassAudioManager.cpp">
+      <Filter>Core\Audio</Filter>
+    </ClCompile>
+    <ClCompile Include="AudioService.ixx">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="File.ixx">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="GameplayScreen.ixx">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="LatencySettingScreen.ixx">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="SpeedSettingScreen.ixx">
+      <Filter>Game</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="ConsoleInput.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="EnumFlag.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="AudioManager.h">
+      <Filter>Core\Audio</Filter>
+    </ClInclude>
+    <ClInclude Include="BassAudioManager.h">
+      <Filter>Core\Audio</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Core">
+      <UniqueIdentifier>{275fb0fd-e38c-4f36-bc22-d154ed91fcf7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game">
+      <UniqueIdentifier>{aaa57cde-92ed-4248-86ff-57a21b1748de}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\System">
+      <UniqueIdentifier>{c9312f31-6251-4db2-b9f4-573e0d5c3d52}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Audio">
+      <UniqueIdentifier>{e900a488-785f-43b3-b44a-5c56769cf970}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Beatmap">
+      <UniqueIdentifier>{1127def3-ecb6-45f6-b421-e238d8d72d08}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+</Project>
