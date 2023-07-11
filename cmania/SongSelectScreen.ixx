@@ -13,15 +13,18 @@ import AudioService;
 import <chrono>;
 import <mutex>;
 import <tuple>;
+import OsuMods;
+import SettingsScreen;
+import GameplayScreen;
 
 export class SongSelectScreen : public Screen
 {
 	int h_cache = 0; int w_cache = 0;
-	std::mutex search_buf_lock;
-	std::mutex input_buf_lock;
+	std::mutex LOCKKKKKKKKKKKKKKKKKKKKKKKKKKKKKK;
 	std::vector<wchar_t> search_buf;
 	IAudioManager::IAudioStream* preview;
 	bool mod_flyout;
+	OsuMods mods;
 	GameBuffer::Color difficultyToRGBColor(float difficulty) {
 		std::vector<std::tuple<double, double, GameBuffer::Color>> ranges = {
 			{0, 1, {128, 128, 128}},        // Gray
@@ -47,6 +50,7 @@ export class SongSelectScreen : public Screen
 	}
 	virtual void Render(GameBuffer& buf)
 	{
+		std::lock_guard lock(LOCKKKKKKKKKKKKKKKKKKKKKKKKKKKKKK);
 		h_cache = buf.Height;
 		w_cache = buf.Width;
 		if (!ready)
@@ -54,16 +58,13 @@ export class SongSelectScreen : public Screen
 			if (require_songs_path)
 			{
 				buf.DrawString("请拖入Songs文件夹或者手动键入Songs文件夹路径.", 0, 0, {}, {});
-				{
-					std::lock_guard lock(input_buf_lock);
-					buf.DrawString(std::wstring{ input_buf.begin(),input_buf.end() }, 0, 1, {}, {});
-				}
+				buf.DrawString(std::wstring{ input_buf.begin(),input_buf.end() }, 0, 1, {}, {});
 				return;
 			}
 			buf.DrawString("Loading...", 0, 0, {}, {});
 			return;
 		}
-		auto caches = matched_caches;
+		auto& caches = matched_caches;
 		if (search_buf.empty())
 		{
 			caches = this->caches;
@@ -141,10 +142,7 @@ export class SongSelectScreen : public Screen
 		buf.DrawString("Esc - 返回 上下左右/鼠标 - 选歌 F2 Mods F3 选项 Enter 进入", 0, buf.Height - 1, {}, {});
 		buf.FillRect(buf.Width - 30, 2, buf.Width - 3, 2, { {},{130,128,128,128},' ' });
 		buf.DrawString("搜索:", buf.Width - 30, 2, { 255,100,255,150 }, {});
-		{
-			std::lock_guard lock2(search_buf_lock);
-			buf.DrawString(std::wstring{ search_buf.begin(),search_buf.end() }, buf.Width - 24, 2, { 255,100,255,150 }, {});
-		}
+		buf.DrawString(std::wstring{ search_buf.begin(),search_buf.end() }, buf.Width - 24, 2, { 255,100,255,150 }, {});
 		if (mod_flyout)
 		{
 			buf.FillRect(0, 0, buf.Width, buf.Height, { {},{170,20,20,20},' ' });
@@ -350,6 +348,7 @@ export class SongSelectScreen : public Screen
 	}
 	virtual void Key(KeyEventArgs kea)
 	{
+		std::lock_guard lock(LOCKKKKKKKKKKKKKKKKKKKKKKKKKKKKKK);
 		if (kea.Pressed)
 		{
 			if (mod_flyout)
@@ -366,7 +365,6 @@ export class SongSelectScreen : public Screen
 			}
 			if (!ready && require_songs_path)
 			{
-				std::lock_guard lock(input_buf_lock);
 				if (kea.Key == ConsoleKey::Backspace)
 				{
 					if (input_buf.size() > 0)
@@ -389,7 +387,6 @@ export class SongSelectScreen : public Screen
 				return;
 			}
 			{
-				std::lock_guard lock2(search_buf_lock);
 				if (kea.Key == ConsoleKey::Backspace)
 				{
 					if (search_buf.size() >= 2 && IsMultiUtf16(search_buf[search_buf.size() - 2]) && IsMultiUtf16(search_buf[search_buf.size() - 1]))
@@ -416,6 +413,17 @@ export class SongSelectScreen : public Screen
 			if (kea.Key == ConsoleKey::F2)
 			{
 				mod_flyout = !mod_flyout;
+			}
+			if (kea.Key == ConsoleKey::F3)
+			{
+				parent->Navigate<SettingsScreen>();
+			}
+			if (kea.Key == ConsoleKey::Enter)
+			{
+				if (selected_entry_2 != 0 && selected != INT_MAX)
+				{
+					parent->Navigate(new GameplayScreen(selected_entry_2->path, mods));
+				}
 			}
 		}
 	}

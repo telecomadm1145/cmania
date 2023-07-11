@@ -25,7 +25,7 @@ export struct LoadEventArgs
 	size_t file_length;
 	bool sample;
 	bool memory;
-	std::function<void(const LoadCompleteEventArgs&)>* callback;
+	std::function<void(const LoadCompleteEventArgs&)>* callback = 0;
 };
 export struct EnumDevicesCallbackEventArgs
 {
@@ -87,19 +87,48 @@ public:
 			{
 				if (lea.memory)
 				{
-					smp = bam->loadSample(lea.requested_file,lea.file_length);
+					try
+					{
+						smp = bam->loadSample(lea.requested_file, lea.file_length);
+					}
+					catch (std::exception&) {}
+				}
+				else
+				{
+					auto buffer = ReadAllBytes(lea.requested_path);
+					if (!buffer.empty())
+					{
+						try
+						{
+							smp = bam->loadSample(buffer.data(), buffer.size());
+						}
+						catch (std::exception& ex) {
+							_CrtDbgBreak();
+						}
+					}
 				}
 			}
 			else
 			{
 				if (lea.memory)
 				{
-					as = bam->load(lea.requested_file, lea.file_length);
+					try
+					{
+						as = bam->load(lea.requested_file, lea.file_length);
+					}
+					catch (std::exception&) {}
 				}
 				else
 				{
 					auto buffer = ReadAllBytes(lea.requested_path);
-					as = bam->load(buffer.data(), buffer.size());
+					try
+					{
+						if (!buffer.empty())
+						{
+							as = bam->load(buffer.data(), buffer.size());
+						}
+					}
+					catch (std::exception&) {}
 				}
 			}
 			LoadCompleteEventArgs lcea{};

@@ -36,7 +36,7 @@ export class SpeedSettingScreen :public Screen
 		// Render speed range information
 		std::string speedInfo = "Mania速度: " + std::to_string(c1 / speed) + "(" + std::to_string(speed) + "ms)";
 		buf.DrawString(speedInfo.c_str(), 0, 2, {}, {});
-		if (speed >= 1 && speed <= 5000)
+		if (speed > 0)
 		{
 			auto x = 6;
 			auto mid = buf.Width + x;
@@ -59,16 +59,21 @@ export class SpeedSettingScreen :public Screen
 	{
 		if (kea.Pressed)
 		{
+			if (kea.Key == ConsoleKey::Escape)
+			{
+				parent->Back();
+				return;
+			}
 			if (kea.Key == ConsoleKey::F3) // 减速
 			{
-				if (speed != 0)
+				if (speed > 0)
 				{
 					speed = c1 / (c1 / speed - 1.0);
 				}
 			}
 			if (kea.Key == ConsoleKey::F4) // 加速
 			{
-				if (speed != 0)
+				if (speed > 0)
 				{
 					speed = c1 / (c1 / speed + 1.0);
 				}

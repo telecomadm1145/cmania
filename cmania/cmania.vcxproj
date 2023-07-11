@@ -31,6 +31,8 @@
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
+    <EnableASAN>true</EnableASAN>
+    <EnableFuzzer>false</EnableFuzzer>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
@@ -44,6 +46,8 @@
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
+    <EnableASAN>false</EnableASAN>
+    <EnableFuzzer>false</EnableFuzzer>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
@@ -152,15 +156,18 @@
     <ClCompile Include="GameBuffer.ixx" />
     <ClCompile Include="GameplayScreen.ixx" />
     <ClCompile Include="Hpet.ixx" />
+    <ClCompile Include="KeepAwake.ixx" />
     <ClCompile Include="LatencySettingScreen.ixx" />
     <ClCompile Include="MainMenuScreen.ixx" />
     <ClCompile Include="OsuBeatmap.ixx" />
+    <ClCompile Include="OsuMods.ixx" />
     <ClCompile Include="OsuStatic.ixx" />
     <ClCompile Include="ScreenController.ixx" />
     <ClCompile Include="Settings.ixx" />
     <ClCompile Include="SettingsScreen.ixx" />
     <ClCompile Include="SongSelectScreen.ixx" />
     <ClCompile Include="SpeedSettingScreen.ixx" />
+    <ClCompile Include="Stopwatch.ixx" />
     <ClCompile Include="String.ixx" />
     <ClCompile Include="TickSource.ixx" />
     <ClCompile Include="Unicode.ixx" />
@@ -172,6 +179,14 @@
     <ClInclude Include="ConsoleInput.h" />
     <ClInclude Include="EnumFlag.h" />
     <ClInclude Include="BassAudioManager.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Samples\*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Samples\*\*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

@@ -12,8 +12,8 @@ public:
 		double Time;
 		double BeatLength = 100;
 		int TimeSignature = 4;
-		int SampleSet;
 		OsuStatic::SampleBank SampleBank;
+		int SampleSet;
 		double SampleVolume;
 		bool TimingChange;
 		OsuStatic::EffectFlags Effects;
@@ -31,15 +31,26 @@ public:
 		double Y;
 		double StartTime;
 		OsuStatic::HitObjectType Type;
-		std::string SoundType;
+		OsuStatic::HitSoundType SoundType;
 		std::string PathRecord;
 		int RepeatCount;
 		double Length;
 		double EndTime;
+		double CustomSampleVolume;
+		std::string CustomSampleFilename;
 		std::string CustomSampleBanks;
 		OsuStatic::HitObjectType GetHitobjectType()
 		{
 			return (OsuStatic::HitObjectType)((int)Type & ((int)OsuStatic::HitObjectType::Circle | (int)OsuStatic::HitObjectType::Slider | (int)OsuStatic::HitObjectType::Spinner | (int)OsuStatic::HitObjectType::Hold));
+		}
+		void ResolveCustomSampleBanks()
+		{
+			auto args = split(CustomSampleBanks, ':');
+			if (args.size() > 4)
+			{
+				CustomSampleVolume = std::stod(args[3]);
+				CustomSampleFilename = args[4];
+			}
 		}
 	};
 	std::vector<std::pair<double, double>> BreakPeriods;
@@ -68,6 +79,12 @@ public:
 	double ApproachRate = 0;
 	double SliderMultiplier = 0;
 	double SliderTickRate = 0;
+	struct StoryboardSoundSample
+	{
+		double StartTime;
+		std::string path;
+	};
+	std::vector<StoryboardSoundSample> StoryboardSamples;
 	std::vector<std::tuple<std::string, std::string, std::string>> Others;
 
 	static OsuBeatmap Parse(std::istream& sr)
@@ -113,29 +130,33 @@ public:
 				if (args.size() > 2)
 					tp.TimeSignature = std::stoi(args[2]);
 				if (args.size() > 3)
-					tp.SampleSet = std::stoi(args[3]);
+					tp.SampleBank = (OsuStatic::SampleBank)std::stoi(args[3]);
 				if (args.size() > 4)
-					tp.SampleBank = (OsuStatic::SampleBank)std::stoi(args[4]);
+					tp.SampleSet = std::stoi(args[4]);
 				if (args.size() > 5)
 					tp.SampleVolume = std::stod(args[5]);
 				if (args.size() > 6)
 					tp.TimingChange = std::stoi(args[6]);
 				if (args.size() > 7)
 					tp.Effects = (OsuStatic::EffectFlags)std::stoi(args[7]);
+				bm.TimingPoints.push_back(tp);
 			}
 			else if (category == "HitObjects") {
-				HitObject ho;
+				HitObject ho{0};
 				auto args = split(line, ',');
 				ho.X = std::stod(args[0]);
 				ho.Y = std::stod(args[1]);
 				ho.StartTime = std::stod(args[2]);
 				ho.Type = (OsuStatic::HitObjectType)std::stoi(args[3]);
-				ho.SoundType = args[4];
+				ho.SoundType = (OsuStatic::HitSoundType)std::stoi(args[4]);
 				switch (ho.GetHitobjectType())
 				{
 				case OsuStatic::HitObjectType::Circle: {
 					if (args.size() > 5)
+					{
 						ho.CustomSampleBanks = args[5];
+						ho.ResolveCustomSampleBanks();
+					}
 					bm.HitObjects.push_back(ho);
 					break;
 				}
@@ -143,8 +164,11 @@ public:
 					ho.PathRecord = args[5];
 					ho.RepeatCount = std::stoi(args[6]);
 					ho.Length = std::stod(args[7]);
-					if (args.size() > 8)
-						ho.CustomSampleBanks = args[8];
+					if (args.size() > 10)
+					{
+						ho.CustomSampleBanks = args[10];
+						ho.ResolveCustomSampleBanks();
+					}
 					bm.HitObjects.push_back(ho);
 					break;
 				}
@@ -154,6 +178,7 @@ public:
 					{
 						ho.CustomSampleBanks = args[5].substr(colonPos2);
 						ho.EndTime = std::stod(args[5].substr(0, colonPos2));
+						ho.ResolveCustomSampleBanks();
 						bm.HitObjects.push_back(ho);
 					}
 					break;
@@ -161,7 +186,10 @@ public:
 				case OsuStatic::HitObjectType::Spinner: {
 					ho.EndTime = std::stod(args[5]);
 					if (args.size() > 6)
+					{
 						ho.CustomSampleBanks = args[6];
+						ho.ResolveCustomSampleBanks();
+					}
 					bm.HitObjects.push_back(ho);
 					break;
 				}

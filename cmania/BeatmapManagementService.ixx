@@ -44,10 +44,6 @@ export struct SongsCahceReadyEventArgs
 
 export class BeatmapManagementService : public GameComponent
 {
-	static void Resolve(BeatmapManagementService* pthis)
-	{
-
-	}
 	static void GetSongsCache(BeatmapManagementService* pthis)
 	{
 		if (pthis->songs_path != 0 && std::filesystem::exists(pthis->songs_path))
@@ -128,10 +124,6 @@ export class BeatmapManagementService : public GameComponent
 					}
 				}
 			}
-		}
-		if (strcmp(evt, "resolve_beatmap") == 0)
-		{
-			std::thread(Resolve, this).detach();
 		}
 		if (strcmp(evt, "get_songs_cache") == 0)
 		{

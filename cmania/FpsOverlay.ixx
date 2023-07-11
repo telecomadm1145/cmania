@@ -28,7 +28,7 @@ export class FpsOverlay : public GameComponent
 		}
 		if (strcmp(evt, "draw") == 0)
 		{
-			double time = HighPerformanceTimer::GetMillisecond();
+			double time = HighPerformanceTimer::GetMilliseconds();
 			auto& buf = *(GameBuffer*)evtargs;
 			auto fpstext = "FPS:" + std::to_string(fps);
 			auto ltc = std::to_string(time - lasttick);

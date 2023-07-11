@@ -11,7 +11,7 @@ public:
 	{
 		timeBeginPeriod(1);
 	}
-	static double GetMillisecond()
+	static double GetMilliseconds()
 	{
 		LARGE_INTEGER now;
 		QueryPerformanceCounter(&now);

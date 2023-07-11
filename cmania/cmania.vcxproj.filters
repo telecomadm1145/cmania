@@ -80,6 +80,13 @@
     <ClCompile Include="SpeedSettingScreen.ixx">
       <Filter>Game</Filter>
     </ClCompile>
+    <ClCompile Include="OsuMods.ixx">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="Stopwatch.ixx" />
+    <ClCompile Include="KeepAwake.ixx">
+      <Filter>Core</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ConsoleInput.h">
@@ -114,5 +121,63 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="Samples\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
   </ItemGroup>
 </Project>

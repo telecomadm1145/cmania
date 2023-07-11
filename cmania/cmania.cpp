@@ -11,9 +11,11 @@ import ScreenController;
 import MainMenuScreen;
 import BeatmapManagementService;
 import AudioService;
+import KeepAwake;
 
 int main()
 {
+    EnableConstantDisplayAndPower(true);
     Game game;
     game.Use<Win32ConsoleComponent>()
         .Use<TickSource>()

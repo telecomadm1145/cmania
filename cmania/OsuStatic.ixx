@@ -35,7 +35,10 @@ public:
 		Normal = 1,
 		Whistle = 2,
 		Finish = 4,
-		Clap = 8
+		Clap = 8,
+		Slide = 16,
+		SlideTick = 32,
+		SlideWhistle = 64,
 	};
 	enum class HitObjectType
 	{

@@ -75,11 +75,13 @@ public:
 	}
 
 	IAudioManager::ISample* loadSample(const void* data, size_t size) override {
-		int sid = BASS_SampleLoad(true, data, 0, size, 65535, 0);
+		auto block = malloc(size);
+		std::copy((const char*)data, (const char*)data + size, (char*)block);
+		int sid = BASS_SampleLoad(true, block, 0, size, 65535, 0);
 		if (sid == 0)
 			throw BassException(BASS_ErrorGetCode());
 
-		return new BassAudioSample(sid);
+		return new BassAudioSample(sid,block);
 	}
 
 	std::vector<IAudioManager::IAudioDevice*> getAudioDevices() override {
@@ -253,10 +255,11 @@ private:
 
 	class BassAudioSample : public IAudioManager::ISample {
 	public:
-		BassAudioSample(int sid) : id(sid) {}
+		BassAudioSample(int sid,void* block) : id(sid),block(block) {}
 
 		~BassAudioSample() {
 			BASS_SampleFree(id);
+			delete block;
 		}
 
 		int getId() const override {
@@ -272,6 +275,7 @@ private:
 
 	private:
 		int id;
+		void* block;
 	};
 
 	static BassAudioDevice* createBassDevice(int i) {

@@ -22,10 +22,10 @@ export class TickSource : public GameComponent
 		while (true)
 		{
 			int fps = 1000;
-			parent->Raise("tick", last_tick = HighPerformanceTimer::GetMillisecond());
+			parent->Raise("tick", last_tick = HighPerformanceTimer::GetMilliseconds());
 			if (fps < 480 && fps > 1)
 			{
-				auto now = HighPerformanceTimer::GetMillisecond();
+				auto now = HighPerformanceTimer::GetMilliseconds();
 				auto offset = 1000.0 / fps - (now - last_tick);
 				if (offset > 1)
 				{
