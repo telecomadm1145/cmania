@@ -21,6 +21,7 @@ public:
 	virtual void Wheel(WheelEventArgs wea) {};
 	virtual void Move(MoveEventArgs mea) {};
 	virtual void Activate(bool) {};
+	virtual void Resize() {};
 	virtual void MouseKey(MouseKeyEventArgs mkea) {};
 	virtual void ProcessEvent(const char* evt, const void* evtargs) {};
 };
@@ -64,6 +65,10 @@ export class ScreenController : public GameComponent
 			if (strcmp(evt, "move") == 0)
 			{
 				current->Move(*(MoveEventArgs*)evtargs);
+			}
+			if (strcmp(evt, "resize") == 0)
+			{
+				current->Resize();
 			}
 			current->ProcessEvent(evt, evtargs);
 		}

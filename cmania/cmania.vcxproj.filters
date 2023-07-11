@@ -83,8 +83,13 @@
     <ClCompile Include="OsuMods.ixx">
       <Filter>Game</Filter>
     </ClCompile>
-    <ClCompile Include="Stopwatch.ixx" />
     <ClCompile Include="KeepAwake.ixx">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="stb.cpp">
+      <Filter>Include</Filter>
+    </ClCompile>
+    <ClCompile Include="Stopwatch.ixx">
       <Filter>Core</Filter>
     </ClCompile>
   </ItemGroup>
@@ -100,6 +105,12 @@
     </ClInclude>
     <ClInclude Include="BassAudioManager.h">
       <Filter>Core\Audio</Filter>
+    </ClInclude>
+    <ClInclude Include="stb_image.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="stb_image_resize.h">
+      <Filter>Include</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -118,10 +129,69 @@
     <Filter Include="Beatmap">
       <UniqueIdentifier>{1127def3-ecb6-45f6-b421-e238d8d72d08}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Include">
+      <UniqueIdentifier>{876618ec-5bbc-4c7b-af96-a478b5bb26ac}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
     <None Include="Samples\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
     <None Include="Samples\*\*" />
     <None Include="Samples\*\*" />
     <None Include="Samples\*\*" />

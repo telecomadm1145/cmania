@@ -16,9 +16,18 @@ import <tuple>;
 import OsuMods;
 import SettingsScreen;
 import GameplayScreen;
+import "stb_image.h";
+import "stb_image_resize.h";
+import WinDebug;
 
 export class SongSelectScreen : public Screen
 {
+	unsigned char* background = 0;
+	int bg_w = 0;
+	int bg_h = 0;
+	unsigned char* resized_bg = 0;
+	int rbg_w = 0;
+	int rbg_h = 0;
 	int h_cache = 0; int w_cache = 0;
 	std::mutex LOCKKKKKKKKKKKKKKKKKKKKKKKKKKKKKK;
 	std::vector<wchar_t> search_buf;
@@ -58,7 +67,7 @@ export class SongSelectScreen : public Screen
 			if (require_songs_path)
 			{
 				buf.DrawString("请拖入Songs文件夹或者手动键入Songs文件夹路径.", 0, 0, {}, {});
-				buf.DrawString(std::wstring{ input_buf.begin(),input_buf.end() }, 0, 1, {}, {});
+				buf.DrawString(std::wstring{ input_buf.begin(), input_buf.end() }, 0, 1, {}, {});
 				return;
 			}
 			buf.DrawString("Loading...", 0, 0, {}, {});
@@ -68,6 +77,30 @@ export class SongSelectScreen : public Screen
 		if (search_buf.empty())
 		{
 			caches = this->caches;
+		}
+		if (background != 0)
+		{
+			if (resized_bg == 0 || rbg_h != buf.Height || rbg_w != buf.Width)
+			{
+				if (resized_bg != 0)
+					delete resized_bg;
+				resized_bg = new unsigned char[buf.Width * buf.Height * 3];
+				stbir_resize_uint8(background, bg_w, bg_h, 0, resized_bg, buf.Width, buf.Height, 0, 3);
+				rbg_h = buf.Height;
+				rbg_w = buf.Width;
+			}
+			int x = 0;
+			int y = 0;
+			for (size_t i = 0; i < buf.Width * buf.Height * 3; i += 3)
+			{
+				buf.SetPixel(x, y, { {},{255,(unsigned char)(resized_bg[i + 0] / 2),(unsigned char)(resized_bg[i + 1] / 2),(unsigned char)(resized_bg[i + 2] / 2)},' ' });
+				x++;
+				if (x >= buf.Width)
+				{
+					x = 0;
+					y++;
+				}
+			}
 		}
 		int c1 = 45;
 		int c2 = std::min((int)(buf.Width / 2), 10) + c1;
@@ -82,6 +115,7 @@ export class SongSelectScreen : public Screen
 		int index = (int)(offset / (songheight + gap) + buf.Height / 2);
 		int max = (int)(buf.Height / (songheight + gap) + 10);
 		int min = index - h_cache / 2 - 5 - (selected_entry != 0 ? selected_entry->difficulties.size() : 0);
+
 		if (caches.empty())
 		{
 			buf.DrawString("空空如也", buf.Width - 30, buf.Height / 2, {}, {});
@@ -142,7 +176,7 @@ export class SongSelectScreen : public Screen
 		buf.DrawString("Esc - 返回 上下左右/鼠标 - 选歌 F2 Mods F3 选项 Enter 进入", 0, buf.Height - 1, {}, {});
 		buf.FillRect(buf.Width - 30, 2, buf.Width - 3, 2, { {},{130,128,128,128},' ' });
 		buf.DrawString("搜索:", buf.Width - 30, 2, { 255,100,255,150 }, {});
-		buf.DrawString(std::wstring{ search_buf.begin(),search_buf.end() }, buf.Width - 24, 2, { 255,100,255,150 }, {});
+		buf.DrawString(std::wstring{ search_buf.begin(), search_buf.end() }, buf.Width - 24, 2, { 255,100,255,150 }, {});
 		if (mod_flyout)
 		{
 			buf.FillRect(0, 0, buf.Width, buf.Height, { {},{170,20,20,20},' ' });
@@ -239,6 +273,17 @@ export class SongSelectScreen : public Screen
 		{
 			selected_entry = &cache;
 			selected_entry_2 = &diff;
+			std::lock_guard lock(LOCKKKKKKKKKKKKKKKKKKKKKKKKKKKKKK);
+			if (background != 0)
+				delete background;
+			if (resized_bg != 0)
+				delete resized_bg;
+			int x = 0;
+			int y = 0;
+			background = (unsigned char*)stbi_load(selected_entry_2->background.c_str(), &x, &y, 0, 3);
+			resized_bg = 0;
+			bg_w = x;
+			bg_h = y;
 		}
 		PlayPreview();
 	}
@@ -341,7 +386,7 @@ export class SongSelectScreen : public Screen
 		selected = INT_MAX;
 		selected_entry = 0;
 		matched_caches.clear();
-		std::string str = Utf162Utf8(std::wstring{ search_buf.begin(),search_buf.end() });
+		std::string str = Utf162Utf8(std::wstring{ search_buf.begin(), search_buf.end() });
 		std::copy_if(caches.begin(), caches.end(), std::back_inserter(matched_caches), [this, str](const SongsCacheEntry& sce) {
 			return search_meta(str, sce.artist, sce.title, sce.artistunicode, sce.titleunicode, sce.tags, sce.source);
 			});

@@ -167,6 +167,7 @@
     <ClCompile Include="SettingsScreen.ixx" />
     <ClCompile Include="SongSelectScreen.ixx" />
     <ClCompile Include="SpeedSettingScreen.ixx" />
+    <ClCompile Include="stb.cpp" />
     <ClCompile Include="Stopwatch.ixx" />
     <ClCompile Include="String.ixx" />
     <ClCompile Include="TickSource.ixx" />
@@ -179,6 +180,8 @@
     <ClInclude Include="ConsoleInput.h" />
     <ClInclude Include="EnumFlag.h" />
     <ClInclude Include="BassAudioManager.h" />
+    <ClInclude Include="stb_image.h" />
+    <ClInclude Include="stb_image_resize.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Samples\*">
