@@ -66,7 +66,7 @@ public:
 	{
 		path = fspath(bmp_path);
 		p_path = fspath(bmp_path).parent_path();
-		mods = mod;
+		mods = OsuMods(0b100000000 | 0b1000);
 	}
 private:
 	struct ManiaObject
@@ -131,10 +131,25 @@ private:
 		hiterr_ui = res;
 		HitCounter[res]++;
 		acc_count++;
-		acc_sum += GetBaseScore(res) / GetBaseScore(OsuStatic::HitResult::Great) * 100;
+		acc_sum += (double)GetBaseScore(res) / GetBaseScore(OsuStatic::HitResult::Great) * 100;
 		accuracy = acc_sum / acc_count;
 		if (res != OsuStatic::HitResult::Miss)
 		{
+			for (auto sample : mo.samples)
+			{
+				if (sample != 0)
+					sample->generateStream()->play();
+			}
+			if (mo.EndTime != 0) {
+				if (mo.ssample)
+				{
+					mo.ssample_stream = mo.ssample->generateStream();
+				}
+				if (mo.ssamplew)
+				{
+					mo.ssamplew_stream = mo.ssamplew->generateStream();
+				}
+			}
 			HitErrors.push_back(err);
 			auto hiterr_sum = 0.0;
 			for (auto he : HitErrors)
@@ -173,7 +188,7 @@ private:
 				return;
 			}
 		}
-		if (!HasFlag(mods, OsuMods::Auto)) // 阻断 Auto mod 下的输入
+		if (!HasFlag(mods, OsuMods::Easy)) // 阻断 Auto mod 下的输入
 		{
 			for (size_t i = 0; i < KeyBinds.size(); i++)
 			{
@@ -212,21 +227,6 @@ private:
 									{
 										if (std::abs(err) <= hitranges[res.first])
 										{
-											for (auto sample : obj.samples)
-											{
-												if (sample != 0)
-													sample->generateStream()->play();
-											}
-											if (obj.EndTime != 0) {
-												if (obj.ssample)
-												{
-													obj.ssample_stream = obj.ssample->generateStream();
-												}
-												if (obj.ssamplew)
-												{
-													obj.ssamplew_stream = obj.ssamplew->generateStream();
-												}
-											}
 											ApplyHit(obj, res.first, err);
 											return;
 										}
@@ -295,6 +295,19 @@ private:
 					}
 				}
 			}
+			if (HasFlag(mods, OsuMods::Auto))
+			{
+				for (auto& obj : objects)
+				{
+					if (!obj.HasHit)
+					{
+						if (e_ms > obj.StartTime)
+						{
+							ApplyHit(obj, OsuStatic::HitResult::Perfect, 0);
+						}
+					}
+				}
+			}
 		}
 	}
 	virtual void Render(GameBuffer& buf)
@@ -354,7 +367,7 @@ private:
 				if (obj.Column == j)
 				{
 					auto ratio = 1 - (obj.StartTime - e_ms) / scrollspeed;
-					auto starty = ratio * (buf.Height - judge_height);
+					auto starty = ratio * (buf.Height - judge_height + 1);
 					//Break();
 					auto base = GameBuffer::Color{ 0,0,160,230 };
 					if (obj.Multi)
@@ -402,10 +415,18 @@ private:
 		auto combo_text = std::to_string(combo);
 		combo_text += "x";
 		buf.DrawString(combo_text, 0, buf.Height - 1, {}, {});
-		auto he_avg_text = std::to_string(hiterr_avg);
-		he_avg_text.erase(he_avg_text.find('.') + 2);
-		he_avg_text += "ms";
-		buf.DrawString(he_avg_text, 0, buf.Height - 2, {}, {});
+		if (!HasFlag(mods, OsuMods::Auto))
+		{
+			auto he_avg_text = std::to_string(hiterr_avg);
+			he_avg_text.erase(he_avg_text.find('.') + 2);
+			he_avg_text += "ms";
+			buf.DrawString(he_avg_text, 0, buf.Height - 2, {}, {});
+		}
+		else
+		{
+			auto autoplay_mark = std::string("Autop//ay...");
+			buf.DrawString(autoplay_mark, (buf.Width - autoplay_mark.size()) / 2, 1, {}, {});
+		}
 	}
 	static int CalcColumn(double xpos, int keys)
 	{
