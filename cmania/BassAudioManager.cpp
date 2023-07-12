@@ -77,7 +77,7 @@ public:
 	IAudioManager::ISample* loadSample(const void* data, size_t size) override {
 		auto block = malloc(size);
 		std::copy((const char*)data, (const char*)data + size, (char*)block);
-		int sid = BASS_SampleLoad(true, block, 0, size, 65535, 0);
+		int sid = BASS_SampleLoad(true, block, 0, size, 10240, 0);
 		if (sid == 0)
 			throw BassException(BASS_ErrorGetCode());
 

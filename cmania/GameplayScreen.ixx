@@ -44,18 +44,23 @@ export class GameplayScreen : public Screen
 	int combo = 0;
 	double score = 0;
 	std::vector<double> HitErrors;
+	bool wt_mode = true;
 	double hiterr_avg = 0;
+	double accuracy = 0;
+	double acc_sum = 0;
+	double acc_count = 0;
 	std::map<OsuStatic::HitResult, int> HitCounter{
-		{OsuStatic::HitResult::Miss, 0},
-		{ OsuStatic::HitResult::Meh,0 },
-		{ OsuStatic::HitResult::Ok,0 },
-		{ OsuStatic::HitResult::Good,0 },
+		{ OsuStatic::HitResult::Perfect, 0 },
 		{ OsuStatic::HitResult::Great,0 },
-		{ OsuStatic::HitResult::Perfect,0 },
+		{ OsuStatic::HitResult::Good,0 },
+		{ OsuStatic::HitResult::Ok,0 },
+		{ OsuStatic::HitResult::Meh,0 },
+		{ OsuStatic::HitResult::Miss, 0 },
 	};
 	IAudioManager::IAudioStream* bgm = 0;
 	fspath sample_folder = ".\\samples\\triangles";
 	std::vector<ConsoleKey> KeyBinds;
+	std::vector<double> KeyHighlight = { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 };
 public:
 	GameplayScreen(const std::string& bmp_path, OsuMods mod)
 	{
@@ -125,6 +130,9 @@ private:
 		hiterr_anim_clk = HighPerformanceTimer::GetMilliseconds();
 		hiterr_ui = res;
 		HitCounter[res]++;
+		acc_count++;
+		acc_sum += GetBaseScore(res) / GetBaseScore(OsuStatic::HitResult::Great) * 100;
+		accuracy = acc_sum / acc_count;
 		if (res != OsuStatic::HitResult::Miss)
 		{
 			HitErrors.push_back(err);
@@ -153,6 +161,10 @@ private:
 	}
 	virtual void Key(KeyEventArgs kea)
 	{
+		if (loading)
+		{
+			return;
+		}
 		if (kea.Pressed)
 		{
 			if (kea.Key == ConsoleKey::Escape)
@@ -163,11 +175,68 @@ private:
 		}
 		if (!HasFlag(mods, OsuMods::Auto)) // ×è¶Ï Auto mod ÏÂµÄÊäÈë
 		{
-
-		}
-		if (loading)
-		{
-			return;
+			for (size_t i = 0; i < KeyBinds.size(); i++)
+			{
+				if (kea.Key == KeyBinds[i])
+				{
+					auto e_ms = KeyHighlight[i] = sw.Elapsed() - offset();
+					for (auto& obj : objects)
+					{
+						if (obj.Column == i)
+						{
+							//if (obj.EndTime != 0 && !obj.HasSlide)
+							//{
+							//	if (wt_mode)
+							//	{
+							//		if (obj.EndTime >= e_ms)
+							//		{
+							//			if (!kea.Pressed)
+							//			{
+							//				obj.HasSlide = true;
+							//				ApplyHit(obj, OsuStatic::HitResult::Perfect, 0);
+							//			}
+							//		}
+							//		return;
+							//	}
+							//}
+							if (kea.Pressed)
+								if (!obj.HasHit)
+								{
+									auto err = e_ms - obj.StartTime;
+									if (err >= hitranges[OsuStatic::HitResult::Meh])
+									{
+										ApplyHit(obj, OsuStatic::HitResult::Miss, err);
+										return;
+									}
+									for (auto res : std::vector(HitCounter.rbegin(), HitCounter.rend()))
+									{
+										if (std::abs(err) <= hitranges[res.first])
+										{
+											for (auto sample : obj.samples)
+											{
+												if (sample != 0)
+													sample->generateStream()->play();
+											}
+											if (obj.EndTime != 0) {
+												if (obj.ssample)
+												{
+													obj.ssample_stream = obj.ssample->generateStream();
+												}
+												if (obj.ssamplew)
+												{
+													obj.ssamplew_stream = obj.ssamplew->generateStream();
+												}
+											}
+											ApplyHit(obj, res.first, err);
+											return;
+										}
+									}
+									return;
+								}
+						}
+					}
+				}
+			}
 		}
 	}
 	virtual void Tick(double)
@@ -184,6 +253,19 @@ private:
 			if (!bgm->isPlaying())
 			{
 				bgm->play();
+				bgm->setVolume(0.5);
+			}
+		}
+		if (!loading)
+		{
+			auto e_ms = sw.Elapsed() - offset();
+			for (auto& obj : objects)
+			{
+				if (!obj.HasHit)
+					if (e_ms - obj.StartTime > hitranges[OsuStatic::HitResult::Meh])
+					{
+						ApplyHit(obj, OsuStatic::HitResult::Miss, 0);
+					}
 			}
 		}
 	}
@@ -282,8 +364,12 @@ private:
 			buf.DrawString(tstr, buf.Width - tstr.size() - 1, (buf.Height - HitCounter.size()) / 2 + o, {}, {});
 			o++;
 		}
+		auto accstr = std::to_string(accuracy);
+		accstr.erase(accstr.find('.') + 3);
+		accstr += "%";
+		buf.DrawString(accstr, buf.Width - accstr.size() - 1, 2, {}, {});
 		auto scorestr = std::to_string(int(score));
-		scorestr.insert(0, 8, '0');
+		scorestr.insert(0, 16 - scorestr.size(), '0');
 		buf.DrawString(scorestr, buf.Width - scorestr.size() - 1, 1, {}, {});
 		auto combo_text = std::to_string(combo);
 		combo_text += "x";
