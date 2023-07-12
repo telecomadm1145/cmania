@@ -9,6 +9,7 @@ protected:
 	class ScreenController* parent;
 	Game* game;
 public:
+	virtual ~Screen() = default;
 	void Init(class ScreenController* ptr, Game* ptr2)
 	{
 		parent = ptr;
@@ -91,7 +92,15 @@ public:
 		if (current)
 			current->Activate(false);
 		current = scr;
-		history.insert(history.begin() + history_index, scr);
+		if (history_index < history.size())
+		{
+			delete history[history_index];
+			history[history_index] = scr;
+		}
+		else
+		{
+			history.insert(history.begin() + history_index, scr);
+		}
 		history_index++;
 		if (current)
 			current->Activate(true);

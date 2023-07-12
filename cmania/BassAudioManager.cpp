@@ -236,7 +236,7 @@ private:
 			}
 			if (ptr != 0)
 			{
-				delete ptr;
+				free(ptr);
 				ptr = 0;
 			}
 		}
@@ -257,9 +257,17 @@ private:
 	public:
 		BassAudioSample(int sid,void* block) : id(sid),block(block) {}
 
-		~BassAudioSample() {
-			BASS_SampleFree(id);
-			delete block;
+		~BassAudioSample() override{
+			if (id != 0)
+			{
+				BASS_SampleFree(id);
+				id = 0;
+			}
+			if (block != 0)
+			{
+				free(block);
+				block = 0;
+			}
 		}
 
 		int getId() const override {
@@ -274,8 +282,8 @@ private:
 		}
 
 	private:
-		int id;
-		void* block;
+		int id = 0;
+		void* block = 0;
 	};
 
 	static BassAudioDevice* createBassDevice(int i) {

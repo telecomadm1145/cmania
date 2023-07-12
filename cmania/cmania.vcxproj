@@ -157,6 +157,7 @@
     <ClCompile Include="GameplayScreen.ixx" />
     <ClCompile Include="Hpet.ixx" />
     <ClCompile Include="KeepAwake.ixx" />
+    <ClCompile Include="KeyBinds.ixx" />
     <ClCompile Include="LatencySettingScreen.ixx" />
     <ClCompile Include="MainMenuScreen.ixx" />
     <ClCompile Include="OsuBeatmap.ixx" />

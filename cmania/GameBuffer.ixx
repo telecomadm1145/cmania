@@ -37,7 +37,7 @@ public:
 			result.Red = static_cast<unsigned char>((a.Red * invAlpha) + (b.Red * alpha));
 			result.Green = static_cast<unsigned char>((a.Green * invAlpha) + (b.Green * alpha));
 			result.Blue = static_cast<unsigned char>((a.Blue * invAlpha) + (b.Blue * alpha));
-			result.Alpha = static_cast<unsigned char>(a.Alpha + (b.Alpha * invAlpha));
+			result.Alpha = static_cast<unsigned char>((a.Alpha * invAlpha) + (b.Alpha * alpha));
 
 			return result;
 		}
@@ -67,20 +67,20 @@ private:
 	void ResizeConsoleBuffer()
 	{
 		// Retrieve the current console screen buffer information
+		auto hstdout = GetStdHandle(STD_OUTPUT_HANDLE);
 		CONSOLE_SCREEN_BUFFER_INFO bufferInfo;
-		GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &bufferInfo);
-		// Adjust the console screen buffer size
+		GetConsoleScreenBufferInfo(hstdout, &bufferInfo);
 		COORD newSize;
 		newSize.X = bufferInfo.srWindow.Right - bufferInfo.srWindow.Left + 1;
 		newSize.Y = bufferInfo.srWindow.Bottom - bufferInfo.srWindow.Top + 1;
-		SetConsoleScreenBufferSize(GetStdHandle(STD_OUTPUT_HANDLE), newSize);
+		SetConsoleScreenBufferSize(hstdout, newSize);
 	}
 	void _ResizeBuffer()
 	{
 		CONSOLE_SCREEN_BUFFER_INFO bufferInfo;
 		GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &bufferInfo);
-		Width = bufferInfo.srWindow.Right - bufferInfo.srWindow.Left + 1;
-		Height = bufferInfo.srWindow.Bottom - bufferInfo.srWindow.Top + 1;
+		Width = bufferInfo.dwSize.X;
+		Height = bufferInfo.dwSize.Y;
 		EnsureCapacity();
 		ResizeConsoleBuffer();
 	}
@@ -108,6 +108,7 @@ public:
 	{
 		SetConsoleOutputCP(65001);
 		ResizeBuffer();
+		ResizeConsoleBuffer();
 		HideCursor();
 	}
 private:
@@ -136,7 +137,7 @@ public:
 		Color LastBg{ 255,0,0,0 };
 		if (Height <= 0 && Width <= 0)
 			return;
-		WriteBufferString("\u001b[48;2;0;0;0m\u001b[38;2;255;255;255m");
+		WriteBufferString("\u001b[H\u001b[48;2;0;0;0m\u001b[38;2;255;255;255m");
 		for (size_t i = 0; i < Height; i++)
 		{
 			for (size_t j = 0; j < Width; j++)

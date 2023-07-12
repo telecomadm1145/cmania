@@ -36,13 +36,13 @@
       <Filter>Game</Filter>
     </ClCompile>
     <ClCompile Include="AsyncConsole.ixx">
-      <Filter>Core\System</Filter>
+      <Filter>Core\Audio\System</Filter>
     </ClCompile>
     <ClCompile Include="Hpet.ixx">
-      <Filter>Core\System</Filter>
+      <Filter>Core\Audio\System</Filter>
     </ClCompile>
     <ClCompile Include="Win32ConsoleComponent.ixx">
-      <Filter>Core\System</Filter>
+      <Filter>Core\Audio\System</Filter>
     </ClCompile>
     <ClCompile Include="BeatmapManagementService.ixx">
       <Filter>Beatmap</Filter>
@@ -92,6 +92,9 @@
     <ClCompile Include="Stopwatch.ixx">
       <Filter>Core</Filter>
     </ClCompile>
+    <ClCompile Include="KeyBinds.ixx">
+      <Filter>Game</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ConsoleInput.h">
@@ -120,9 +123,6 @@
     <Filter Include="Game">
       <UniqueIdentifier>{aaa57cde-92ed-4248-86ff-57a21b1748de}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Core\System">
-      <UniqueIdentifier>{c9312f31-6251-4db2-b9f4-573e0d5c3d52}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Core\Audio">
       <UniqueIdentifier>{e900a488-785f-43b3-b44a-5c56769cf970}</UniqueIdentifier>
     </Filter>
@@ -132,10 +132,69 @@
     <Filter Include="Include">
       <UniqueIdentifier>{876618ec-5bbc-4c7b-af96-a478b5bb26ac}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Core\Audio\System">
+      <UniqueIdentifier>{c9312f31-6251-4db2-b9f4-573e0d5c3d52}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
     <None Include="Samples\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
     <None Include="Samples\*\*" />
     <None Include="Samples\*\*" />
     <None Include="Samples\*\*" />

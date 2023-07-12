@@ -13,7 +13,7 @@ export class SpeedSettingScreen :public Screen
 	{
 		if (y)
 		{
-			game->Raise("get", "speed");
+			game->Raise("require", "speed");
 		}
 	}
 	virtual void ProcessEvent(const char* evt, const void* evtargs)

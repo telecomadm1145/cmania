@@ -12,24 +12,50 @@ import String;
 import <functional>;
 import <vector>;
 import WinDebug;
+import "stb_image.h";
+import "stb_image_resize.h";
 import Stopwatch;
+import KeyBinds;
+import Hpet;
 
 using fspath = std::filesystem::path;
 
 export class GameplayScreen : public Screen
 {
+	unsigned char* background = 0;
+	int bg_w = 0;
+	int bg_h = 0;
+	unsigned char* resized_bg = 0;
+	int rbg_w = 0;
+	int rbg_h = 0;
 	OsuMods mods;
 	fspath path;
-	double length;
+	double length = 0;
 	fspath p_path;
 	bool loading = true;
 	bool pause = false;
-	int keys;
+	int keys = 0;
 	double scrollspeed = 500;
-	Stopwatch sw;
+	Stopwatch sw{};
 	std::map<OsuStatic::HitResult, double> hitranges;
+	double hiterr_anim_clk = 0;
+	OsuStatic::HitResult hiterr_ui = OsuStatic::HitResult::None;
+	int maxcombo = 0;
+	int combo = 0;
+	double score = 0;
+	std::vector<double> HitErrors;
+	double hiterr_avg = 0;
+	std::map<OsuStatic::HitResult, int> HitCounter{
+		{OsuStatic::HitResult::Miss, 0},
+		{ OsuStatic::HitResult::Meh,0 },
+		{ OsuStatic::HitResult::Ok,0 },
+		{ OsuStatic::HitResult::Good,0 },
+		{ OsuStatic::HitResult::Great,0 },
+		{ OsuStatic::HitResult::Perfect,0 },
+	};
 	IAudioManager::IAudioStream* bgm = 0;
 	fspath sample_folder = ".\\samples\\triangles";
+	std::vector<ConsoleKey> KeyBinds;
 public:
 	GameplayScreen(const std::string& bmp_path, OsuMods mod)
 	{
@@ -53,6 +79,70 @@ private:
 		bool HasSlide;
 	};
 	std::vector<ManiaObject> objects;
+	std::string GetHitResultName(OsuStatic::HitResult res)
+	{
+		switch (res)
+		{
+		case OsuStatic::HitResult::Miss:
+			return "Miss";
+		case OsuStatic::HitResult::Meh:
+			return "Meh";
+		case OsuStatic::HitResult::Ok:
+			return "Ok";
+		case OsuStatic::HitResult::Good:
+			return "Good";
+		case OsuStatic::HitResult::Great:
+			return "Great";
+		case OsuStatic::HitResult::Perfect:
+			return "Perf";
+		default:
+			return "Perf";
+		}
+	}
+	int GetBaseScore(OsuStatic::HitResult res)
+	{
+		switch (res)
+		{
+		case OsuStatic::HitResult::Miss:
+			return 0;
+		case OsuStatic::HitResult::Meh:
+			return 50;
+		case OsuStatic::HitResult::Ok:
+			return 100;
+		case OsuStatic::HitResult::Good:
+			return 200;
+		case OsuStatic::HitResult::Great:
+			return 300;
+		case OsuStatic::HitResult::Perfect:
+			return 320;
+		default:
+			return 20;
+		}
+	}
+	void ApplyHit(ManiaObject& mo, OsuStatic::HitResult res, double err)
+	{
+		mo.HasHit = true;
+		hiterr_anim_clk = HighPerformanceTimer::GetMilliseconds();
+		hiterr_ui = res;
+		HitCounter[res]++;
+		if (res != OsuStatic::HitResult::Miss)
+		{
+			HitErrors.push_back(err);
+			auto hiterr_sum = 0.0;
+			for (auto he : HitErrors)
+			{
+				hiterr_sum += he;
+			}
+			hiterr_avg = hiterr_sum / HitErrors.size();
+			combo++;
+		}
+		else
+		{
+			combo = 0;
+		}
+		maxcombo = std::max(maxcombo, combo);
+		score += GetBaseScore(res) * std::max(1.0, std::pow(combo, 0.1));
+	}
 	inline double offset()
 	{
 		return 3000;
@@ -63,6 +153,14 @@ private:
 	}
 	virtual void Key(KeyEventArgs kea)
 	{
+		if (kea.Pressed)
+		{
+			if (kea.Key == ConsoleKey::Escape)
+			{
+				parent->Back();
+				return;
+			}
+		}
 		if (!HasFlag(mods, OsuMods::Auto)) // ×è¶Ï Auto mod ÏÂµÄÊäÈë
 		{
 
@@ -96,6 +194,30 @@ private:
 			buf.DrawString("Loading...", 0, 0, {}, {});
 			return;
 		}
+		if (background != 0)
+		{
+			if (resized_bg == 0 || rbg_h != buf.Height || rbg_w != buf.Width)
+			{
+				if (resized_bg != 0)
+					delete resized_bg;
+				resized_bg = new unsigned char[buf.Width * buf.Height * 3];
+				stbir_resize_uint8(background, bg_w, bg_h, 0, resized_bg, buf.Width, buf.Height, 0, 3);
+				rbg_h = buf.Height;
+				rbg_w = buf.Width;
+			}
+			int x = 0;
+			int y = 0;
+			for (size_t i = 0; i < buf.Width * buf.Height * 3; i += 3)
+			{
+				buf.SetPixel(x, y, { {},{255,(unsigned char)(resized_bg[i + 0] / 2),(unsigned char)(resized_bg[i + 1] / 2),(unsigned char)(resized_bg[i + 2] / 2)},' ' });
+				x++;
+				if (x >= buf.Width)
+				{
+					x = 0;
+					y++;
+				}
+			}
+		}
 		auto e_ms = sw.Elapsed() - offset();
 		double key_width = 10;
 		double centre = (double)buf.Width / 2;
@@ -111,12 +233,12 @@ private:
 				auto off2 = obj.EndTime - e_ms;
 				if (obj.EndTime == 0)
 				{
-					if (off > scrollspeed || off < -scrollspeed / 10)
+					if (off > scrollspeed || off < -scrollspeed / 5)
 						continue;
 				}
 				else
 				{
-					if (off > scrollspeed || off2 < -scrollspeed / 10)
+					if (off > scrollspeed || off2 < 0)
 						continue;
 				}
 				if (obj.Column == j)
@@ -147,6 +269,29 @@ private:
 			buf.DrawLineH(i + key_width, 0, buf.Height, { {190,255,255,255},{},'|' });
 			j++;
 		}
+		buf.DrawLineV(0, buf.Width, 0, { {},{60,255,255,255},' ' });
+		buf.DrawLineV(0, (e_ms / length) * buf.Width, 0, { {},{60,90,255,100},' ' });
+		auto length_text = std::to_string(int(length / 1000 / 60)) + ":" + std::to_string(std::abs(int(length / 1000) % 60));
+		buf.DrawString(length_text, buf.Width - length_text.size() - 1, 0, {}, {});
+		auto current_text = std::to_string(int(e_ms / 1000 / 60)) + ":" + std::to_string(std::abs(int(e_ms / 1000) % 60));
+		buf.DrawString(current_text, 0, 0, {}, {});
+		int o = 0;
+		for (auto res : HitCounter)
+		{
+			auto tstr = GetHitResultName(res.first) + ":" + std::to_string(res.second);
+			buf.DrawString(tstr, buf.Width - tstr.size() - 1, (buf.Height - HitCounter.size()) / 2 + o, {}, {});
+			o++;
+		}
+		auto scorestr = std::to_string(int(score));
+		scorestr.insert(0, 8, '0');
+		buf.DrawString(scorestr, buf.Width - scorestr.size() - 1, 1, {}, {});
+		auto combo_text = std::to_string(combo);
+		combo_text += "x";
+		buf.DrawString(combo_text, 0, buf.Height - 1, {}, {});
+		auto he_avg_text = std::to_string(hiterr_avg);
+		he_avg_text.erase(he_avg_text.find('.') + 2);
+		he_avg_text += "ms";
+		buf.DrawString(he_avg_text, 0, buf.Height - 2, {}, {});
 	}
 	static int CalcColumn(double xpos, int keys)
 	{
@@ -263,11 +408,6 @@ private:
 		auto combined = CombineSamples(sampleindex, defaultsampleindex);
 		auto ifs = std::ifstream(pthis->path.string());
 		OsuBeatmap osub = OsuBeatmap::Parse(ifs);
-		LoadEventArgs lea{};
-		auto str = pthis->p_path.string().append("\\").append(osub.AudioFilename);
-		lea.requested_path = str.c_str();
-		lea.callback = new std::function<void(const LoadCompleteEventArgs&)>([pthis](const auto& lcea) {pthis->bgm = lcea.stream; });
-		pthis->game->Raise("load", lea);
 		for (auto& obj : osub.HitObjects)
 		{
 			if (!obj.CustomSampleFilename.empty())
@@ -304,19 +444,32 @@ private:
 			osub.OverallDifficulty *= 2;
 			osub.OverallDifficulty = std::min(osub.OverallDifficulty, 10.0);
 		}
+		auto playbackrate = 1.0;
 		pthis->hitranges = OsuStatic::GetHitRanges(osub.OverallDifficulty);
+		for (auto hr : pthis->hitranges)
+		{
+			hr.second /= playbackrate;
+		}
 		pthis->keys = int(osub.CircleSize);
+
 		if (HasFlag(pthis->mods, OsuMods::Nightcore))
 		{
-			for (auto hr : pthis->hitranges)
-			{
-				hr.second /= 1.5;
-			}
+			playbackrate = 1.5;
 		}
+		if (HasFlag(pthis->mods, OsuMods::HalfTime))
+		{
+			playbackrate = 0.75;
+		}
+		LoadEventArgs lea{};
+		auto str = pthis->p_path.string().append("\\").append(osub.AudioFilename);
+		lea.requested_path = str.c_str();
+		lea.callback = new std::function<void(const LoadCompleteEventArgs&)>([pthis](const auto& lcea) {pthis->bgm = lcea.stream; });
+		pthis->game->Raise("load", lea);
+		pthis->bgm->setPlaybackRate(playbackrate);
 		for (auto& obj : osub.HitObjects)
 		{
 			ManiaObject mo{ 0 };
-			mo.StartTime = obj.StartTime;
+			mo.StartTime = obj.StartTime / playbackrate;
 			mo.Column = CalcColumn(obj.X, pthis->keys);
 			auto tp = GetTimingPoint(osub, obj.StartTime);
 			auto samplebank = tp.SampleBank;
@@ -345,7 +498,7 @@ private:
 					mo.ssamplew = samplecache[wsamples[0].string()];
 				}
 			}
-			mo.EndTime = obj.EndTime;
+			mo.EndTime = obj.EndTime / playbackrate;
 			for (auto& obj2 : osub.HitObjects)
 			{
 				if (&obj2 == &obj)
@@ -367,7 +520,16 @@ private:
 			pthis->objects.push_back(mo);
 			pthis->length = std::max(std::max(mo.StartTime, mo.EndTime), pthis->length);
 		}
+		int x = 0;
+		int y = 0;
+		fspath pth = pthis->p_path;
+		pth /= osub.Background;
+		auto str2 = pth.string();
+		pthis->background = (unsigned char*)stbi_load(str2.c_str(), &x, &y, 0, 3);
+		pthis->bg_w = x;
+		pthis->bg_h = y;
 		pthis->loading = false;
+		pthis->KeyBinds = GetKeyBinds(pthis->keys);
 		pthis->sw.Start();
 	}
 	virtual void Activate(bool y)
@@ -375,6 +537,28 @@ private:
 		if (y)
 		{
 			std::thread(Load, this).detach();
+		}
+		else
+		{
+			if (bgm != 0)
+			{
+				delete bgm;
+				bgm = 0;
+			}
+			if (background != 0)
+			{
+				delete background;
+				background = 0;
+			}
+			if (resized_bg != 0)
+			{
+				delete resized_bg;
+				resized_bg = 0;
+			}
+			for (auto& des : destructions)
+			{
+				des();
+			}
 		}
 	}
 };

@@ -159,7 +159,7 @@ export class SongSelectScreen : public Screen
 				npstext.resize(npstext.find('.') + 2);
 				auto clr = difficultyToRGBColor(sqrt(selected_entry_2->nps));
 				clr.Alpha = 255;
-				buf.DrawString(npstext, 48 - npstext.size(), 3, GameBuffer::Color::Blend(clr, { 64,255,255,255 }), clr);
+				buf.DrawString(npstext, 48 - npstext.size(), 3, { 255,160,160,160 }, clr);
 				auto minutes = int(selected_entry_2->length / (1000 * 60));
 				auto seconds = int(selected_entry_2->length / 1000) % 60;
 				auto info = std::to_string(minutes) + ":" + std::to_string(seconds) + "   " + std::to_string(int(selected_entry_2->keys)) + "K" + "   OD" + std::to_string(int(selected_entry_2->od));
