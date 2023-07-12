@@ -266,6 +266,34 @@ private:
 					{
 						ApplyHit(obj, OsuStatic::HitResult::Miss, 0);
 					}
+				if (e_ms < obj.EndTime)
+				{
+					if (obj.ssample_stream != 0)
+					{
+						if (!obj.ssample_stream->isPlaying())
+							obj.ssample_stream->play();
+					}
+					if (obj.ssamplew_stream != 0)
+					{
+						if (!obj.ssamplew_stream->isPlaying())
+							obj.ssamplew_stream->play();
+					}
+				}
+				else
+				{
+					if (obj.ssample_stream != 0)
+					{
+						obj.ssample_stream->stop();
+						delete obj.ssample_stream;
+						obj.ssample_stream = 0;
+					}
+					if (obj.ssamplew_stream != 0)
+					{
+						obj.ssamplew_stream->stop();
+						delete obj.ssamplew_stream;
+						obj.ssamplew_stream = 0;
+					}
+				}
 			}
 		}
 	}
@@ -511,12 +539,25 @@ private:
 			lea.callback = new std::function<void(const LoadCompleteEventArgs&)>([&res](const LoadCompleteEventArgs& lcea) {
 				res = lcea.sample;
 				});
+			for (auto& fs : defaultsampleindex)
+			{
+				auto str = fs.filename.string();
+				if (samplecache[str] == 0)
+				{
+					lea.requested_path = str.c_str();
+					pthis->game->Raise("load", lea);
+					samplecache[str] = res;
+				}
+			}
 			for (auto& fs : combined)
 			{
 				auto str = fs.filename.string();
-				lea.requested_path = str.c_str();
-				pthis->game->Raise("load", lea);
-				samplecache[fs.filename.string()] = res;
+				if (samplecache[str] == 0)
+				{
+					lea.requested_path = str.c_str();
+					pthis->game->Raise("load", lea);
+					samplecache[str] = res;
+				}
 			}
 		}
 		pthis->destructions.push_back([samplecache]() {
@@ -565,23 +606,38 @@ private:
 			auto defaultsamples = GetSample(combined, samplebank, hitsoundtype, sampleset);
 			for (auto fspath : defaultsamples)
 			{
-				mo.samples.emplace_back(samplecache[fspath.string()]);
+				auto smp = samplecache[fspath.string()];
+				if (smp != 0)
+					mo.samples.emplace_back(smp);
+			}
+			if (mo.samples.empty())
+			{
+				auto defsamples2 = GetSample(defaultsampleindex, samplebank, hitsoundtype, 0);
+				for (auto fspath : defsamples2)
+				{
+					auto smp = samplecache[fspath.string()];
+					if (smp != 0)
+						mo.samples.emplace_back(smp);
+				}
 			}
 			if (!obj.CustomSampleFilename.empty())
 			{
 				mo.samples.emplace_back(samplecache[pthis->p_path.string().append("\\").append(obj.CustomSampleFilename)]);
 			}
-			auto slidesamples = GetSample(combined, samplebank, OsuStatic::HitSoundType::Slide, sampleset);
-			if (!slidesamples.empty())
+			if (obj.EndTime != 0)
 			{
-				mo.ssample = samplecache[slidesamples[0].string()];
-			}
-			if (HasFlag(obj.SoundType, OsuStatic::HitSoundType::Whistle))
-			{
-				auto wsamples = GetSample(combined, samplebank, OsuStatic::HitSoundType::SlideWhistle, sampleset);
-				if (!wsamples.empty())
+				auto slidesamples = GetSample(combined, samplebank, OsuStatic::HitSoundType::Slide, sampleset);
+				if (!slidesamples.empty())
 				{
-					mo.ssamplew = samplecache[wsamples[0].string()];
+					mo.ssample = samplecache[slidesamples[0].string()];
+				}
+				if (HasFlag(obj.SoundType, OsuStatic::HitSoundType::Whistle))
+				{
+					auto wsamples = GetSample(combined, samplebank, OsuStatic::HitSoundType::SlideWhistle, sampleset);
+					if (!wsamples.empty())
+					{
+						mo.ssamplew = samplecache[wsamples[0].string()];
+					}
 				}
 			}
 			mo.EndTime = obj.EndTime / playbackrate;
