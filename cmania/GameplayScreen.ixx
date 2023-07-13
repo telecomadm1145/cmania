@@ -11,6 +11,7 @@ import <map>;
 import String;
 import <functional>;
 import <vector>;
+import <mutex>;
 import WinDebug;
 import "stb_image.h";
 import "stb_image_resize.h";
@@ -34,11 +35,13 @@ export class GameplayScreen : public Screen
 	fspath p_path;
 	bool loading = true;
 	bool pause = false;
+	bool died = false;
+	double die_clock = -1;
 	int keys = 0;
 	double scrollspeed = 500;
 	Stopwatch sw{};
 	std::map<OsuStatic::HitResult, double> hitranges;
-	double hiterr_anim_clk = 0;
+	double hiterr_anim_clk = -114514;
 	OsuStatic::HitResult hiterr_ui = OsuStatic::HitResult::None;
 	int maxcombo = 0;
 	int combo = 0;
@@ -49,6 +52,8 @@ export class GameplayScreen : public Screen
 	double accuracy = 0;
 	double acc_sum = 0;
 	double acc_count = 0;
+	double nps = 0;
+	double rating = 0;
 	std::map<OsuStatic::HitResult, int> HitCounter{
 		{ OsuStatic::HitResult::Perfect, 0 },
 		{ OsuStatic::HitResult::Great,0 },
@@ -60,13 +65,14 @@ export class GameplayScreen : public Screen
 	IAudioManager::IAudioStream* bgm = 0;
 	fspath sample_folder = ".\\samples\\triangles";
 	std::vector<ConsoleKey> KeyBinds;
-	std::vector<double> KeyHighlight = { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 };
+	std::vector<double> KeyHighlight = { -99999,-99999,-99999,-99999,-99999,-99999,-99999,-99999,-99999,-99999,-99999,-99999,-99999,-99999,-99999,-99999,-99999,-99999,-99999,-99999,-99999,-99999,-99999,-99999 };
+	std::mutex res_lock;
 public:
 	GameplayScreen(const std::string& bmp_path, OsuMods mod)
 	{
 		path = fspath(bmp_path);
 		p_path = fspath(bmp_path).parent_path();
-		mods = OsuMods(0b100000000 | 0b1000);
+		mods = mod;
 	}
 private:
 	struct ManiaObject
@@ -104,6 +110,26 @@ private:
 			return "Perf";
 		}
 	}
+	GameBuffer::Color GetHitResultColor(OsuStatic::HitResult res)
+	{
+		switch (res)
+		{
+		case OsuStatic::HitResult::Miss:
+			return { 255,255,0,0 };
+		case OsuStatic::HitResult::Meh:
+			return { 255,255,132,0 };
+		case OsuStatic::HitResult::Ok:
+			return { 255,255,192,56 };
+		case OsuStatic::HitResult::Good:
+			return { 255,255,255,114 };
+		case OsuStatic::HitResult::Great:
+			return { 255,0,192,255 };
+		case OsuStatic::HitResult::Perfect:
+			return { 255,147,228,255 };
+		default:
+			return { 255,255,255,0 };
+		}
+	}
 	int GetBaseScore(OsuStatic::HitResult res)
 	{
 		switch (res)
@@ -126,8 +152,8 @@ private:
 	}
 	void ApplyHit(ManiaObject& mo, OsuStatic::HitResult res, double err)
 	{
+		std::lock_guard lock(res_lock);
 		mo.HasHit = true;
-		hiterr_anim_clk = HighPerformanceTimer::GetMilliseconds();
 		hiterr_ui = res;
 		HitCounter[res]++;
 		acc_count++;
@@ -135,20 +161,26 @@ private:
 		accuracy = acc_sum / acc_count;
 		if (res != OsuStatic::HitResult::Miss)
 		{
-			for (auto sample : mo.samples)
+			try
 			{
-				if (sample != 0)
-					sample->generateStream()->play();
+				for (auto sample : mo.samples)
+				{
+					if (sample != 0)
+						sample->generateStream()->play();
+				}
+				if (mo.EndTime != 0) {
+					if (mo.ssample)
+					{
+						mo.ssample_stream = mo.ssample->generateStream();
+					}
+					if (mo.ssamplew)
+					{
+						mo.ssamplew_stream = mo.ssamplew->generateStream();
+					}
+				}
 			}
-			if (mo.EndTime != 0) {
-				if (mo.ssample)
-				{
-					mo.ssample_stream = mo.ssample->generateStream();
-				}
-				if (mo.ssamplew)
-				{
-					mo.ssamplew_stream = mo.ssamplew->generateStream();
-				}
+			catch (std::exception& ex) 
+			{
 			}
 			HitErrors.push_back(err);
 			auto hiterr_sum = 0.0;
@@ -163,7 +195,25 @@ private:
 		{
 			combo = 0;
 		}
+		auto e_ms = sw.Elapsed() - offset();
+		hiterr_anim_clk = e_ms;
 		maxcombo = std::max(maxcombo, combo);
+		auto base_rt = pow(nps, 1.6) * pow(0.98, HitCounter[OsuStatic::HitResult::Miss]) * pow(accuracy / 100, 4) / hitranges[OsuStatic::HitResult::Perfect] * 20
+			* pow((((double)maxcombo / objects.size()) / (e_ms / length)), 1.2);
+		auto dyn_rt = e_ms / 10000 * accuracy / 100 * pow(nps, 0.2) / hitranges[OsuStatic::HitResult::Perfect] * 50;
+		if (HasFlag(mods, OsuMods::FadeOut))
+		{
+			base_rt *= 1.32;
+			dyn_rt *= 1.06;
+		}
+		if (HasFlag(mods, OsuMods::Hidden))
+		{
+			base_rt *= 1.32;
+			dyn_rt *= 1.06;
+		}
+		rating = base_rt
+			+ dyn_rt
+			- pow(HitCounter[OsuStatic::HitResult::Miss], 2) * 0.001 * hitranges[OsuStatic::HitResult::Perfect] / 20;
 		score += GetBaseScore(res) * std::max(1.0, std::pow(combo, 0.1));
 	}
 	inline double offset()
@@ -174,8 +224,18 @@ private:
 	{
 		return 3000;
 	}
+	static constexpr double cspd = 12000;
 	virtual void Key(KeyEventArgs kea)
 	{
+		auto e_ms = sw.Elapsed() - offset();
+		if (died)
+		{
+			if (kea.Pressed && e_ms - 4000 > die_clock)
+			{
+				parent->Back();
+			}
+			return;
+		}
 		if (loading)
 		{
 			return;
@@ -187,14 +247,32 @@ private:
 				parent->Back();
 				return;
 			}
+			if (kea.Key == ConsoleKey::F3) // 减速
+			{
+				if (scrollspeed > 0)
+				{
+					scrollspeed = cspd / (cspd / scrollspeed - 1.0);
+				}
+			}
+			if (kea.Key == ConsoleKey::F4) // 加速
+			{
+				if (scrollspeed > 0)
+				{
+					scrollspeed = cspd / (cspd / scrollspeed + 1.0);
+				}
+				else
+				{
+					scrollspeed = 1;
+				}
+			}
 		}
-		if (!HasFlag(mods, OsuMods::Easy)) // 阻断 Auto mod 下的输入
+		if (!HasFlag(mods, OsuMods::Auto)) // 阻断 Auto mod 下的输入
 		{
 			for (size_t i = 0; i < KeyBinds.size(); i++)
 			{
 				if (kea.Key == KeyBinds[i])
 				{
-					auto e_ms = KeyHighlight[i] = sw.Elapsed() - offset();
+					KeyHighlight[i] = e_ms;
 					for (auto& obj : objects)
 					{
 						if (obj.Column == i)
@@ -241,24 +319,26 @@ private:
 	}
 	virtual void Tick(double)
 	{
-		if (bgm != 0 && !bgm->isPlaying())
-		{
-			if (sw.Elapsed() - aoffset() - 1000 > length)
-			{
-				parent->Back();
-			}
-		}
-		if (sw.Elapsed() >= aoffset() && sw.Elapsed() <= aoffset() + 1000)
-		{
-			if (!bgm->isPlaying())
-			{
-				bgm->play();
-				bgm->setVolume(0.5);
-			}
-		}
 		if (!loading)
 		{
 			auto e_ms = sw.Elapsed() - offset();
+			if (die_clock > 0)
+			{
+				auto off2 = e_ms - die_clock;
+				if (off2 >= 4000)
+				{
+					if (bgm != 0)
+						bgm->stop();
+					died = true;
+				}
+				else
+				{
+					auto rate = 1 - (off2 / 4000);
+					if (rate > 0.01)
+						bgm->setPlaybackRate(rate);
+				}
+				return;
+			}
 			for (auto& obj : objects)
 			{
 				if (!obj.HasHit)
@@ -303,12 +383,58 @@ private:
 					{
 						if (e_ms > obj.StartTime)
 						{
+							KeyHighlight[obj.Column] = e_ms;
 							ApplyHit(obj, OsuStatic::HitResult::Perfect, 0);
 						}
 					}
 				}
 			}
+			else
+			{
+				if (!HasFlag(mods, OsuMods::NoFall))
+					if (rating < -1.5)
+					{
+						//sw.Stop();
+						die_clock = e_ms;
+						died = true;
+					}
+			}
 		}
+		if (bgm != 0 && !bgm->isPlaying())
+		{
+			if (sw.Elapsed() - aoffset() - 1000 > length)
+			{
+				parent->Back();
+			}
+		}
+		if (sw.Elapsed() >= aoffset() && sw.Elapsed() <= aoffset() + 1000)
+		{
+			if (bgm != 0 && !bgm->isPlaying())
+			{
+				bgm->play();
+				bgm->setVolume(0.5);
+			}
+		}
+	}
+	double CalcFlashlight(OsuMods mods, double ratio)
+	{
+		if (ratio > 1 && ratio < 0)
+			return 1;
+		if (HasFlag(mods, OsuMods::Hidden))
+		{
+			if (ratio < 0.4)
+			{
+				return pow(ratio / 0.4, 2);
+			}
+		}
+		if (HasFlag(mods, OsuMods::FadeOut))
+		{
+			if (ratio > 0.6)
+			{
+				return pow((1 - ratio) / 0.4, 2);
+			}
+		}
+		return 1;
 	}
 	virtual void Render(GameBuffer& buf)
 	{
@@ -341,6 +467,15 @@ private:
 				}
 			}
 		}
+		if (died)
+		{
+			buf.DrawString("您寄了,按任意键返回选歌.", 0, 0, {}, {});
+			std::string complete_rate = std::to_string(die_clock / length * 100);
+			complete_rate += "%";
+			complete_rate.insert(0, "您的完成度是:");
+			buf.DrawString(complete_rate, 0, 1, {}, {});
+			return;
+		}
 		auto e_ms = sw.Elapsed() - offset();
 		double key_width = 10;
 		double centre = (double)buf.Width / 2;
@@ -349,7 +484,6 @@ private:
 		auto j = 0;
 		for (double i = centre_start; i < keys * key_width + centre_start; i += key_width)
 		{
-			buf.FillRect(i + 1, buf.Height - judge_height + 1, i + key_width, buf.Height, { {},{120,255,255,255},' ' });
 			for (auto obj : objects)
 			{
 				auto off = obj.StartTime - e_ms;
@@ -370,6 +504,7 @@ private:
 					auto starty = ratio * (buf.Height - judge_height + 1);
 					//Break();
 					auto base = GameBuffer::Color{ 0,0,160,230 };
+					auto flashlight_num = CalcFlashlight(mods, ratio);
 					if (obj.Multi)
 						base = { 0,204,187,102 };
 					if (obj.EndTime != 0 && !obj.HasSlide)
@@ -378,18 +513,39 @@ private:
 						auto endy = ratio2 * (buf.Height - judge_height);
 						auto a = std::min(starty, buf.Height - judge_height);
 						base.Alpha = 180;
+						if (HasFlag(mods, OsuMods::FadeOut) || HasFlag(mods, OsuMods::Hidden))
+						{
+							base.Alpha = 50;
+						}
 						buf.FillRect(i + 1, a, i + key_width, endy, { {},base,' ' });
-						base.Alpha = 255;
+						base.Alpha = (unsigned char)(255 * flashlight_num);
+						if (a == buf.Height - judge_height)
+						{
+							base.Alpha = 255;
+						}
 						buf.FillRect(i + 1, a, i + key_width, a, { {},base,' ' });
 						continue;
 					}
-					base.Alpha = 255;
+					base.Alpha = (unsigned char)(255 * flashlight_num);
 					if (!obj.HasHit)
 						buf.FillRect(i + 1, starty, i + key_width, starty, { {},base,' ' });
 				}
 			}
 			buf.DrawLineH(i, 0, buf.Height, { {190,255,255,255},{},'|' });
 			buf.DrawLineH(i + key_width, 0, buf.Height, { {190,255,255,255},{},'|' });
+			auto light = KeyHighlight[j];
+			auto ratio = 1 - (e_ms - light) / 200;
+			light = ratio * 120 + 120;
+			if (light > 240) light = 240;
+			if (light < 120) light = 120;
+			buf.FillRect(i + 1, buf.Height - judge_height + 1, i + key_width, buf.Height, { {},{(unsigned char)light,255,255,255},' ' });
+			if (ratio > 0 && ratio < 1)
+			{
+				for (int p = 0; p < ratio * 10; p++)
+				{
+					buf.DrawLineV(i + 1, i + key_width, buf.Height - judge_height - p + 1, { {},{unsigned char((double)(1 - p / (ratio * 10)) * light),255,255,255},' ' });
+				}
+			}
 			j++;
 		}
 		buf.DrawLineV(0, buf.Width, 0, { {},{60,255,255,255},' ' });
@@ -398,35 +554,66 @@ private:
 		buf.DrawString(length_text, buf.Width - length_text.size() - 1, 0, {}, {});
 		auto current_text = std::to_string(int(e_ms / 1000 / 60)) + ":" + std::to_string(std::abs(int(e_ms / 1000) % 60));
 		buf.DrawString(current_text, 0, 0, {}, {});
-		int o = 0;
-		for (auto res : HitCounter)
+		if (!HasFlag(mods, OsuMods::NoFall) || rating >= 0)
 		{
-			auto tstr = GetHitResultName(res.first) + ":" + std::to_string(res.second);
-			buf.DrawString(tstr, buf.Width - tstr.size() - 1, (buf.Height - HitCounter.size()) / 2 + o, {}, {});
-			o++;
+			int o = 0;
+			for (auto res : HitCounter)
+			{
+				auto tstr = GetHitResultName(res.first) + ":" + std::to_string(res.second);
+				buf.DrawString(tstr, buf.Width - tstr.size() - 1, (buf.Height - HitCounter.size()) / 2 + o, {}, {});
+				o++;
+			}
+			auto accstr = std::to_string(accuracy);
+			accstr.erase(accstr.find('.') + 3);
+			accstr += "%";
+			buf.DrawString(accstr, buf.Width - accstr.size() - 1, 2, {}, {});
+			auto ratingstr = std::to_string(rating);
+			ratingstr.erase(ratingstr.find('.') + 3);
+			buf.DrawString(ratingstr, (buf.Width - ratingstr.size()) / 2, (buf.Height / 2) - 5, {}, {});
+			auto scorestr = std::to_string(int(score));
+			scorestr.insert(0, 16 - scorestr.size(), '0');
+			buf.DrawString(scorestr, buf.Width - scorestr.size() - 1, 1, {}, {});
+			auto combo_text = std::to_string(combo);
+			combo_text += "x";
+			buf.DrawString(combo_text, 0, buf.Height - 1, {}, {});
 		}
-		auto accstr = std::to_string(accuracy);
-		accstr.erase(accstr.find('.') + 3);
-		accstr += "%";
-		buf.DrawString(accstr, buf.Width - accstr.size() - 1, 2, {}, {});
-		auto scorestr = std::to_string(int(score));
-		scorestr.insert(0, 16 - scorestr.size(), '0');
-		buf.DrawString(scorestr, buf.Width - scorestr.size() - 1, 1, {}, {});
-		auto combo_text = std::to_string(combo);
-		combo_text += "x";
-		buf.DrawString(combo_text, 0, buf.Height - 1, {}, {});
+		auto offhitres = e_ms - hiterr_anim_clk;
+		if (offhitres < 500 && offhitres > 0)
+		{
+			auto alpha = offhitres / 500 * 255;
+			if (alpha > 255) alpha = 255;
+			if (alpha > 0)
+			{
+				if (!HasFlag(mods, OsuMods::NoFall) || hiterr_ui != OsuStatic::HitResult::Miss)
+				{
+					auto hitresstr = GetHitResultName(hiterr_ui);
+					auto hitres_clr = GetHitResultColor(hiterr_ui);
+					hitres_clr.Alpha = unsigned char(255 - alpha);
+					buf.DrawString(hitresstr, (buf.Width - hitresstr.size()) / 2, (buf.Height / 2) + 3, hitres_clr, {});
+				}
+			}
+		}
 		if (!HasFlag(mods, OsuMods::Auto))
 		{
 			auto he_avg_text = std::to_string(hiterr_avg);
 			he_avg_text.erase(he_avg_text.find('.') + 2);
 			he_avg_text += "ms";
 			buf.DrawString(he_avg_text, 0, buf.Height - 2, {}, {});
+			if (rating < 0 && !HasFlag(mods, OsuMods::NoFall))
+			{
+				auto b = -rating / 2 * 120;
+				auto a = GameBuffer::Color{ unsigned char(b > 120 ? 120 : b),255,20,20 };
+				buf.FillRect(0, 0, buf.Width, buf.Height, { {},a,'\1' });
+			}
 		}
 		else
 		{
-			auto autoplay_mark = std::string("Autop//ay...");
+			auto autoplay_mark = std::string("Autoplay...");
 			buf.DrawString(autoplay_mark, (buf.Width - autoplay_mark.size()) / 2, 1, {}, {});
 		}
+		auto spd_mark = std::string("Speed");
+		spd_mark += std::to_string(int(cspd / scrollspeed));
+		buf.DrawString(spd_mark, buf.Width - spd_mark.size() - 1, 5, {}, {});
 	}
 	static int CalcColumn(double xpos, int keys)
 	{
@@ -592,6 +779,10 @@ private:
 			osub.OverallDifficulty *= 2;
 			osub.OverallDifficulty = std::min(osub.OverallDifficulty, 10.0);
 		}
+		if (HasFlag(pthis->mods, OsuMods::Easy))
+		{
+			osub.OverallDifficulty *= 0.5;
+		}
 		auto playbackrate = 1.0;
 		pthis->hitranges = OsuStatic::GetHitRanges(osub.OverallDifficulty);
 		for (auto hr : pthis->hitranges)
@@ -693,6 +884,7 @@ private:
 		pthis->bg_h = y;
 		pthis->loading = false;
 		pthis->KeyBinds = GetKeyBinds(pthis->keys);
+		pthis->nps = (double)osub.HitObjects.size() / (pthis->length - osub.HitObjects[0].StartTime) * 1000;
 		pthis->sw.Start();
 	}
 	virtual void Activate(bool y)
@@ -703,6 +895,7 @@ private:
 		}
 		else
 		{
+			std::lock_guard lock(res_lock);
 			if (bgm != 0)
 			{
 				delete bgm;

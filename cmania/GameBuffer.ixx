@@ -164,7 +164,10 @@ public:
 					continue;
 				}
 				dat.Background = Color::Blend(Color{ 255,0,0,0 }, dat.Background);
-				dat.Foreground = Color::Blend(Color{ 255,255,255,255 }, dat.Foreground);
+				if (dat.Foreground != Color{})
+					dat.Foreground = Color::Blend(dat.Background, dat.Foreground);
+				else
+					dat.Foreground = { 255,255,255,255 };
 				char commonbuf[4]{};
 				if (LastFg != dat.Foreground)
 				{
@@ -332,7 +335,8 @@ public:
 					}
 				}
 			}
-			ref.UcsChar = pd.UcsChar;
+			if (pd.UcsChar != '\1')
+				ref.UcsChar = pd.UcsChar;
 			ref.Background = Color::Blend(ref.Background, pd.Background);
 			ref.Foreground = Color::Blend(ref.Foreground, pd.Foreground);
 		}

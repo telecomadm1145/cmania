@@ -11,8 +11,8 @@ export enum class OsuMods
 	Hardrock	= 0b10000,
 	Hidden		= 0b100000,
 	FadeOut		= 0b1000000,
-	Coop		= 0b10000000,
+	//Coop		= 0b10000000,
 	Auto		= 0b100000000,
-	Mirror		= 0b1000000000,
-	NoJump		= 0b10000000000,
+	//Mirror		= 0b1000000000,
+	//NoJump		= 0b10000000000,
 };

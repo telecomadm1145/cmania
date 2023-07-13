@@ -132,7 +132,7 @@ export class SongSelectScreen : public Screen
 				}
 				double b = distance * sin(basicoff / buf.Height * (startangle - endangle) - startangle);
 				int b2 = buf.Width + abs(b) - c2;
-				buf.FillRect(b2, basicoff, b2 + c2, basicoff + songheight, { {},{120,128,128,128} ,' ' }); //左上右下
+				buf.FillRect(b2, basicoff, b2 + c2, basicoff + songheight, { {},{150,32,32,32} ,' ' }); //左上右下
 				buf.DrawString(cache.artist + " - " + cache.title, b2 + 1, basicoff + 1, {}, {});
 				if (i == selected)
 				{
@@ -141,14 +141,14 @@ export class SongSelectScreen : public Screen
 					for (auto& diff : cache.difficulties)
 					{
 						auto diffoff = basicoff + (k * (songheight + gap));
-						buf.FillRect(b2 + diffxpos, diffoff, b2 + c2 + diffxpos, diffoff + songheight, { {},{160,128,128,128} ,' ' });
+						buf.FillRect(b2 + diffxpos, diffoff, b2 + c2 + diffxpos, diffoff + songheight, { {},{200,32,32,32} ,' ' });
 						buf.DrawString(diff.name, b2 + 1 + diffxpos, diffoff + 1, {}, {});
 						k++;
 					}
 				}
 			}
 		}
-		buf.FillPolygon({ {0,2},{50,2},{40,12},{0,12} }, { {},{130,128,128,128},' ' });
+		buf.FillPolygon({ {0,2},{50,2},{40,12},{0,12} }, { {},{150,32,32,32},' ' });
 		if (selected_entry != 0)
 		{
 			buf.DrawString(selected_entry->titleunicode, 1, 3, {}, {});
@@ -182,9 +182,49 @@ export class SongSelectScreen : public Screen
 			buf.FillRect(0, 0, buf.Width, buf.Height, { {},{170,20,20,20},' ' });
 			buf.DrawString("Mod 选 择", 5, 6, {}, {});
 			buf.DrawString("Mod 提供了一种让别人相当目害的游戏体验，可以提高或者降(变相)低(提高)游戏难度", 5, 8, {}, {});
-			buf.DrawString("难度降低: (E)asy (N)oFall (H)alfTime", 5, 12, {}, {});
-			buf.DrawString("难度提高: (H)ardRock N(i)ghtcore ", 5, 16, {}, {});
-			buf.DrawString("特殊:     (1-10)Keys (C)o-op (A)uto (M)irror N(o)Jump", 5, 20, {}, {});
+			std::string line1 = "难度降低: ";
+			line1.push_back('[');
+			line1.push_back(HasFlag(mods, OsuMods::Easy) ? 'x' : ' ');
+			line1.push_back(']');
+			line1.append("(E)asy");
+			line1.push_back(' ');
+			line1.push_back('[');
+			line1.push_back(HasFlag(mods, OsuMods::NoFall) ? 'x' : ' ');
+			line1.push_back(']');
+			line1.append("(N)oFall");
+			line1.push_back(' ');
+			line1.push_back('[');
+			line1.push_back(HasFlag(mods, OsuMods::HalfTime) ? 'x' : ' ');
+			line1.push_back(']');
+			line1.append("(H)alfTime");
+			buf.DrawString(line1, 5, 12, {}, {});
+			line1 = "难度提高: ";
+			line1.push_back('[');
+			line1.push_back(HasFlag(mods, OsuMods::Hardrock) ? 'x' : ' ');
+			line1.push_back(']');
+			line1.append("Ha(r)drock");
+			line1.push_back(' ');
+			line1.push_back('[');
+			line1.push_back(HasFlag(mods, OsuMods::Nightcore) ? 'x' : ' ');
+			line1.push_back(']');
+			line1.append("N(i)ghtcore");
+			line1.push_back(' ');
+			line1.push_back('[');
+			line1.push_back(HasFlag(mods, OsuMods::Hidden) ? 'x' : ' ');
+			line1.push_back(']');
+			line1.append("Hi(d)den");
+			line1.push_back(' ');
+			line1.push_back('[');
+			line1.push_back(HasFlag(mods, OsuMods::FadeOut) ? 'x' : ' ');
+			line1.push_back(']');
+			line1.append("(F)adeOut");
+			buf.DrawString(line1, 5, 16, {}, {});
+			line1 = "特殊:     ";
+			line1.push_back('[');
+			line1.push_back(HasFlag(mods, OsuMods::Auto) ? 'x' : ' ');
+			line1.push_back(']');
+			line1.append("(A)uto");
+			buf.DrawString(line1, 5, 20, {}, {});
 			buf.DrawString("Esc - 返回", 0, buf.Height - 1, {}, {});
 		}
 	}
@@ -402,6 +442,22 @@ export class SongSelectScreen : public Screen
 				{
 					mod_flyout = !mod_flyout;
 				}
+				if (kea.Key == ConsoleKey::E)
+					mods = ToggleFlag(mods, OsuMods::Easy);
+				if (kea.Key == ConsoleKey::N)
+					mods = ToggleFlag(mods, OsuMods::NoFall);
+				if (kea.Key == ConsoleKey::H)
+					mods = ToggleFlag(mods, OsuMods::HalfTime);
+				if (kea.Key == ConsoleKey::R)
+					mods = ToggleFlag(mods, OsuMods::Hardrock);
+				if (kea.Key == ConsoleKey::I)
+					mods = ToggleFlag(mods, OsuMods::Nightcore);
+				if (kea.Key == ConsoleKey::D)
+					mods = ToggleFlag(mods, OsuMods::Hidden);
+				if (kea.Key == ConsoleKey::F)
+					mods = ToggleFlag(mods, OsuMods::FadeOut);
+				if (kea.Key == ConsoleKey::A)
+					mods = ToggleFlag(mods, OsuMods::Auto);
 				return;
 			}
 			if (kea.Key == ConsoleKey::Escape)
