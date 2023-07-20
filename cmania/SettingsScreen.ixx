@@ -10,11 +10,11 @@ export class SettingsScreen :public Screen
 	// 这里
 	virtual void Render(GameBuffer& buf)
 	{
-		std::string str = "选项:\n";
-		str.append("J - 双押辅助\nS - 速度设置界面");
-		//str.append(game->Settings[JumpHelper].Get<bool>() ? "[ON]" : "[OFF]");
-		str.append("\n");
-		buf.DrawString(str, 0, 0, {}, {});
+		//std::string str = "选项:\n";
+		//str.append("J - 双押辅助\nS - 速度设置界面");
+		////str.append(game->Settings[JumpHelper].Get<bool>() ? "[ON]" : "[OFF]");
+		//str.append("\n");
+		buf.DrawString("作者懒得做了,按Esc返回,S进入速度测试页面.", 0, 0, {}, {});
 	}
 	virtual void Key(KeyEventArgs kea)
 	{
