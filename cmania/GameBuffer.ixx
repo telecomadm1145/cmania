@@ -126,7 +126,7 @@ public:
 		CheckBuffer();
 		for (size_t i = 0; i < PixelBuffer.size(); i++)
 		{
-			PixelBuffer[i] = {};
+			PixelBuffer[i] = { {255,255,255,255},{255,0,0,0}};
 		}
 	}
 	void Output()

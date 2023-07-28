@@ -3,6 +3,7 @@ import Game;
 import Settings;
 import String;
 import OsuBeatmap;
+import DifficultyCalculator;
 import <thread>;
 import <string>;
 import <vector>;
@@ -22,6 +23,7 @@ export struct DifficultyCacheEntry
 	std::string name;
 	double preview;
 	double nps;
+	double diff;
 	double length;
 	double keys;
 	double od;
@@ -89,12 +91,13 @@ export class BeatmapManagementService : public GameComponent
 								dce.name = bmp.Version;
 								dce.path = diff.path().string();
 								dce.nps = bmp.HitObjects.size() / dce.length * 1000;
+								dce.diff = CalculateDiff(bmp);
 								dce.preview = bmp.PreviewTime;
 								cache.difficulties.emplace_back(dce);
 							}
 						}
 					}
-					std::sort(cache.difficulties.begin(), cache.difficulties.end(), [](const auto& a, const auto& b) {return a.nps < b.nps; });
+					std::sort(cache.difficulties.begin(), cache.difficulties.end(), [](const auto& a, const auto& b) {return a.diff < b.diff; });
 					if (!cache.difficulties.empty())
 						screa.Songs.push_back(cache);
 				}

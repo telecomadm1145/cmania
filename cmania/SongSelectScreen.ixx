@@ -155,9 +155,9 @@ export class SongSelectScreen : public Screen
 			buf.DrawString(selected_entry->artistunicode, 1, 5, {}, {});
 			if (selected_entry_2 != 0)
 			{
-				auto npstext = std::to_string(selected_entry_2->nps);
+				auto npstext = std::to_string(selected_entry_2->diff);
 				npstext.resize(npstext.find('.') + 2);
-				auto clr = difficultyToRGBColor(sqrt(selected_entry_2->nps));
+				auto clr = difficultyToRGBColor(sqrt(selected_entry_2->diff));
 				clr.Alpha = 255;
 				buf.DrawString(npstext, 48 - npstext.size(), 3, { 255,160,160,160 }, clr);
 				auto minutes = int(selected_entry_2->length / (1000 * 60));
@@ -197,6 +197,16 @@ export class SongSelectScreen : public Screen
 			line1.push_back(HasFlag(mods, OsuMods::HalfTime) ? 'x' : ' ');
 			line1.push_back(']');
 			line1.append("(H)alfTime");
+			line1.push_back(' ');
+			line1.push_back('[');
+			line1.push_back(HasFlag(mods, OsuMods::JumpHelper) ? 'x' : ' ');
+			line1.push_back(']');
+			line1.append("(J)umpHelper");
+			line1.push_back(' ');
+			line1.push_back('[');
+			line1.push_back(HasFlag(mods, OsuMods::Relax) ? 'x' : ' ');
+			line1.push_back(']');
+			line1.append("Re(l)ax");
 			buf.DrawString(line1, 5, 12, {}, {});
 			line1 = "难度提高: ";
 			line1.push_back('[');
@@ -224,7 +234,43 @@ export class SongSelectScreen : public Screen
 			line1.push_back(HasFlag(mods, OsuMods::Auto) ? 'x' : ' ');
 			line1.push_back(']');
 			line1.append("(A)uto");
+			line1.push_back(' ');
+			line1.push_back('[');
+			auto keyoverride = ((unsigned long long)mods >> 16) & 0xf;
+			if (HasFlag(mods, OsuMods::Coop))
+			{
+				keyoverride *= 2;
+			}
+			line1.append(keyoverride == 0 ? " " : std::to_string(keyoverride));
+			line1.push_back(']');
+			line1.append("Key");
+			line1.push_back(' ');
+			line1.push_back('[');
+			line1.push_back(HasFlag(mods, OsuMods::Coop) ? 'x' : ' ');
+			line1.push_back(']');
+			line1.append("(C)oop");
+			line1.push_back(' ');
+			line1.push_back('[');
+			line1.push_back(HasFlag(mods, OsuMods::NoBg) ? 'x' : ' ');
+			line1.push_back(']');
+			line1.append("No(B)g");
+			line1.push_back(' ');
+			line1.push_back('[');
+			line1.push_back(HasFlag(mods, OsuMods::Mirror) ? 'x' : ' ');
+			line1.push_back(']');
+			line1.append("(M)irror");
+			line1.push_back(' ');
+			line1.push_back('[');
+			line1.push_back(HasFlag(mods, OsuMods::Random) ? 'x' : ' ');
+			line1.push_back(']');
+			line1.append("Rand(o)m");
 			buf.DrawString(line1, 5, 20, {}, {});
+			auto modscale = GetModScale(mods);
+			auto num = std::to_string(modscale);
+			num.resize(4);
+			auto modscale_tip = "分数倍率:" + num + "x";
+			buf.DrawString(modscale_tip, 5, 24, {}, {});
+			buf.DrawString("需要额外注意的是: Keys mod 需要 Random mod ,用小键盘 1-9 选择.   Relax 忽略除 miss 外判定", 5, 28, {}, {});
 			buf.DrawString("Esc - 返回", 0, buf.Height - 1, {}, {});
 		}
 	}
@@ -442,6 +488,8 @@ export class SongSelectScreen : public Screen
 				{
 					mod_flyout = !mod_flyout;
 				}
+
+				// Key binds
 				if (kea.Key == ConsoleKey::E)
 					mods = ToggleFlag(mods, OsuMods::Easy);
 				if (kea.Key == ConsoleKey::N)
@@ -458,6 +506,32 @@ export class SongSelectScreen : public Screen
 					mods = ToggleFlag(mods, OsuMods::FadeOut);
 				if (kea.Key == ConsoleKey::A)
 					mods = ToggleFlag(mods, OsuMods::Auto);
+				if (kea.Key == ConsoleKey::O)
+					mods = ToggleFlag(mods, OsuMods::Random);
+				if (kea.Key == ConsoleKey::L)
+					mods = ToggleFlag(mods, OsuMods::Relax);
+				if (kea.Key == ConsoleKey::C)
+					mods = ToggleFlag(mods, OsuMods::Coop);
+				if (kea.Key == ConsoleKey::J)
+					mods = ToggleFlag(mods, OsuMods::JumpHelper);
+				if (kea.Key == ConsoleKey::B)
+					mods = ToggleFlag(mods, OsuMods::NoBg);
+				if (kea.Key == ConsoleKey::M)
+					mods = ToggleFlag(mods, OsuMods::Mirror);
+
+				if (kea.Key >= ConsoleKey::NumPad1 && kea.Key <= ConsoleKey::NumPad9)
+				{
+					mods = OsuMods(((unsigned long long)mods) & 0xfffffffffff0ffff | (((int)kea.Key - 97ULL + 1) << 16));
+					if (!HasFlag(mods, OsuMods::Random))
+					{
+						mods = ToggleFlag(mods, OsuMods::Random);
+					}
+				}
+				if (kea.Key == ConsoleKey::NumPad0)
+				{
+					mods = OsuMods(((unsigned long long)mods) & 0xfffffffffff0ffff);
+				}
+
 				return;
 			}
 			if (kea.Key == ConsoleKey::Escape)

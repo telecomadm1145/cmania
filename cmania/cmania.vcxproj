@@ -150,6 +150,7 @@
     <ClCompile Include="BufferController.ixx" />
     <ClCompile Include="cmania.cpp" />
     <ClCompile Include="ConsoleText.ixx" />
+    <ClCompile Include="DifficultyCalculator.ixx" />
     <ClCompile Include="File.ixx" />
     <ClCompile Include="FpsOverlay.ixx" />
     <ClCompile Include="Game.ixx" />

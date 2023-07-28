@@ -16,7 +16,7 @@ export std::vector<ConsoleKey> GetKeyBinds(int keys)
 		return {};
 	std::vector<ConsoleKey> res;
 
-	auto half = keys <= 9 ? keys / 2 : keys / 4;
+	auto half = keys <= 9 ? keys / 2 : keys / 2 / 2;
 	for (size_t i = 4 - half; i < 4; i++)
 	{
 		res.push_back(key_binds[i]);
@@ -25,7 +25,7 @@ export std::vector<ConsoleKey> GetKeyBinds(int keys)
 	{
 		res.push_back(key_binds[4]);
 	}
-	for (size_t i = 5; i < 6 + half; i++)
+	for (size_t i = 5; i < 5 + half; i++)
 	{
 		res.push_back(key_binds[i]);
 	}

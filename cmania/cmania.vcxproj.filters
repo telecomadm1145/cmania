@@ -95,6 +95,9 @@
     <ClCompile Include="KeyBinds.ixx">
       <Filter>Game</Filter>
     </ClCompile>
+    <ClCompile Include="DifficultyCalculator.ixx">
+      <Filter>Game</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ConsoleInput.h">
@@ -139,6 +142,62 @@
   <ItemGroup>
     <None Include="packages.config" />
     <None Include="Samples\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
+    <None Include="Samples\*\*" />
     <None Include="Samples\*\*" />
     <None Include="Samples\*\*" />
     <None Include="Samples\*\*" />

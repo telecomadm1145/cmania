@@ -156,6 +156,13 @@ private:
 	}
 	void ApplyHit(ManiaObject& mo, OsuStatic::HitResult res, double err)
 	{
+		if (res != OsuStatic::HitResult::Miss && res != OsuStatic::HitResult::Perfect)
+		{
+			if (HasFlag(mods, OsuMods::Relax))
+			{
+				res = OsuStatic::HitResult::Great;
+			}
+		}
 		std::lock_guard lock(res_lock);
 		mo.HasHit = true;
 		hiterr_ui = res;
@@ -218,19 +225,7 @@ private:
 		rating = base_rt
 			+ dyn_rt
 			- pow(HitCounter[OsuStatic::HitResult::Miss], 2) * 0.001 * hitranges[OsuStatic::HitResult::Perfect] / 20;
-		auto score_mod = 1.0;
-		if (HasFlag(mods, OsuMods::FadeOut))
-			score_mod += 0.06;
-		if (HasFlag(mods, OsuMods::Hidden))
-			score_mod += 0.06;
-		if (HasFlag(mods, OsuMods::Nightcore))
-			score_mod += 0.12;
-		if (HasFlag(mods, OsuMods::Easy))
-			score_mod *= 0.5;
-		if (HasFlag(mods, OsuMods::HalfTime))
-			score_mod *= 0.5;
-		if (HasFlag(mods, OsuMods::NoFall))
-			score_mod *= 0.5;
+		auto score_mod = GetModScale(mods);
 		auto rate = ((double)GetBaseScore(res) / GetBaseScore(OsuStatic::HitResult::Perfect));
 		health += pow(rate, 6) * 0.01 / hpdiff;
 		if (health > 1)
@@ -312,6 +307,7 @@ private:
 				if (kea.Key == KeyBinds[i])
 				{
 					KeyHighlight[i] = e_ms;
+					auto has_hit_some = false;
 					for (auto& obj : objects)
 					{
 						if (obj.Column == i)
@@ -338,18 +334,38 @@ private:
 									if (err >= hitranges[OsuStatic::HitResult::Meh])
 									{
 										ApplyHit(obj, OsuStatic::HitResult::Miss, err);
-										return;
+										has_hit_some = true;
+										break;
 									}
 									for (auto res : std::vector(HitCounter.rbegin(), HitCounter.rend()))
 									{
 										if (std::abs(err) <= hitranges[res.first])
 										{
 											ApplyHit(obj, res.first, err);
-											return;
+											has_hit_some = true;
+											break;
 										}
 									}
-									return;
 								}
+						}
+					}
+					if (!has_hit_some)
+					{
+						for (auto& obj : objects)
+						{
+							if (obj.Column == i)
+							{
+								if (kea.Pressed)
+									if (!obj.HasHit)
+									{
+										for (auto sample : obj.samples)
+										{
+											if (sample != 0)
+												sample->generateStream()->play();
+										}
+										break;
+									}
+							}
 						}
 					}
 				}
@@ -480,30 +496,34 @@ private:
 			buf.DrawString("Loading...", 0, 0, {}, {});
 			return;
 		}
-		if (background != 0)
+		if (!HasFlag(mods, OsuMods::NoBg))
 		{
-			if (resized_bg == 0 || rbg_h != buf.Height || rbg_w != buf.Width)
+			if (background != 0)
 			{
-				if (resized_bg != 0)
-					delete resized_bg;
-				resized_bg = new unsigned char[buf.Width * buf.Height * 3];
-				stbir_resize_uint8(background, bg_w, bg_h, 0, resized_bg, buf.Width, buf.Height, 0, 3);
-				rbg_h = buf.Height;
-				rbg_w = buf.Width;
-			}
-			int x = 0;
-			int y = 0;
-			for (size_t i = 0; i < buf.Width * buf.Height * 3; i += 3)
-			{
-				buf.SetPixel(x, y, { {},{255,(unsigned char)(resized_bg[i + 0] / 2),(unsigned char)(resized_bg[i + 1] / 2),(unsigned char)(resized_bg[i + 2] / 2)},' ' });
-				x++;
-				if (x >= buf.Width)
+				if (resized_bg == 0 || rbg_h != buf.Height || rbg_w != buf.Width)
 				{
-					x = 0;
-					y++;
+					if (resized_bg != 0)
+						delete resized_bg;
+					resized_bg = new unsigned char[buf.Width * buf.Height * 3];
+					stbir_resize_uint8(background, bg_w, bg_h, 0, resized_bg, buf.Width, buf.Height, 0, 3);
+					rbg_h = buf.Height;
+					rbg_w = buf.Width;
+				}
+				int x = 0;
+				int y = 0;
+				for (size_t i = 0; i < buf.Width * buf.Height * 3; i += 3)
+				{
+					buf.SetPixel(x, y, { {},{255,(unsigned char)(resized_bg[i + 0] / 2),(unsigned char)(resized_bg[i + 1] / 2),(unsigned char)(resized_bg[i + 2] / 2)},' ' });
+					x++;
+					if (x >= buf.Width)
+					{
+						x = 0;
+						y++;
+					}
 				}
 			}
 		}
+
 		if (died)
 		{
 			buf.DrawString("您寄了,按任意键返回选歌.", 0, 0, {}, {});
@@ -515,6 +535,7 @@ private:
 		}
 		auto e_ms = sw.Elapsed() - offset();
 		double key_width = 10;
+		key_width = int(std::max(key_width, (double)buf.Width / keys * 0.3));
 		double centre = (double)buf.Width / 2;
 		double centre_start = centre - (keys * key_width) / 2;
 		double judge_height = 4;
@@ -579,7 +600,7 @@ private:
 				clr = { 255,255,255,255 };
 			}
 			buf.DrawLineH(i, 0, buf.Height, { clr,{},'|' });
-			buf.DrawLineH(i + key_width, 0, buf.Height, {clr,{},'|' });
+			buf.DrawLineH(i + key_width, 0, buf.Height, { clr,{},'|' });
 			auto light = KeyHighlight[j];
 			auto ratio = 1 - (e_ms - light) / 200;
 			light = ratio * 120 + 120;
@@ -835,12 +856,6 @@ private:
 		}
 		auto playbackrate = 1.0;
 		pthis->hitranges = OsuStatic::GetHitRanges(osub.OverallDifficulty);
-		for (auto hr : pthis->hitranges)
-		{
-			hr.second /= playbackrate;
-		}
-		pthis->keys = int(osub.CircleSize);
-
 		if (HasFlag(pthis->mods, OsuMods::Nightcore))
 		{
 			playbackrate = 1.5;
@@ -849,6 +864,20 @@ private:
 		{
 			playbackrate = 0.75;
 		}
+		for (auto hr : pthis->hitranges)
+		{
+			hr.second /= playbackrate;
+		}
+		auto keyoverride = ((unsigned long long)pthis->mods >> 16) & 0xF;
+		if (!HasFlag(pthis->mods, OsuMods::Random))
+		{
+			keyoverride = 0;
+		}
+		else if (HasFlag(pthis->mods, OsuMods::Coop))
+		{
+			keyoverride *= 2;
+		}
+		pthis->keys = keyoverride == 0 ? int(osub.CircleSize) : keyoverride;
 		LoadEventArgs lea{};
 		auto str = pthis->p_path.string().append("\\").append(osub.AudioFilename);
 		lea.requested_path = str.c_str();
@@ -860,6 +889,14 @@ private:
 			ManiaObject mo{ 0 };
 			mo.StartTime = obj.StartTime / playbackrate;
 			mo.Column = CalcColumn(obj.X, pthis->keys);
+			if (HasFlag(pthis->mods, OsuMods::Mirror))
+			{
+				mo.Column = pthis->keys - mo.Column - 1;
+			}
+			if (HasFlag(pthis->mods, OsuMods::Random))
+			{
+				mo.Column = int(unsigned long long(mo.StartTime * HighPerformanceTimer::GetMilliseconds() / 1000) % pthis->keys);
+			}
 			auto tp = GetTimingPoint(osub, obj.StartTime);
 			auto samplebank = tp.SampleBank;
 			auto vol = tp.SampleVolume;
@@ -919,24 +956,25 @@ private:
 				}
 			}
 			mo.EndTime = obj.EndTime / playbackrate;
-			for (auto& obj2 : osub.HitObjects)
-			{
-				if (&obj2 == &obj)
-					continue;
-				if (obj2.EndTime != 0)
+			if (HasFlag(pthis->mods, OsuMods::JumpHelper))
+				for (auto& obj2 : osub.HitObjects)
 				{
-					if (std::abs(obj2.EndTime - obj.StartTime) < 0.01)
+					if (&obj2 == &obj)
+						continue;
+					if (obj2.EndTime != 0)
+					{
+						if (std::abs(obj2.EndTime - obj.StartTime) < 0.01)
+						{
+							mo.Multi = true;
+							break;
+						}
+					}
+					if (std::abs(obj2.StartTime - obj.StartTime) < 0.01)
 					{
 						mo.Multi = true;
 						break;
 					}
 				}
-				if (std::abs(obj2.StartTime - obj.StartTime) < 0.01)
-				{
-					mo.Multi = true;
-					break;
-				}
-			}
 			pthis->objects.push_back(mo);
 			pthis->length = std::max(std::max(mo.StartTime, mo.EndTime), pthis->length);
 		}
