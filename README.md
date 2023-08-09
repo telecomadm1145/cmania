@@ -3,7 +3,7 @@
 
 在 Windows 终端(也许linux?)上玩 osu!mania
 
-[![Cmania songselct](WindowsTerminal_OF4gQdllRZ.png)
+![Cmania songselct](WindowsTerminal_OF4gQdllRZ.png)
 
 ![Cmania gameplay](WindowsTerminal_RaPclfQL8v.png)
 
