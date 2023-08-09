@@ -5,7 +5,7 @@ Play osu!mania on a Windows terminal (maybe Linux too?)
 
 ![Cmania songselct](WindowsTerminal_OF4gQdllRZ.png)
 
-![Cmania gameplay](WindowsTerminal_RaPclfQL8v.png)
+![Cmania gameplay](WindowsTerminal_ihoKC2ns1k.png)
 
 ## Features
 - Play osu!mania game on a Windows terminal
