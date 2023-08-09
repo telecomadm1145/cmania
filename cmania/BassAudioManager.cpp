@@ -1,15 +1,15 @@
 #include "BassAudioManager.h"
 #include "EnumFlag.h"
 #include <bass.h>
+#pragma warning(disable : 4267)
+#pragma warning(disable : 4244)
 
-enum class StreamSystem
-{
+enum class StreamSystem {
 	NoBuffer,
 	Buffer,
 	BufferPush
 };
-enum class PlaybackState
-{
+enum class PlaybackState {
 	// Token: 0x040001F0 RID: 496
 	Stopped,
 	// Token: 0x040001F1 RID: 497
@@ -19,8 +19,7 @@ enum class PlaybackState
 	// Token: 0x040001F3 RID: 499
 	Paused
 };
-inline float BASS_ChannelGetAttribute(DWORD handle, DWORD attrib)
-{
+inline float BASS_ChannelGetAttribute(DWORD handle, DWORD attrib) {
 	float res;
 	BASS_ChannelGetAttribute(handle, attrib, &res);
 	return res;
@@ -29,7 +28,7 @@ class BassAudioManager : public IAudioManager {
 public:
 	BassAudioManager() = default;
 	virtual ~BassAudioManager() {
-		close();
+		BassAudioManager::close();
 	}
 
 	IAudioManager::IAudioDevice* getCurrent() override {
@@ -56,18 +55,18 @@ public:
 		}
 	}
 
-	IAudioManager::IAudioStream* load(std::istream& fileStream) {
+	IAudioManager::IAudioStream* load(std::istream& fileStream) override {
 		int sid;
 		auto fileproc = createFileProcedures();
 		if ((sid = BASS_StreamCreateFileUser((DWORD)StreamSystem::NoBuffer, 0, &fileproc, &fileStream)) == 0)
 			throw BassException(BASS_ErrorGetCode());
-		return new BassAudioStream(sid,0);
+		return new BassAudioStream(sid, 0);
 	}
 
 	IAudioManager::IAudioStream* load(const void* data, size_t size) override {
 		auto block = malloc(size);
 		std::copy((const char*)data, (const char*)data + size, (char*)block);
-		DWORD sid = BASS_StreamCreateFile(true, block, 0, size , 0);
+		DWORD sid = BASS_StreamCreateFile(true, block, 0, size, 0);
 		if (sid == 0)
 			throw BassException(BASS_ErrorGetCode());
 
@@ -81,7 +80,7 @@ public:
 		if (sid == 0)
 			throw BassException(BASS_ErrorGetCode());
 
-		return new BassAudioSample(sid,block);
+		return new BassAudioSample(sid, block);
 	}
 
 	std::vector<IAudioManager::IAudioDevice*> getAudioDevices() override {
@@ -97,7 +96,6 @@ private:
 	class BassException : public std::exception {
 	public:
 		explicit BassException(DWORD err) : error(err) {
-		
 		}
 
 		const char* what() const noexcept override {
@@ -139,8 +137,7 @@ private:
 		}
 
 	private:
-		BassAudioDevice(const char* Name, DWORD Type, int Id, bool def, bool ena, bool init, bool loop)
-		{
+		BassAudioDevice(const char* Name, DWORD Type, int Id, bool def, bool ena, bool init, bool loop) {
 			name = Name;
 			type = Type;
 			id = Id;
@@ -162,7 +159,7 @@ private:
 
 	class BassAudioStream : public IAudioManager::IAudioStream {
 	public:
-		BassAudioStream(int sid,void* ptr) : id(sid),ptr(ptr) {}
+		BassAudioStream(int sid, void* ptr) : id(sid), ptr(ptr) {}
 
 		int getId() const override {
 			return id;
@@ -227,15 +224,12 @@ private:
 			return BASS_ChannelBytes2Seconds(id, BASS_ChannelGetLength(id, 0));
 		}
 
-		~BassAudioStream() override
-		{
-			if (id != 0)
-			{
-				BASS_StreamFree(id);
-				id = 0;
-			}
-			if (ptr != 0)
-			{
+		~BassAudioStream() override {
+			if (ptr != 0) {
+				if (id != 0) {
+					BASS_StreamFree(id);
+					id = 0;
+				}
 				free(ptr);
 				ptr = 0;
 			}
@@ -255,16 +249,14 @@ private:
 
 	class BassAudioSample : public IAudioManager::ISample {
 	public:
-		BassAudioSample(int sid,void* block) : id(sid),block(block) {}
+		BassAudioSample(int sid, void* block) : id(sid), block(block) {}
 
-		~BassAudioSample() override{
-			if (id != 0)
-			{
-				BASS_SampleFree(id);
-				id = 0;
-			}
-			if (block != 0)
-			{
+		~BassAudioSample() override {
+			if (block != 0) {
+				if (id != 0) {
+					BASS_SampleFree(id);
+					id = 0;
+				}
 				free(block);
 				block = 0;
 			}
@@ -278,7 +270,7 @@ private:
 			int channel = BASS_SampleGetChannel(id, false);
 			if (channel == 0)
 				throw BassException(BASS_ErrorGetCode());
-			return new BassAudioStream(channel,0);
+			return new BassAudioStream(channel, 0);
 		}
 
 	private:
@@ -293,10 +285,10 @@ private:
 				info.name,
 				info.flags & 0xFF000000,
 				i,
-				HasFlag(info.flags,2),
-				HasFlag(info.flags,1),
-				HasFlag(info.flags,4),
-				HasFlag(info.flags,8),
+				HasFlag(info.flags, 2),
+				HasFlag(info.flags, 1),
+				HasFlag(info.flags, 4),
+				HasFlag(info.flags, 8),
 			};
 		}
 		else {
@@ -315,7 +307,7 @@ private:
 				auto pos = fileStreamPtr->tellg();
 				fileStreamPtr->seekg(0, std::ios::end);
 				auto length = fileStreamPtr->tellg();
-				fileStreamPtr->seekg(pos,std::ios::beg);
+				fileStreamPtr->seekg(pos, std::ios::beg);
 				return (uint64_t)length;
 			},
 			[](void* buffer, DWORD length, void* user) {
@@ -323,7 +315,7 @@ private:
 				fileStreamPtr->read(static_cast<char*>(buffer), length);
 				return static_cast<DWORD>(fileStreamPtr->gcount());
 			},
-			[](QWORD seek,void* user) {
+			[](QWORD seek, void* user) {
 				auto fileStreamPtr = static_cast<std::istream*>(user);
 				fileStreamPtr->seekg(seek, std::ios::beg);
 				return (BOOL)fileStreamPtr->good();
@@ -333,7 +325,7 @@ private:
 
 	bool deviceOpened = false;
 };
-IAudioManager* CreateBassAudioManager()
-{
-	return new BassAudioManager();
+BassAudioManager global_inst;
+IAudioManager* GetBassAudioManager() {
+	return &global_inst;
 }

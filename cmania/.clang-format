@@ -1,0 +1,47 @@
+# Visual Studio 生成的 .clang-format 文件
+
+# 此文件中的样式选项是通过“工具”>“选项”
+# 复制当前 IDE 格式配置的最佳尝试。 但
+# 应该验证以下样式选项:
+# AfterClass, AfterControlStatement, AfterEnum, AfterFunction, AfterNamespace, 
+# AfterStruct, AfterUnion
+
+AccessModifierOffset: -4
+AlignAfterOpenBracket: DontAlign
+AllowShortBlocksOnASingleLine: true
+AllowShortFunctionsOnASingleLine: All
+BasedOnStyle: LLVM
+BraceWrapping:
+  AfterClass: false    # TODO: verify
+  AfterControlStatement: false    # TODO: verify
+  AfterEnum: false    # TODO: verify
+  AfterFunction: false    # TODO: verify
+  AfterNamespace: false    # TODO: verify
+  AfterStruct: false    # TODO: verify
+  AfterUnion: false    # TODO: verify
+  BeforeCatch: true
+  BeforeElse: true
+  IndentBraces: false
+  SplitEmptyFunction: true
+  SplitEmptyRecord: true
+BreakBeforeBraces: Custom
+ColumnLimit: 0
+Cpp11BracedListStyle: false
+FixNamespaceComments: false
+IndentCaseLabels: false
+IndentPPDirectives: None
+IndentWidth: 4
+MaxEmptyLinesToKeep: 10
+NamespaceIndentation: All
+PointerAlignment: Left
+SortIncludes: false
+SortUsingDeclarations: false
+SpaceAfterCStyleCast: false
+SpaceBeforeAssignmentOperators: true
+SpaceBeforeParens: ControlStatements
+SpaceInEmptyParentheses: false
+SpacesInCStyleCastParentheses: false
+SpacesInParentheses: false
+SpacesInSquareBrackets: false
+TabWidth: 4
+UseTab: true

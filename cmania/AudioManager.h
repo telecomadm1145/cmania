@@ -48,8 +48,8 @@ public:
 
 	virtual ~IAudioManager() = default;
 	virtual IAudioStream* load(std::istream& stream) = 0;
-	virtual IAudioStream* load(const void* data,size_t size) = 0;
-	virtual ISample* loadSample(const void* data,size_t size) = 0;
+	virtual IAudioStream* load(const void* data, size_t size) = 0;
+	virtual ISample* loadSample(const void* data, size_t size) = 0;
 	virtual std::vector<IAudioDevice*> getAudioDevices() = 0;
 	virtual IAudioDevice* getCurrent() = 0;
 	virtual bool isDeviceOpened() const = 0;
@@ -62,7 +62,7 @@ public:
 		auto audioDevices = am->getAudioDevices();
 		auto it = std::find_if(audioDevices.begin(), audioDevices.end(), [](const auto& device) {
 			return device->isDefault();
-			});
+		});
 		return (it != audioDevices.end()) ? *it : nullptr;
 	}
 };

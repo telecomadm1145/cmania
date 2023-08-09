@@ -1,9 +1,8 @@
 #pragma once
-import "EnumFlag.h";
+#include "EnumFlag.h"
 
 // Specifies the standard keys on a console.
-enum class ConsoleKey
-{
+enum class ConsoleKey {
 	// The BACKSPACE key.
 	Backspace = 8,
 	// The TAB key.
@@ -293,8 +292,7 @@ enum class ConsoleKey
 	// The CLEAR key (OEM specific).
 	OemClear = 254
 };
-enum class ControlKeyState
-{
+enum class ControlKeyState {
 	RightAlt = 0x1,
 	LeftAlt = 0x2,
 	RightCtrl = 0x4,
@@ -304,10 +302,8 @@ enum class ControlKeyState
 	Scrolllock = 0x40,
 	Capslock = 0x80
 };
-struct KeyEventArgs
-{
-	KeyEventArgs(int cks, bool down, int key, wchar_t chr,int rc)
-	{
+struct KeyEventArgs {
+	KeyEventArgs(int cks, bool down, int key, wchar_t chr, int rc) {
 		KeyState = (ControlKeyState)cks;
 		Pressed = down;
 		Key = (ConsoleKey)key;
@@ -319,7 +315,8 @@ struct KeyEventArgs
 	ConsoleKey Key;
 	bool Pressed;
 	int RepeatCount;
-#define M1(T1,T2) bool T1() { return HasFlag(KeyState,ControlKeyState::T2);}
+#define M1(T1, T2) \
+	bool T1() { return HasFlag(KeyState, ControlKeyState::T2); }
 	M1(LeftAltDown, LeftAlt);
 	M1(RightAltDown, RightAlt);
 	M1(LeftCtrlDown, LeftCtrl);
@@ -328,35 +325,29 @@ struct KeyEventArgs
 	M1(Scrolllock, Scrolllock);
 	M1(Capslock, Capslock);
 #undef M1
-	bool AltDown()
-	{
+	bool AltDown() {
 		return LeftAltDown() || RightAltDown();
 	}
-	bool CtrlDown()
-	{
+	bool CtrlDown() {
 		return RightCtrlDown() || LeftCtrlDown();
 	}
-	bool IsRepeat()
-	{
-		return RepeatCount > 0;
-	}
 };
-struct MoveEventArgs
-{
+struct MoveEventArgs {
 	int X;
 	int Y;
 };
-struct WheelEventArgs
-{
+struct ResizeEventArgs {
+	int X;
+	int Y;
+};
+struct WheelEventArgs {
 	double Delta;
-	enum class Direction
-	{
+	enum class Direction {
 		Vertical,
 		Horizontal,
 	} WheelDirection;
 };
-struct MouseKeyEventArgs
-{
+struct MouseKeyEventArgs {
 	int X;
 	int Y;
 	enum class Button {
@@ -367,8 +358,10 @@ struct MouseKeyEventArgs
 		X2,
 	} MouseButton;
 	bool Pressed;
-	MouseKeyEventArgs(int x, int y, Button btn, bool pressed)
-	{
-		X = x; Y = y; MouseButton = btn; Pressed = pressed;
+	MouseKeyEventArgs(int x, int y, Button btn, bool pressed) {
+		X = x;
+		Y = y;
+		MouseButton = btn;
+		Pressed = pressed;
 	}
 };
