@@ -5,7 +5,7 @@
 
 ![Cmania songselct](WindowsTerminal_OF4gQdllRZ.png)
 
-![Cmania gameplay](WindowsTerminal_RaPclfQL8v.png)
+![Cmania gameplay](WindowsTerminal_ihoKC2ns1k.png)
 
 ## 功能
 - 在 Windows 终端上运行 osu!mania 游戏
