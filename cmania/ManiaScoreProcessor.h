@@ -4,7 +4,7 @@
 #include "Linq.h"
 
 
-#pragma message("记得去除这一段，别忘了")
+#pragma "记得去除这一段，别忘了"
 #include <numeric>
 inline double variance(double mean, const std::vector<double>& values) {
 	auto sq_diff_sum = std::accumulate(values.begin(), values.end(), 0.0,

@@ -17,14 +17,14 @@ class GameplayScreen : public Screen {
 public:
 	GameplayScreen(const std::string& bmp_path, OsuMods mod) {
 		def_input_handler = std::unique_ptr<ConsolePlayerInputHandler>(new ConsolePlayerInputHandler());
-		ruleset = std::unique_ptr<RulesetBase>(new ManiaRuleset());
+		ruleset = std::unique_ptr<RulesetBase>((RulesetBase*) new ManiaRuleset());
 		ruleset->RulesetInputHandler = def_input_handler.get();
 		ruleset->Mods = mod;
 		beatmap_path = bmp_path;
 	}
 	GameplayScreen(Record rec, const std::string& bmp_path, OsuMods mod) {
 		rec_input_handler = std::unique_ptr<RecordInputHandler>(new RecordInputHandler(rec));
-		ruleset = std::unique_ptr<RulesetBase>(new ManiaRuleset());
+		ruleset = std::unique_ptr<RulesetBase>((RulesetBase*) new ManiaRuleset());
 		ruleset->RulesetInputHandler = rec_input_handler.get();
 		ruleset->Mods = mod;
 		beatmap_path = bmp_path;

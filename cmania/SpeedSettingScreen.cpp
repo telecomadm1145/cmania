@@ -2,6 +2,7 @@
 #include "BassAudioManager.h"
 #include "File.h"
 #include "SpeedSettingScreen.h"
+#pragma warning(disable : 4244)
 
 class SpeedSettingScreen :public Screen
 {

@@ -3,6 +3,7 @@
 #include <string>
 #include "Hpet.h"
 #include "FpsOverlay.h"
+#pragma warning(disable: 4267)
 
 class FpsOverlay : public GameComponent {
 	// 通过 Component 继承

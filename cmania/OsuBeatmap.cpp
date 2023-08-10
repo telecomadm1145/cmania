@@ -152,7 +152,7 @@ OsuBeatmap OsuBeatmap::Parse(std::istream& sr) {
 			}
 		}
 	}
-	catch (std::exception& ex) {
+	catch (...) {
 #if _DEBUG
 		__debugbreak();
 #endif

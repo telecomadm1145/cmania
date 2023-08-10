@@ -169,7 +169,10 @@ public:
 		unsigned long long size = 0;
 		Read(stm, size);
 		if (size > 1ULL << 48) {
+#if _DEBUG
 			auto off = stm.tellg();
+			off;
+#endif
 			__debugbreak();
 		}
 		vec.reserve(size);

@@ -156,6 +156,8 @@
       <Optimization>MinSpace</Optimization>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <ScanSourceForModuleDependencies>false</ScanSourceForModuleDependencies>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -223,6 +225,8 @@
       <Optimization>MinSpace</Optimization>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <ScanSourceForModuleDependencies>false</ScanSourceForModuleDependencies>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -315,6 +319,7 @@
     <ClInclude Include="Record.h" />
     <ClInclude Include="RecordInputHandler.h" />
     <ClInclude Include="Ruleset.h" />
+    <ClInclude Include="RulesetRenderer.h" />
     <ClInclude Include="ScoreProcessor.h" />
     <ClInclude Include="ScreenController.h" />
     <ClInclude Include="SettingsScreen.h" />

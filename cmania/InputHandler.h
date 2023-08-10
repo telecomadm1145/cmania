@@ -19,4 +19,8 @@ public:
 	virtual void SetClockSource(Stopwatch& sw) = 0;
 	// 加载Action的键位绑定
 	virtual void SetBinds(std::vector<int>& KeyBinds) = 0;
+
+public:
+	virtual ~InputHandler() {
+	}
 };

@@ -12,6 +12,8 @@
 #include "ConsoleInput.h"
 #include "KeyBinds.h"
 #include "DifficultyCalculator.h"
+#pragma warning(disable : 4267)
+#pragma warning(disable : 4244)
 
 class ManiaRuleset : public Ruleset<ManiaObject> {
 	std::vector<Animator<PowerEasingFunction<1.5>>> KeyHighlight;
@@ -204,7 +206,7 @@ public:
 				auto dat = ReadAllBytes(path);
 				SampleCaches[path] = AudioSample(am->loadSample(dat.data(), dat.size()));
 			}
-			catch (std::exception& ex) {
+			catch (...) {
 			}
 		});
 
@@ -274,7 +276,6 @@ public:
 		if (RulesetInputHandler == 0)
 			throw std::invalid_argument("RulesetInputHandler mustn't be nullptr.");
 
-		int i = 0;
 		auto binds = Select(
 			GetKeyBinds(keys), [](const auto& val) -> auto{ return (int)val; })
 						 .ToList<int>();

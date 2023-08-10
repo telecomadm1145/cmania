@@ -21,7 +21,7 @@ public:
 	virtual std::tuple<int, int> GetMousePosition() override {
 		return {};
 	}
-	virtual void SetClockSource(Stopwatch& sw) {
+	virtual void SetClockSource(Stopwatch& sw) override {
 		this->sw = &sw;
 	}
 	virtual std::optional<InputEvent> PollEvent() override {
