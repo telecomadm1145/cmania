@@ -37,6 +37,8 @@ Play osu!mania on a Windows terminal (maybe Linux too?)
 
 Please note that the binary files in the Releases section may be outdated. It is recommended to clone the code and compile the latest version using the following steps:
 
+> Now you can also get newest build (auto build) in the github actions page of this project
+
 1. Clone the repository:
 
    ```
