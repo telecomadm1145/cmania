@@ -58,4 +58,4 @@ jobs:
         # Path to the file to upload
         path: Release.zip
         # secrets.GITHUB_TOKEN
-        repo-token: secrets.GITHUB_TOKEN
+        repo-token: ${{secrets.GITHUB_TOKEN}}
