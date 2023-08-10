@@ -48,14 +48,11 @@ jobs:
       working-directory: ${{env.GITHUB_WORKSPACE}}
       run: powershell.exe ./package.ps1
       
-    - name: Upload to Release
-      # You may pin to the exact commit or the version.
-      # uses: Shopify/upload-to-release@9942a4c936dab172f7101dcc7dc20528ea949102
-      uses: Shopify/upload-to-release@v1.0.1
+    - name: Upload a Build Artifact
+      uses: actions/upload-artifact@v3.1.2
       with:
         # Artifact name
         name: AutoBuild
-        # Path to the file to upload
+        # A file, directory or wildcard pattern that describes what to upload
         path: Release.zip
-        # secrets.GITHUB_TOKEN
-        repo-token: ${{secrets.GITHUB_TOKEN}}
+        # The desired behavior if no files are found using the provided path.
