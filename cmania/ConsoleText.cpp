@@ -1,4 +1,4 @@
-#include <array>
+﻿#include <array>
 #include "ConsoleText.h"
 
 constexpr std::pair<int, int> comb[] = {

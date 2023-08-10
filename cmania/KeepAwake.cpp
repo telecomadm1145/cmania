@@ -1,4 +1,4 @@
-#include <windows.h>
+﻿#include <windows.h>
 #include "KeepAwake.h"
 REASON_CONTEXT _PowerRequestContext{};
 HANDLE _PowerRequest = 0;

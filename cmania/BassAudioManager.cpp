@@ -1,4 +1,4 @@
-#include "BassAudioManager.h"
+﻿#include "BassAudioManager.h"
 #include "EnumFlag.h"
 #include <bass.h>
 #pragma warning(disable : 4267)

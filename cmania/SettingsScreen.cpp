@@ -1,4 +1,4 @@
-#include "ScreenController.h"
+ï»¿#include "ScreenController.h"
 #include <string>
 #include "SpeedSettingScreen.h"
 #include <vector>
@@ -8,29 +8,29 @@ class SettingsScreen :public Screen
 	int scroll = 0;
 	virtual void Render(GameBuffer& buf)
 	{
-		std::string line = "Ñ¡Ïî(ÓÃÉÏÏÂ¼ıÍ··­Ò³):\n";
+		std::string line = "é€‰é¡¹(ç”¨ä¸Šä¸‹ç®­å¤´ç¿»é¡µ):\n";
 		line.push_back('[');
 		line.push_back(game->Settings["JumpHelper"].Get<bool>() ? 'x' : ' ');
 		line.push_back(']');
-		line.append("Ë«Ñº¸¨Öú(J)\n");
+		line.append("åŒæŠ¼è¾…åŠ©(J)\n");
 		line.push_back('[');
 		line.push_back(game->Settings["NoBmpHs"].Get<bool>() ? 'x' : ' ');
 		line.push_back(']');
-		line.append("¹Ø±ÕÆ×Ãæ»÷´òÉù(H)\n");
+		line.append("å…³é—­è°±é¢å‡»æ‰“å£°(H)\n");
 		line.push_back('[');
 		line.push_back(game->Settings["WtMode"].Get<bool>() ? 'x' : ' ');
 		line.push_back(']');
-		line.append("Windows TerminalÄ£Ê½(¹Ø±Õ³¤°´¼Æ·Ö)(W)\n");
+		line.append("Windows Terminalæ¨¡å¼(å…³é—­é•¿æŒ‰è®¡åˆ†)(W)\n");
 		line.push_back('[');
 		line.push_back(game->Settings["NoBg"].Get<bool>() ? 'x' : ' ');
 		line.push_back(']');
-		line.append("¹Ø±Õ±³¾°(B)\n");
+		line.append("å…³é—­èƒŒæ™¯(B)\n");
 		line.push_back('[');
 		line.push_back(game->Settings["TailHs"].Get<bool>() ? 'x' : ' ');
 		line.push_back(']');
-		line.append("³¤°´Î²»÷´òÉù(T)\n");
-		line.append("ËÙ¶ÈÉèÖÃÏòµ¼(S)\n");
-		line.append("ÖØÖÃSongsÂ·¾¶(R)\n");
+		line.append("é•¿æŒ‰å°¾å‡»æ‰“å£°(T)\n");
+		line.append("é€Ÿåº¦è®¾ç½®å‘å¯¼(S)\n");
+		line.append("é‡ç½®Songsè·¯å¾„(R)\n");
 		for (size_t i = 0; i < buf.Height; i++)
 		{
 			line.push_back('\n');

@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "OsuBeatmap.h"
 #include "OsuMods.h"
 

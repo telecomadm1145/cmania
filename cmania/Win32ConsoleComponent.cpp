@@ -1,4 +1,4 @@
-#include <thread>
+﻿#include <thread>
 #include <Windows.h>
 #include "Game.h"
 #include "ConsoleInput.h"

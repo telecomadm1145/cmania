@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 #include "Game.h"
 #include "GameBuffer.h"
 #include "ConsoleInput.h"
@@ -33,7 +33,7 @@ class ScreenController : public GameComponent
 	int history_index = 0;
 	Screen* current = 0;
 
-	// Í¨¹ý Component ¼Ì³Ð
+	// é€šè¿‡ Component ç»§æ‰¿
 	virtual void ProcessEvent(const char* evt, const void* evtargs)
 	{
 		if (strcmp(evt, "navigate") == 0)

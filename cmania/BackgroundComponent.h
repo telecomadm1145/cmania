@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "GameBuffer.h"
 #include "StbImage.h"
 #include <filesystem>

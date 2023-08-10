@@ -1,4 +1,4 @@
-#pragma warning(disable : 4244)
+Ôªø#pragma warning(disable : 4244)
 #include "BassAudioManager.h"
 #include "ScreenController.h"
 #include "GameBuffer.h"
@@ -29,14 +29,14 @@ class SongSelectScreen : public Screen {
 	OsuMods mods;
 	GameBuffer::Color difficultyToRGBColor(float difficulty) {
 		std::vector<std::tuple<double, double, GameBuffer::Color>> ranges = {
-			{ 0, 1, { 0, 204, 204, 204 } },								   // ª“
-			{ 1, 2, { 0, 77, 230, 46 } },								   // ¬Ã
-			{ 2, 3, { 0, 61, 135, 204 } },								   // ¿∂
-			{ 3, 4, { 0, 230, 153, 46 } },								   // ≥»
+			{ 0, 1, { 0, 204, 204, 204 } },								   // ÁÅ∞
+			{ 1, 2, { 0, 77, 230, 46 } },								   // Áªø
+			{ 2, 3, { 0, 61, 135, 204 } },								   // Ëìù
+			{ 3, 4, { 0, 230, 153, 46 } },								   // Ê©ô
 			{ 4, 5, { 0, 230, 55, 46 } },								   // Red
 			{ 5, 6, { 0, 202, 46, 230 } },								   // Purple
 			{ 6, 7, { 0, 108, 0, 127 } },								   // Dark Purple
-			{ 8, std::numeric_limits<double>::infinity(), { 0, 0, 0, 0 } } // ∫⁄
+			{ 8, std::numeric_limits<double>::infinity(), { 0, 0, 0, 0 } } // Èªë
 		};
 
 		// Iterate through the ranges and find the corresponding RGB color
@@ -57,7 +57,7 @@ class SongSelectScreen : public Screen {
 		w_cache = buf.Width;
 		if (!ready) {
 			if (require_songs_path) {
-				buf.DrawString("«ÎÕœ»ÎSongsŒƒº˛º–ªÚ’ﬂ ÷∂Øº¸»ÎSongsŒƒº˛º–¬∑æ∂.", 0, 0, {}, {});
+				buf.DrawString("ËØ∑ÊãñÂÖ•SongsÊñá‰ª∂Â§πÊàñËÄÖÊâãÂä®ÈîÆÂÖ•SongsÊñá‰ª∂Â§πË∑ØÂæÑ.", 0, 0, {}, {});
 				buf.DrawString(std::wstring{ input_buf.begin(), input_buf.end() }, 0, 1, {}, {});
 				return;
 			}
@@ -76,7 +76,7 @@ class SongSelectScreen : public Screen {
 		int songheight = 3;
 		int originpointx = c1 + buf.Width;
 		int originpointy = (int)(buf.Height / 2);
-		double startangle = calculateAngle(buf.Width, 0, originpointx, originpointy); // ∆ ºΩ«∂»
+		double startangle = calculateAngle(buf.Width, 0, originpointx, originpointy); // Ëµ∑ÂßãËßíÂ∫¶
 		double endangle = calculateAngle(buf.Width, buf.Height, originpointx, originpointy);
 		double distance = sqrt(pow(c1, 2) + pow(buf.Height / 2, 2));
 
@@ -85,7 +85,7 @@ class SongSelectScreen : public Screen {
 		int min = index - h_cache / 2 - 5 - (selected_entry != 0 ? selected_entry->difficulties.size() : 0);
 
 		if (caches.empty()) {
-			buf.DrawString("ø’ø’»Á“≤", buf.Width - 30, buf.Height / 2, {}, {});
+			buf.DrawString("Á©∫Á©∫Â¶Ç‰πü", buf.Width - 30, buf.Height / 2, {}, {});
 		}
 		else {
 			for (int i = min; i < index + max; i++) {
@@ -98,7 +98,7 @@ class SongSelectScreen : public Screen {
 				double b = distance * sin(basicoff / buf.Height * (startangle - endangle) - startangle);
 				int b2 = buf.Width + abs(b) - c2;
 				if (i == selected) {
-					buf.FillRect(b2, basicoff, b2 + c2, basicoff + songheight, { {}, { 100, 255, 255, 255 }, ' ' }); // ∏ﬂ¡¡
+					buf.FillRect(b2, basicoff, b2 + c2, basicoff + songheight, { {}, { 100, 255, 255, 255 }, ' ' }); // È´ò‰∫Æ
 					int k = 1;
 					int diffxpos = 3;
 					for (auto& diff : cache.difficulties) {
@@ -111,7 +111,7 @@ class SongSelectScreen : public Screen {
 						k++;
 					}
 				}
-				buf.FillRect(b2, basicoff, b2 + c2, basicoff + songheight, { {}, { 150, 32, 32, 32 }, ' ' }); // ◊Û…œ”“œ¬
+				buf.FillRect(b2, basicoff, b2 + c2, basicoff + songheight, { {}, { 150, 32, 32, 32 }, ' ' }); // Â∑¶‰∏äÂè≥‰∏ã
 				buf.DrawString(cache.artist + " - " + cache.title, b2 + 1, basicoff + 1, {}, {});
 			}
 		}
@@ -149,15 +149,15 @@ class SongSelectScreen : public Screen {
 		else {
 			buf.DrawString("No song selected.", 1, 3, {}, {});
 		}
-		buf.DrawString("Esc - ∑µªÿ …œœ¬◊Û”“/ Û±Í - —°∏Ë F2 ÀÊª˙ F3 Mods F4 —°œÓ Enter/µ„ª˜ ø™ º     Written by telecomadm1145", 0, buf.Height - 1, {}, {});
+		buf.DrawString("Esc - ËøîÂõû ‰∏ä‰∏ãÂ∑¶Âè≥/Èº†Ê†á - ÈÄâÊ≠å F2 ÈöèÊú∫ F3 Mods F4 ÈÄâÈ°π Enter/ÁÇπÂáª ÂºÄÂßã     Written by telecomadm1145", 0, buf.Height - 1, {}, {});
 		buf.FillRect(buf.Width - 30, 2, buf.Width - 3, 2, { {}, { 130, 128, 128, 128 }, ' ' });
-		buf.DrawString("À—À˜:", buf.Width - 30, 2, { 255, 100, 255, 150 }, {});
+		buf.DrawString("ÊêúÁ¥¢:", buf.Width - 30, 2, { 255, 100, 255, 150 }, {});
 		buf.DrawString(std::wstring{ search_buf.begin(), search_buf.end() }, buf.Width - 24, 2, { 255, 100, 255, 150 }, {});
 		if (mod_flyout) {
 			buf.FillRect(0, 0, buf.Width, buf.Height, { {}, { 170, 20, 20, 20 }, ' ' });
-			buf.DrawString("Mod —° ‘Ò", 5, 6, {}, {});
-			buf.DrawString("Mod Ã·π©¡À“ª÷÷»√±»Àœ‡µ±ƒø∫¶µƒ”Œœ∑ÃÂ—È£¨ø…“‘Ã·∏ﬂªÚ’ﬂΩµ(±‰œ‡)µÕ(Ã·∏ﬂ)”Œœ∑ƒ—∂»", 5, 8, {}, {});
-			std::string line1 = "ƒ—∂»ΩµµÕ: ";
+			buf.DrawString("Mod ÈÄâ Êã©", 5, 6, {}, {});
+			buf.DrawString("Mod Êèê‰æõ‰∫Ü‰∏ÄÁßçËÆ©Âà´‰∫∫Áõ∏ÂΩìÁõÆÂÆ≥ÁöÑÊ∏∏Êàè‰ΩìÈ™åÔºåÂèØ‰ª•ÊèêÈ´òÊàñËÄÖÈôç(ÂèòÁõ∏)‰Ωé(ÊèêÈ´ò)Ê∏∏ÊàèÈöæÂ∫¶", 5, 8, {}, {});
+			std::string line1 = "ÈöæÂ∫¶Èôç‰Ωé: ";
 			line1.push_back('[');
 			line1.push_back(HasFlag(mods, OsuMods::Easy) ? 'x' : ' ');
 			line1.push_back(']');
@@ -178,7 +178,7 @@ class SongSelectScreen : public Screen {
 			line1.push_back(']');
 			line1.append("Re(l)ax");
 			buf.DrawString(line1, 5, 12, {}, {});
-			line1 = "ƒ—∂»Ã·∏ﬂ: ";
+			line1 = "ÈöæÂ∫¶ÊèêÈ´ò: ";
 			line1.push_back('[');
 			line1.push_back(HasFlag(mods, OsuMods::Hardrock) ? 'x' : ' ');
 			line1.push_back(']');
@@ -199,7 +199,7 @@ class SongSelectScreen : public Screen {
 			line1.push_back(']');
 			line1.append("(F)adeOut");
 			buf.DrawString(line1, 5, 16, {}, {});
-			line1 = "Ãÿ ‚:     ";
+			line1 = "ÁâπÊÆä:     ";
 			line1.push_back('[');
 			line1.push_back(HasFlag(mods, OsuMods::Auto) ? 'x' : ' ');
 			line1.push_back(']');
@@ -232,10 +232,10 @@ class SongSelectScreen : public Screen {
 			auto modscale = GetModScale(mods);
 			auto num = std::to_string(modscale);
 			num.resize(4);
-			auto modscale_tip = "∑÷ ˝±∂¬ :" + num + "x";
+			auto modscale_tip = "ÂàÜÊï∞ÂÄçÁéá:" + num + "x";
 			buf.DrawString(modscale_tip, 5, 24, {}, {});
-			buf.DrawString("–Ë“™∂ÓÕ‚◊¢“‚µƒ «: Keys mod –Ë“™ Random mod ,”√–°º¸≈Ã 1-9 —°‘Ò.   Relax ∫ˆ¬‘≥˝ miss Õ‚≈–∂®", 5, 28, {}, {});
-			buf.DrawString("Esc - ∑µªÿ", 0, buf.Height - 1, {}, {});
+			buf.DrawString("ÈúÄË¶ÅÈ¢ùÂ§ñÊ≥®ÊÑèÁöÑÊòØ: Keys mod ÈúÄË¶Å Random mod ,Áî®Â∞èÈîÆÁõò 1-9 ÈÄâÊã©.   Relax ÂøΩÁï•Èô§ miss Â§ñÂà§ÂÆö", 5, 28, {}, {});
+			buf.DrawString("Esc - ËøîÂõû", 0, buf.Height - 1, {}, {});
 		}
 	}
 	double offset = 0;
@@ -380,7 +380,7 @@ class SongSelectScreen : public Screen {
 				int songheight = 3;
 				int originpointx = c1 + w_cache;
 				int originpointy = (int)(h_cache / 2);
-				double startangle = calculateAngle(w_cache, 0, originpointx, originpointy); // ∆ ºΩ«∂»
+				double startangle = calculateAngle(w_cache, 0, originpointx, originpointy); // Ëµ∑ÂßãËßíÂ∫¶
 				double endangle = calculateAngle(w_cache, h_cache, originpointx, originpointy);
 				double distance = sqrt(pow(c1, 2) + pow(h_cache / 2, 2));
 
@@ -548,7 +548,7 @@ class SongSelectScreen : public Screen {
 			if (kea.Key == ConsoleKey::Insert) {
 				if (selected_entry_2 != 0 && selected != INT_MAX) {
 					if (records.size() > 0)
-						parent->Navigate(MakeGameplayScreen(records[0], selected_entry_2->path, mods));
+						parent->Navigate(MakeGameplayScreen(records[0], selected_entry_2->path));
 				}
 			}
 		}

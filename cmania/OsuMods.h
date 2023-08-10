@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "EnumFlag.h"
 
 // High word: Keys

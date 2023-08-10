@@ -1,5 +1,5 @@
-#pragma once
-#pragma warning(disable:4996) // ÖÇÕÏmsvc
+ï»¿#pragma once
+#pragma warning(disable:4996) // æ™ºéšœmsvc
 #include "Unicode.h"
 #include "ConsoleText.h"
 #include <vector>
@@ -200,7 +200,7 @@ public:
 			outbuf.emplace_back('\n');
 		}
 		if (outbuf.size() >= 1)
-			outbuf.erase(outbuf.end() - 1); //È¥³ıÄ©Î²µÄ»»ĞĞ
+			outbuf.erase(outbuf.end() - 1); //å»é™¤æœ«å°¾çš„æ¢è¡Œ
 		write(outbuf.data(), outbuf.size());
 	}
 	void DrawString(const std::string& text, int startX, int startY, Color fg, Color bg)

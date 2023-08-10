@@ -1,4 +1,4 @@
-#include "KeyBinds.h"
+﻿#include "KeyBinds.h"
 std::vector<ConsoleKey> key_binds = {
 	ConsoleKey::A, ConsoleKey::S, ConsoleKey::D, ConsoleKey::F,
 		ConsoleKey::Spacebar,

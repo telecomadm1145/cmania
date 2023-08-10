@@ -1,4 +1,4 @@
-#include <thread>
+ï»¿#include <thread>
 #include <string>
 #include <vector>
 #include <filesystem>
@@ -129,7 +129,7 @@ class BeatmapManagementService : public GameComponent {
 		}
 		pthis->parent->Raise("require", "SongsPath");
 	}
-	// Í¨¹ý Component ¼Ì³Ð
+	// é€šè¿‡ Component ç»§æ‰¿
 	virtual void ProcessEvent(const char* evt, const void* evtargs) {
 		if (strcmp(evt, "get_songs_cache") == 0) {
 			std::thread(GetSongsCache, this).detach();

@@ -1,4 +1,4 @@
-#include "Debug.h"
+﻿#include "Debug.h"
 #include <Windows.h>
 
 void DbgOutput(const char* str) {

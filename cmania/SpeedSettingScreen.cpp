@@ -1,4 +1,4 @@
-#include "ScreenController.h"
+ï»¿#include "ScreenController.h"
 #include "BassAudioManager.h"
 #include "File.h"
 #include "SpeedSettingScreen.h"
@@ -32,9 +32,9 @@ class SpeedSettingScreen :public Screen
 	{
 		if (tick == 0 || hit == 0)
 			return;
-		buf.DrawString("°´F3/F4¼Ó¼õËÙµ½ºÏÊÊµÄÇø¼ä(°´RÖØÖÃ)(Ò»¸öÇø¼ä4¸öÒô·û)\n", 0, 0, {}, {});
+		buf.DrawString("æŒ‰F3/F4åŠ å‡é€Ÿåˆ°åˆé€‚çš„åŒºé—´(æŒ‰Ré‡ç½®)(ä¸€ä¸ªåŒºé—´4ä¸ªéŸ³ç¬¦)\n", 0, 0, {}, {});
 		// Render speed range information
-		std::string speedInfo = "ManiaËÙ¶È: " + std::to_string(c1 / speed) + "(" + std::to_string(speed) + "ms)";
+		std::string speedInfo = "Maniaé€Ÿåº¦: " + std::to_string(c1 / speed) + "(" + std::to_string(speed) + "ms)";
 		buf.DrawString(speedInfo.c_str(), 0, 2, {}, {});
 		if (speed > 0)
 		{
@@ -52,7 +52,7 @@ class SpeedSettingScreen :public Screen
 				{
 					clr = { 255,255,0,0 };
 				}
-				auto y = (clock - i) / speed * (buf.Height - 4); // noteµÄÆðÊ¼Ê±¼ä
+				auto y = (clock - i) / speed * (buf.Height - 4); // noteçš„èµ·å§‹æ—¶é—´
 				buf.FillRect(mid - x / 2, y, mid + x / 2, y, { {},clr,' ' });
 				j++;
 			}
@@ -90,7 +90,7 @@ class SpeedSettingScreen :public Screen
 				game->Settings["ScrollSpeed"].Set(speed);
 				game->Settings.Write();
 			}
-			if (kea.Key == ConsoleKey::F3) // ¼õËÙ
+			if (kea.Key == ConsoleKey::F3) // å‡é€Ÿ
 			{
 				if (speed > 0)
 				{
@@ -101,7 +101,7 @@ class SpeedSettingScreen :public Screen
 				game->Settings["ScrollSpeed"].Set(speed);
 				game->Settings.Write();
 			}
-			if (kea.Key == ConsoleKey::F4) // ¼ÓËÙ
+			if (kea.Key == ConsoleKey::F4) // åŠ é€Ÿ
 			{
 				if (speed > 151)
 				{

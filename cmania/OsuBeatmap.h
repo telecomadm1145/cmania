@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "OsuStatic.h"
 #include "String.h"
 #include <string>

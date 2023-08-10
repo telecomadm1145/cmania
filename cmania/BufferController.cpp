@@ -1,4 +1,4 @@
-#include "Game.h"
+ï»¿#include "Game.h"
 #include "GameBuffer.h"
 #include "ConsoleInput.h"
 #include "BufferController.h"
@@ -18,7 +18,7 @@ public:
 							 parent->Raise("push", pushevt);
 						 }) {
 	}
-	// Í¨¹ý Component ¼Ì³Ð
+	// é€šè¿‡ Component ç»§æ‰¿
 	virtual void ProcessEvent(const char* evt, const void* evtargs) {
 		if (strcmp(evt, "start") == 0) {
 			parent->Raise("fresize");

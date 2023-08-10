@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include <istream>
 #include <chrono>
 #include <vector>
@@ -66,3 +66,5 @@ public:
 		return (it != audioDevices.end()) ? *it : nullptr;
 	}
 };
+using AudioSample = std::shared_ptr<IAudioManager::ISample>;
+using AudioStream = std::shared_ptr<IAudioManager::IAudioStream>;

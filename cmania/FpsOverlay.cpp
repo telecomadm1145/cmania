@@ -1,11 +1,11 @@
-#include "Game.h"
+ï»¿#include "Game.h"
 #include "GameBuffer.h"
 #include <string>
 #include "Hpet.h"
 #include "FpsOverlay.h"
 
 class FpsOverlay : public GameComponent {
-	// Í¨¹ý Component ¼Ì³Ð
+	// é€šè¿‡ Component ç»§æ‰¿
 	virtual void ProcessEvent(const char* evt, const void* evtargs) {
 		static int tickcount = 0;
 		static double lastcount = 0;

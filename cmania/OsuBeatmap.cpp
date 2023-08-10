@@ -1,4 +1,4 @@
-#include "OsuBeatmap.h"
+ï»¿#include "OsuBeatmap.h"
 
 OsuBeatmap OsuBeatmap::Parse(std::istream& sr) {
 	OsuBeatmap bm{};
@@ -26,7 +26,7 @@ OsuBeatmap OsuBeatmap::Parse(std::istream& sr) {
 					bm.Video = Trim(args[2], '\"');
 					bm.VideoOffset = std::stoi(args[1]);
 				}
-				// £¿
+				// ï¼Ÿ
 			}
 			else if (category == "TimingPoints") {
 				TimingPoint tp;

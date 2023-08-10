@@ -1,4 +1,4 @@
-#include "OsuBeatmap.h"
+ï»¿#include "OsuBeatmap.h"
 #include <algorithm>
 #include "DifficultyCalculator.h"
 #include "OsuMods.h"
@@ -82,7 +82,7 @@ double CalculateDiff(const OsuBeatmap& beatmap, OsuMods mods, int keys) {
 		}
 		avgdiff += std::max(0.003, diffs[k]);
 	}
-	avgdiff /= diffnum; // avgdiff ÓëÄÍÁ¦Ïà¹Ø
+	avgdiff /= diffnum; // avgdiff ä¸è€åŠ›ç›¸å…³
 	avgdiff *= 0.6;
 	top20diff /= top20num;
 	return (avgdiff + top20diff) * 20;

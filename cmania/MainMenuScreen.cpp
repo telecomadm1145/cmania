@@ -1,11 +1,11 @@
-#include "SongSelectScreen.h"
+ï»¿#include "SongSelectScreen.h"
 #include "ScreenController.h"
 #include "SettingsScreen.h"
 #include "MainMenuScreen.h"
 
 class MainMenuScreen : public Screen {
 	virtual void Render(GameBuffer& buf) {
-		buf.DrawString("°´ÏÂ Enter ½øÈëÑ¡¸è½çÃæ\n°´ÏÂ O ¼ü½øĞĞÉèÖÃ", 0, 0, {}, {});
+		buf.DrawString("æŒ‰ä¸‹ Enter è¿›å…¥é€‰æ­Œç•Œé¢\næŒ‰ä¸‹ O é”®è¿›è¡Œè®¾ç½®", 0, 0, {}, {});
 	}
 	virtual void Key(KeyEventArgs kea) {
 		if (kea.Pressed) {

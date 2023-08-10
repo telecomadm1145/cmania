@@ -1,9 +1,10 @@
-#pragma once
+﻿#pragma once
 #include <utility>
 #include <map>
+#include <string>
+#include "GameBuffer.h"
 
-enum class HitResult : unsigned int
-{
+enum class HitResult : unsigned int {
 	None,
 	// 0
 	Miss,
@@ -58,8 +59,7 @@ enum class GameMode : unsigned int {
 	Catch,
 	Mania,
 };
-struct HitRange
-{
+struct HitRange {
 	HitResult Result;
 	double Min;
 	double Average;
@@ -76,8 +76,7 @@ constexpr inline double PREEMPT_MIN = 450;
 constexpr inline float DEFAULT_DIFFICULTY = 5;
 constexpr inline double FADE_OUT_DURATION = 200;
 constexpr inline double FADE_OUT_SCALE = 1.5;
-constexpr inline double DifficultyRange(double difficulty, double min, double mid, double max)
-{
+constexpr inline double DifficultyRange(double difficulty, double min, double mid, double max) {
 	if (difficulty > 5)
 		return mid + (max - mid) * (difficulty - 5) / 5;
 	if (difficulty < 5)
@@ -92,35 +91,27 @@ constexpr inline HitRange BaseHitRanges[] = {
 	HitRange(HitResult::Meh, 151, 136, 121),
 	HitRange(HitResult::Miss, 188, 173, 158)
 };
-inline std::map<HitResult, double> GetHitRanges(double od)
-{
+inline std::map<HitResult, double> GetHitRanges(double od) {
 	std::map<HitResult, double> res;
-	for (auto& x : BaseHitRanges)
-	{
+	for (auto& x : BaseHitRanges) {
 		res[x.Result] = DifficultyRange(od, x.Min, x.Average, x.Max);
 	}
 	return res;
 }
-inline double DifficultyFadeIn(double preempt)
-{
+constexpr inline double DifficultyFadeIn(double preempt) {
 	return 400 * std::min(1.0, preempt / PREEMPT_MIN);
 }
-inline double DifficultyPreempt(double ar)
-{
+constexpr inline double DifficultyPreempt(double ar) {
 	return DifficultyRange(ar, 1800, 1200, PREEMPT_MIN);
 }
-inline double DifficultyScale(double cs)
-{
-	return(1.0f - 0.7f * (cs - 5) / 5) / 2;
+constexpr inline double DifficultyScale(double cs) {
+	return (1.0f - 0.7f * (cs - 5) / 5) / 2;
 }
-inline int CalcColumn(double xpos, int keys)
-{
+constexpr inline int CalcColumn(double xpos, int keys) {
 	double begin = 512 / keys / 2;
 	double mid = begin;
-	for (int i = 0; i < keys; i++)
-	{
-		if (std::abs(mid - xpos - 1) < begin)
-		{
+	for (int i = 0; i < keys; i++) {
+		if (std::abs(mid - xpos - 1) < begin) {
 			return i;
 		}
 		mid += begin * 2;
@@ -129,4 +120,58 @@ inline int CalcColumn(double xpos, int keys)
 	__debugbreak();
 #endif
 	return 0;
+}
+constexpr inline std::string GetHitResultName(HitResult res) {
+	switch (res) {
+	case HitResult::Miss:
+		return "Miss";
+	case HitResult::Meh:
+		return "Meh";
+	case HitResult::Ok:
+		return "Ok";
+	case HitResult::Good:
+		return "Good";
+	case HitResult::Great:
+		return "Great";
+	case HitResult::Perfect:
+		return "Perf";
+	default:
+		return "Unknown";
+	}
+}
+constexpr inline GameBuffer::Color GetHitResultColor(HitResult res) {
+	switch (res) {
+	case HitResult::Miss:
+		return { 255, 255, 0, 0 };
+	case HitResult::Meh:
+		return { 255, 255, 132, 0 };
+	case HitResult::Ok:
+		return { 255, 255, 192, 56 };
+	case HitResult::Good:
+		return { 255, 255, 255, 114 };
+	case HitResult::Great:
+		return { 255, 0, 192, 255 };
+	case HitResult::Perfect:
+		return { 255, 147, 228, 255 };
+	default:
+		return { 255, 255, 255, 255 };
+	}
+}
+constexpr inline int GetBaseScore(HitResult res) {
+	switch (res) {
+	case HitResult::Miss:
+		return 0;
+	case HitResult::Meh:
+		return 50;
+	case HitResult::Ok:
+		return 100;
+	case HitResult::Good:
+		return 200;
+	case HitResult::Great:
+		return 300;
+	case HitResult::Perfect:
+		return 320;
+	default:
+		return 0;
+	}
 }

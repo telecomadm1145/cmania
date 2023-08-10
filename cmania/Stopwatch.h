@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "Hpet.h"
 
 class Stopwatch

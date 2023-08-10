@@ -1,4 +1,4 @@
-// Makes iters more beautiful.
+﻿// Makes iters more beautiful.
 #pragma once
 
 template<class Iter>

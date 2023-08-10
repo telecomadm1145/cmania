@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 #include <fstream>
 #include <vector>
 #include <map>
@@ -53,7 +53,7 @@ struct BinaryStorageItem {
 	}
 };
 /// <summary>
-/// Ò»¸ö¼òµ¥µÄ¶ş½øÖÆ´æ´¢Àà£¬Ö§³ÖÎŞÖ¸ÕëµÄÓĞ¸´ÖÆ¹¹Ôìº¯ÊıµÄÀàĞÍ
+/// ä¸€ä¸ªç®€å•çš„äºŒè¿›åˆ¶å­˜å‚¨ç±»ï¼Œæ”¯æŒæ— æŒ‡é’ˆçš„æœ‰å¤åˆ¶æ„é€ å‡½æ•°çš„ç±»å‹
 /// </summary>
 class BinaryStorage {
 private:
@@ -121,11 +121,11 @@ using ContainerChild = std::remove_cvref_t<decltype(*std::declval<T>().cbegin())
 template <class T>
 concept BinaryVector =
 	requires(T v, typename T::value_type& val, size_t sz) {
-		// ĞèÒª´óĞ¡²Ù×÷
+		// éœ€è¦å¤§å°æ“ä½œ
 		{ v.size() } -> std::convertible_to<std::size_t>;
 		{ v.reserve(sz) } -> std::same_as<void>;
 
-		// ĞèÒªÖ»¶Áµü´úÆ÷
+		// éœ€è¦åªè¯»è¿­ä»£å™¨
 		{ v.cbegin() } -> std::convertible_to<typename T::const_iterator>;
 		{ v.cend() } -> std::convertible_to<typename T::const_iterator>;
 
@@ -134,18 +134,18 @@ concept BinaryVector =
 template <class T>
 concept BinaryMap =
 	requires(T m) {
-		// ĞèÒª¼üÖµ¶ÔÀàĞÍ
+		// éœ€è¦é”®å€¼å¯¹ç±»å‹
 		typename T::key_type;
 		typename T::mapped_type;
 		typename T::value_type;
 
-		// ĞèÒªÖ»¶Áµü´úÆ÷
+		// éœ€è¦åªè¯»è¿­ä»£å™¨
 		{ m.cbegin() } -> std::convertible_to<typename T::const_iterator>;
 		{ m.cend() } -> std::convertible_to<typename T::const_iterator>;
 	};
 #define _BIN_DBG
 /// <summary>
-/// Ìá¹©½á¹¹»¯µÄ¶ş½øÖÆÓëstlµÄ×ª»»
+/// æä¾›ç»“æ„åŒ–çš„äºŒè¿›åˆ¶ä¸stlçš„è½¬æ¢
 /// </summary>
 class Binary {
 public:

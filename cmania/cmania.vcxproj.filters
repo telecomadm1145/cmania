@@ -133,16 +133,84 @@
     <ClInclude Include="SettingsScreen.h">
       <Filter>Game</Filter>
     </ClInclude>
-    <ClInclude Include="BackgroundComponent.h">
-      <Filter>Game</Filter>
-    </ClInclude>
     <ClInclude Include="Debug.h">
       <Filter>Core</Filter>
     </ClInclude>
     <ClInclude Include="Animator.h">
       <Filter>Core</Filter>
     </ClInclude>
-    <ClInclude Include="SettingStorage.h" />
+    <ClInclude Include="Game.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="GameBuffer.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="KeyBinds.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="OsuBeatmap.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="OsuMods.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="ScreenController.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="String.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Stopwatch.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="SettingStorage.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Unicode.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="BackgroundComponent.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="HitObject.h">
+      <Filter>Game\Gameplay</Filter>
+    </ClInclude>
+    <ClInclude Include="ManiaObject.h">
+      <Filter>Game\Gameplay</Filter>
+    </ClInclude>
+    <ClInclude Include="Beatmap.h">
+      <Filter>Game\Gameplay</Filter>
+    </ClInclude>
+    <ClInclude Include="InputHandler.h">
+      <Filter>Game\Gameplay</Filter>
+    </ClInclude>
+    <ClInclude Include="InputEvent.h">
+      <Filter>Game\Gameplay</Filter>
+    </ClInclude>
+    <ClInclude Include="Record.h">
+      <Filter>Game\Gameplay</Filter>
+    </ClInclude>
+    <ClInclude Include="OsuStatic.h">
+      <Filter>Game\Gameplay</Filter>
+    </ClInclude>
+    <ClInclude Include="RecordInputHandler.h">
+      <Filter>Game\Gameplay</Filter>
+    </ClInclude>
+    <ClInclude Include="ConsoleInputHandler.h">
+      <Filter>Game\Gameplay</Filter>
+    </ClInclude>
+    <ClInclude Include="ScoreProcessor.h">
+      <Filter>Game\Gameplay</Filter>
+    </ClInclude>
+    <ClInclude Include="Ruleset.h">
+      <Filter>Game\Gameplay</Filter>
+    </ClInclude>
+    <ClInclude Include="ManiaScoreProcessor.h">
+      <Filter>Game\Gameplay\Mania</Filter>
+    </ClInclude>
+    <ClInclude Include="ManiaRuleset.h">
+      <Filter>Game\Gameplay\Mania</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Core">
@@ -162,6 +230,12 @@
     </Filter>
     <Filter Include="Core\System">
       <UniqueIdentifier>{c9312f31-6251-4db2-b9f4-573e0d5c3d52}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game\Gameplay">
+      <UniqueIdentifier>{4916d0d3-553e-4e7a-8a0b-1a6b5734915d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game\Gameplay\Mania">
+      <UniqueIdentifier>{538b0f29-5a66-49d8-b708-e8d832c2f642}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -222,7 +296,6 @@
     <None Include="Samples\Triangles\soft-sliderslide.wav" />
     <None Include="Samples\Triangles\soft-slidertick.wav" />
     <None Include="Samples\Triangles\soft-sliderwhistle.wav" />
-    <None Include="Samples\*\*" />
     <None Include="Samples\*\*" />
     <None Include="Samples\*\*" />
     <None Include="Samples\*\*" />

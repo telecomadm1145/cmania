@@ -1,11 +1,11 @@
-#include <thread>
+ï»¿#include <thread>
 #include "Game.h"
 #include "Hpet.h"
 #include "TickSource.h"
 
 class TickSource : public GameComponent
 {
-	// Í¨¹ý Component ¼Ì³Ð
+	// é€šè¿‡ Component ç»§æ‰¿
 	virtual void ProcessEvent(const char* evt, const void* evtargs)
 	{
 		if (strcmp(evt, "start") == 0)
