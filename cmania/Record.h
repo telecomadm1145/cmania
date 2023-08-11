@@ -31,6 +31,7 @@ public:
 	std::map<HitResult, int> ResultCounter;
 	std::vector<InputEvent> Events;
 	void Write(std::ostream& os) const {
+		Binary::Write(os, Mods);
 		Binary::Write(os, Score);
 		Binary::Write(os, Accuracy);
 		Binary::Write(os, MaxCombo);
@@ -48,6 +49,7 @@ public:
 		Binary::Write(os, Events);
 	}
 	void Read(std::istream& is) {
+		Binary::Read(is, Mods);
 		Binary::Read(is, Score);
 		Binary::Read(is, Accuracy);
 		Binary::Read(is, MaxCombo);

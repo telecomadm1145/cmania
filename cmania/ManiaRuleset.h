@@ -281,7 +281,9 @@ public:
 						 .ToList<int>();
 		RulesetInputHandler->SetBinds(binds);
 
+		RulesetRecord.Mods = Mods;
 		RulesetRecord.RatingGraph.resize(((end_obj - first_obj) + 11000) / 100);
+
 		RulesetScoreProcessor->RulesetRecord = &RulesetRecord;
 		RulesetScoreProcessor->SetDifficulty(orig_bmp.OverallDifficulty);
 		RulesetScoreProcessor->SetMods(Mods);
@@ -401,6 +403,39 @@ public:
 					RulesetScoreProcessor->ApplyHit(obj, 1.0 / 0 * 0);
 					LastHitResult = HitResult::Miss;
 					LastHitResultAnimator.Start(Clock.Elapsed());
+				}
+			}
+
+			// Handles sliding sample.
+			if (obj.HasHit && obj.EndTime != 0) {
+				if (!(obj.HasHold || obj.HoldBroken)) {
+					if (RulesetInputHandler->GetKeyStatus(obj.Column)) // Pressed
+					{
+						if (obj.ssample != 0 && obj.ssample_stream == 0) {
+							obj.ssample_stream = AudioStream(obj.ssample->generateStream());
+							obj.ssample_stream->play();
+						}
+						if (obj.ssamplew != 0 && obj.ssamplew_stream == 0) {
+							obj.ssamplew_stream = AudioStream(obj.ssamplew->generateStream());
+							obj.ssamplew_stream->play();
+						}
+					}
+					if (obj.ssample_stream && !obj.ssample_stream->isPlaying()) {
+						obj.ssample_stream->play();
+					}
+					if (obj.ssamplew_stream && !obj.ssample_stream->isPlaying()) {
+						obj.ssamplew_stream->play();
+					}
+				}
+				else {
+					if (obj.ssample_stream) {
+						obj.ssample_stream->stop();
+						obj.ssample_stream = 0;
+					}
+					if (obj.ssamplew_stream) {
+						obj.ssamplew_stream->stop();
+						obj.ssamplew_stream = 0;
+					}
 				}
 			}
 		});
