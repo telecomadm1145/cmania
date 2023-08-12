@@ -5,9 +5,6 @@
     <ClCompile Include="BufferController.cpp">
       <Filter>Core</Filter>
     </ClCompile>
-    <ClCompile Include="ConsoleText.cpp">
-      <Filter>Core</Filter>
-    </ClCompile>
     <ClCompile Include="FpsOverlay.cpp">
       <Filter>Core</Filter>
     </ClCompile>
@@ -62,6 +59,12 @@
     <ClCompile Include="Debug.cpp">
       <Filter>Core</Filter>
     </ClCompile>
+    <ClCompile Include="ResultScreen.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="ConsoleText.cpp">
+      <Filter>Core\UI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ConsoleInput.h">
@@ -100,9 +103,6 @@
     <ClInclude Include="DifficultyCalculator.h">
       <Filter>Beatmap</Filter>
     </ClInclude>
-    <ClInclude Include="ConsoleText.h">
-      <Filter>Core</Filter>
-    </ClInclude>
     <ClInclude Include="KeepAwake.h">
       <Filter>Core</Filter>
     </ClInclude>
@@ -136,22 +136,10 @@
     <ClInclude Include="Debug.h">
       <Filter>Core</Filter>
     </ClInclude>
-    <ClInclude Include="Animator.h">
-      <Filter>Core</Filter>
-    </ClInclude>
     <ClInclude Include="Game.h">
       <Filter>Core</Filter>
     </ClInclude>
-    <ClInclude Include="GameBuffer.h">
-      <Filter>Core</Filter>
-    </ClInclude>
     <ClInclude Include="KeyBinds.h">
-      <Filter>Core</Filter>
-    </ClInclude>
-    <ClInclude Include="OsuBeatmap.h">
-      <Filter>Core</Filter>
-    </ClInclude>
-    <ClInclude Include="OsuMods.h">
       <Filter>Core</Filter>
     </ClInclude>
     <ClInclude Include="ScreenController.h">
@@ -167,9 +155,6 @@
       <Filter>Core</Filter>
     </ClInclude>
     <ClInclude Include="Unicode.h">
-      <Filter>Core</Filter>
-    </ClInclude>
-    <ClInclude Include="BackgroundComponent.h">
       <Filter>Core</Filter>
     </ClInclude>
     <ClInclude Include="HitObject.h">
@@ -214,6 +199,27 @@
     <ClInclude Include="RulesetRenderer.h">
       <Filter>Game\Gameplay</Filter>
     </ClInclude>
+    <ClInclude Include="ResultScreen.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Animator.h">
+      <Filter>Core\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="BackgroundComponent.h">
+      <Filter>Core\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="ConsoleText.h">
+      <Filter>Core\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="GameBuffer.h">
+      <Filter>Core\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="OsuBeatmap.h">
+      <Filter>Game\Gameplay\Osu</Filter>
+    </ClInclude>
+    <ClInclude Include="OsuMods.h">
+      <Filter>Game\Gameplay\Osu</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Core">
@@ -239,6 +245,12 @@
     </Filter>
     <Filter Include="Game\Gameplay\Mania">
       <UniqueIdentifier>{538b0f29-5a66-49d8-b708-e8d832c2f642}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\UI">
+      <UniqueIdentifier>{90c5ca6f-732e-4d86-8d4d-42da326f83ae}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game\Gameplay\Osu">
+      <UniqueIdentifier>{cf5d59e0-d725-4815-ac3f-e40cafc9fe79}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -299,8 +311,6 @@
     <None Include="Samples\Triangles\soft-sliderslide.wav" />
     <None Include="Samples\Triangles\soft-slidertick.wav" />
     <None Include="Samples\Triangles\soft-sliderwhistle.wav" />
-    <None Include="Samples\*\*" />
-    <None Include="Samples\*\*" />
     <None Include="Samples\*\*" />
     <None Include="Samples\*\*" />
     <None Include="Samples\*\*" />

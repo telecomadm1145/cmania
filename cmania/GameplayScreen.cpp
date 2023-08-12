@@ -3,6 +3,8 @@
 #include "ConsoleInputHandler.h"
 #include "RecordInputHandler.h"
 #include "BeatmapManagementService.h"
+#include "BackgroundComponent.h"
+#include "ResultScreen.h"
 
 class GameplayScreen : public Screen {
 	std::unique_ptr<RulesetBase> ruleset;
@@ -13,25 +15,41 @@ class GameplayScreen : public Screen {
 	bool game_ended = false;
 	bool rec_saved = false;
 	std::string RecordPath;
+	OsuMods mods;
+	BackgroundComponent bg;
 
 public:
 	GameplayScreen(const std::string& bmp_path, OsuMods mod) {
-		def_input_handler = std::unique_ptr<ConsolePlayerInputHandler>(new ConsolePlayerInputHandler());
-		ruleset = std::unique_ptr<RulesetBase>((RulesetBase*) new ManiaRuleset());
-		ruleset->RulesetInputHandler = def_input_handler.get();
-		ruleset->Mods = mod;
+		LoadForGameplay(mod, bmp_path);
+	}
+	void LoadForGameplay(OsuMods mod, const std::string& bmp_path) {
+		ruleset = std::unique_ptr<RulesetBase>((RulesetBase*)new ManiaRuleset());
+		if (!HasFlag(mod, OsuMods::Auto)) {
+			def_input_handler = std::unique_ptr<ConsolePlayerInputHandler>(new ConsolePlayerInputHandler());
+			ruleset->RulesetInputHandler = def_input_handler.get();
+		}
+		else {
+			rec_input_handler = std::unique_ptr<RecordInputHandler>(new RecordInputHandler());
+			ruleset->RulesetInputHandler = rec_input_handler.get();
+		}
+		mods = ruleset->Mods = mod;
 		beatmap_path = bmp_path;
 	}
-	GameplayScreen(Record rec, const std::string& bmp_path, OsuMods mod) {
+	GameplayScreen(Record rec, const std::string& bmp_path) {
+		LoadForReplay(rec, bmp_path);
+	}
+	void LoadForReplay(Record& rec, const std::string& bmp_path) {
 		rec_input_handler = std::unique_ptr<RecordInputHandler>(new RecordInputHandler(rec));
-		ruleset = std::unique_ptr<RulesetBase>((RulesetBase*) new ManiaRuleset());
+		ruleset = std::unique_ptr<RulesetBase>((RulesetBase*)new ManiaRuleset());
 		ruleset->RulesetInputHandler = rec_input_handler.get();
-		ruleset->Mods = mod;
+		mods = ruleset->Mods = rec.Mods;
 		beatmap_path = bmp_path;
 	}
 	virtual void Render(GameBuffer& buf) {
+		bg.Render(buf);
 		if (pause) {
-			buf.DrawString("暂停中，按任意键继续，再按一次Escape返回", 0, 1, {}, {});
+			buf.DrawString("暂停中，按任意键继续，再按一次Escape返回", 0, 0, {}, {});
+			return;
 		}
 		auto ruleset = &*this->ruleset;
 		if (ruleset != 0) {
@@ -92,6 +110,7 @@ public:
 						std::fstream ofs(RecordPath, std::ios::out | std::ios::binary);
 						if (!ofs.good())
 							__debugbreak();
+						ruleset->RulesetRecord.PlayerName = std::string((char*)game->Settings["Name"].Data, (char*)game->Settings["Name"].Data + game->Settings["Name"].Size);
 						auto rec = ruleset->RulesetRecord;
 						Binary::Write(ofs, rec);
 						ofs.close();
@@ -112,6 +131,13 @@ public:
 					parent->Back();
 					return;
 				}
+				if (kea.Key == ConsoleKey::Oem3 && def_input_handler != 0) {
+					ruleset = 0;
+					LoadForGameplay(mods, beatmap_path); // 6
+					LoadRuleset();
+					pause = false;
+					return;
+				}
 				ruleset->Resume();
 				pause = false;
 			}
@@ -120,7 +146,10 @@ public:
 		if (kea.Pressed && kea.RepeatCount <= 1) {
 			if (kea.Key == ConsoleKey::Escape) {
 				if (ruleset->GameEnded) {
-					parent->Back();
+					if (def_input_handler != 0)
+						parent->Navigate(MakeResultScreen(ruleset->RulesetRecord, ruleset->GetBgPath()));
+					else
+						parent->Back();
 					return;
 				}
 				pause = true;
@@ -146,9 +175,21 @@ public:
 		}
 		else {
 			if (ruleset != 0) {
-				ruleset->LoadSettings(game->Settings);
-				ruleset->Load(beatmap_path);
+				LoadRuleset();
+				if (!game->Settings["NoBg"].Get<bool>())
+					bg.LoadBackground(ruleset->GetBgPath());
 			}
+			else {
+				parent->Back();
+			}
+		}
+	}
+	void LoadRuleset() {
+		ruleset->LoadSettings(game->Settings);
+		ruleset->Load(beatmap_path);
+		if (HasFlag(mods, OsuMods::Auto)) {
+			if (rec_input_handler)
+				rec_input_handler->LoadRecord(ruleset->GetAutoplayRecord());
 		}
 	};
 	virtual void MouseKey(MouseKeyEventArgs mkea){
@@ -179,5 +220,5 @@ Screen* MakeGameplayScreen(const std::string& bmp_path, OsuMods mod) {
 }
 
 Screen* MakeGameplayScreen(Record rec, const std::string& bmp_path) {
-	return new GameplayScreen(rec, bmp_path, rec.Mods);
+	return new GameplayScreen(rec, bmp_path);
 }

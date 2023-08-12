@@ -276,6 +276,7 @@
     <ClCompile Include="KeyBinds.cpp" />
     <ClCompile Include="MainMenuScreen.cpp" />
     <ClCompile Include="OsuBeatmap.cpp" />
+    <ClCompile Include="ResultScreen.cpp" />
     <ClCompile Include="SettingsScreen.cpp" />
     <ClCompile Include="SongSelectScreen.cpp" />
     <ClCompile Include="SpeedSettingScreen.cpp" />
@@ -318,6 +319,7 @@
     <ClInclude Include="OsuStatic.h" />
     <ClInclude Include="Record.h" />
     <ClInclude Include="RecordInputHandler.h" />
+    <ClInclude Include="ResultScreen.h" />
     <ClInclude Include="Ruleset.h" />
     <ClInclude Include="RulesetRenderer.h" />
     <ClInclude Include="ScoreProcessor.h" />

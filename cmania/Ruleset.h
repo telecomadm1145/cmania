@@ -17,6 +17,7 @@ public:
 	Record RulesetRecord{};
 	virtual void LoadSettings(BinaryStorage& settings) = 0;
 	virtual void Load(std::filesystem::path beatmap_path) = 0;
+	virtual Record GetAutoplayRecord() = 0;
 	virtual void Update() = 0;
 	virtual void Pause() = 0;
 	virtual void Render(GameBuffer&) = 0;
@@ -25,6 +26,7 @@ public:
 	virtual double GetCurrentTime() = 0;
 	virtual double GetDuration() = 0;
 	virtual ScoreProcessorBase* GetScoreProcessor() = 0;
+	virtual std::string GetBgPath() = 0;
 
 public:
 	virtual ~RulesetBase() {}

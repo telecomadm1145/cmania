@@ -20,6 +20,7 @@ class ManiaScoreProcessor : public ScoreProcessor<ManiaObject> {
 	bool wt_mode = false;
 	std::map<HitResult, double> hit_ranges;
 	double reference_rating = 1;
+	double pp_m = 1;
 	double score_m = 1;
 
 public:
@@ -28,6 +29,9 @@ public:
 	}
 	virtual void SetMods(OsuMods mods) override {
 		score_m = GetModScale(mods);
+		mods = RemoveFlag(mods, OsuMods::HalfTime);
+		mods = RemoveFlag(mods, OsuMods::Nightcore);
+		pp_m = GetModScale(mods);
 	}
 	void SetWtMode(bool enable) {
 		wt_mode = enable;
@@ -82,7 +86,7 @@ public:
 
 			Accuracy = (double)RawAccuracy / AppliedHit / GetBaseScore(HitResult::Great);
 
-			Rating = reference_rating * std::pow(((double)MaxCombo / BeatmapMaxCombo), 0.3) * pow(Accuracy, 1.3) * pow(score_m, 2) * pow(0.95, ResultCounter[HitResult::Miss]) * (wt_mode ? 0.75 : 1);
+			Rating = reference_rating * std::pow(((double)MaxCombo / BeatmapMaxCombo), 0.3) * pow(Accuracy, 1.3) * pow(pp_m, 1.2) * pow(0.95, ResultCounter[HitResult::Miss]) * (wt_mode ? 0.75 : 1);
 
 			RawScore += GetBaseScore(res);
 

@@ -24,6 +24,7 @@ class ManiaRuleset : public Ruleset<ManiaObject> {
 	double endtime = 0;
 	std::string skin_path;
 	OsuBeatmap orig_bmp;
+	std::filesystem::path parent_path;
 	double offset = 0;
 	double first_obj = 1e300;
 	double end_obj = -1e300;
@@ -165,6 +166,7 @@ public:
 
 		// 获取osu谱面的父目录（也就是谱面根目录）
 		std::filesystem::path parent = beatmap_path.parent_path();
+		parent_path = parent;
 
 		// 打开并解析osu谱面文件
 		{
@@ -186,13 +188,13 @@ public:
 		// 存储需要加载的采样
 		std::set<std::string> Samples;
 
-		Samples > AddRangeSet(orig_bmp.HitObjects > Select([](const auto& ho) -> std::string { return ho.CustomSampleFilename; }) > Where([](const auto& str) -> bool { return !str.empty(); }) > Select([&](const auto& str) -> auto{ return (parent / str).string(); })) > AddRangeSet(
-																																																																				 orig_bmp.StoryboardSamples > Select([&](const auto& item) -> auto{ return (parent / item.path).string(); }));
+		Samples > AddRangeSet(orig_bmp.HitObjects > Select([](const auto& ho) -> std::string { return ho.CustomSampleFilename; }) > Where([](const auto& str) -> bool { return !str.empty(); }) > Select([&](const auto& str) -> auto { return (parent / str).string(); })) > AddRangeSet(
+																																																																				  orig_bmp.StoryboardSamples > Select([&](const auto& item) -> auto { return (parent / item.path).string(); }));
 
 		auto SampleIndex = BuildSampleIndex(parent, 1);		   // 构建谱面采样索引(sampleset==1默认)
 		auto SkinSampleIndex = BuildSampleIndex(skin_path, 0); // 构建皮肤采样索引(sampleset==0)
 
-		auto selector = [](const AudioSampleMetadata& md) -> auto{
+		auto selector = [](const AudioSampleMetadata& md) -> auto {
 			return md.filename.string();
 		}; // linq 查询
 
@@ -212,7 +214,7 @@ public:
 
 		// 加载物件
 		Beatmap > AddRange(Select(
-					  orig_bmp.HitObjects, [&](const OsuBeatmap::HitObject& obj) -> auto{
+					  orig_bmp.HitObjects, [&](const OsuBeatmap::HitObject& obj) -> auto {
 						  ManiaObject mo{};
 
 						  // 计算物件的列
@@ -239,7 +241,7 @@ public:
 						  auto& tp = GetTimingPoint(orig_bmp, obj.StartTime);
 
 						  // 将 fspath 转换为 AudioSample
-						  auto sample_selector = [&](const std::filesystem::path& sample) -> auto{
+						  auto sample_selector = [&](const std::filesystem::path& sample) -> auto {
 							  return SampleCaches[sample.string()];
 						  };
 
@@ -258,7 +260,8 @@ public:
 							  First(GetSampleLayered(SampleIndex, SkinSampleIndex, tp.SampleBank, HitSoundType::Slide, tp.SampleSet) > Select(sample_selector), mo.ssample);
 
 							  // 加载 Whistle 滑动音效
-							  First(GetSampleLayered(SampleIndex, SkinSampleIndex, tp.SampleBank, HitSoundType::SlideWhistle, tp.SampleSet) > Select(sample_selector), mo.ssamplew);
+							  if (HasFlag(obj.SoundType, HitSoundType::Whistle))
+								  First(GetSampleLayered(SampleIndex, SkinSampleIndex, tp.SampleBank, HitSoundType::SlideWhistle, tp.SampleSet) > Select(sample_selector), mo.ssamplew);
 
 							  if (!wt_mode)
 								  RulesetScoreProcessor->BeatmapMaxCombo++;
@@ -277,7 +280,7 @@ public:
 			throw std::invalid_argument("RulesetInputHandler mustn't be nullptr.");
 
 		auto binds = Select(
-			GetKeyBinds(keys), [](const auto& val) -> auto{ return (int)val; })
+			GetKeyBinds(keys), [](const auto& val) -> auto { return (int)val; })
 						 .ToList<int>();
 		RulesetInputHandler->SetBinds(binds);
 
@@ -289,7 +292,7 @@ public:
 		RulesetScoreProcessor->SetMods(Mods);
 
 		auto diff = CalculateDiff(orig_bmp, Mods, keys);
-		RulesetScoreProcessor->ApplyBeatmap(diff);
+		RulesetScoreProcessor->ApplyBeatmap(diff * GetPlaybackRate(Mods));
 
 		miss_offset = GetHitRanges(orig_bmp.OverallDifficulty)[HitResult::Meh];
 
@@ -408,9 +411,8 @@ public:
 
 			// Handles sliding sample.
 			if (obj.HasHit && obj.EndTime != 0) {
-				if (!(obj.HasHold || obj.HoldBroken)) {
-					if (RulesetInputHandler->GetKeyStatus(obj.Column)) // Pressed
-					{
+				if (wt_mode) {
+					if (time > obj.StartTime && time < obj.EndTime) {
 						if (obj.ssample != 0 && obj.ssample_stream == 0) {
 							obj.ssample_stream = AudioStream(obj.ssample->generateStream());
 							obj.ssample_stream->play();
@@ -419,22 +421,53 @@ public:
 							obj.ssamplew_stream = AudioStream(obj.ssamplew->generateStream());
 							obj.ssamplew_stream->play();
 						}
+						if (obj.ssample_stream && !obj.ssample_stream->isPlaying()) {
+							obj.ssample_stream->play();
+						}
+						if (obj.ssamplew_stream && !obj.ssamplew_stream->isPlaying()) {
+							obj.ssamplew_stream->play();
+						}
 					}
-					if (obj.ssample_stream && !obj.ssample_stream->isPlaying()) {
-						obj.ssample_stream->play();
-					}
-					if (obj.ssamplew_stream && !obj.ssample_stream->isPlaying()) {
-						obj.ssamplew_stream->play();
+					if (time > obj.EndTime) {
+						if (obj.ssample_stream) {
+							obj.ssample_stream->stop();
+							obj.ssample_stream = 0;
+						}
+						if (obj.ssamplew_stream) {
+							obj.ssamplew_stream->stop();
+							obj.ssamplew_stream = 0;
+						}
 					}
 				}
 				else {
-					if (obj.ssample_stream) {
-						obj.ssample_stream->stop();
-						obj.ssample_stream = 0;
+					if (!(obj.HasHold || obj.HoldBroken)) {
+						if (RulesetInputHandler->GetKeyStatus(obj.Column)) // Pressed
+						{
+							if (obj.ssample != 0 && obj.ssample_stream == 0) {
+								obj.ssample_stream = AudioStream(obj.ssample->generateStream());
+								obj.ssample_stream->play();
+							}
+							if (obj.ssamplew != 0 && obj.ssamplew_stream == 0) {
+								obj.ssamplew_stream = AudioStream(obj.ssamplew->generateStream());
+								obj.ssamplew_stream->play();
+							}
+						}
+						if (obj.ssample_stream && !obj.ssample_stream->isPlaying()) {
+							obj.ssample_stream->play();
+						}
+						if (obj.ssamplew_stream && !obj.ssamplew_stream->isPlaying()) {
+							obj.ssamplew_stream->play();
+						}
 					}
-					if (obj.ssamplew_stream) {
-						obj.ssamplew_stream->stop();
-						obj.ssamplew_stream = 0;
+					else {
+						if (obj.ssample_stream) {
+							obj.ssample_stream->stop();
+							obj.ssample_stream = 0;
+						}
+						if (obj.ssamplew_stream) {
+							obj.ssamplew_stream->stop();
+							obj.ssamplew_stream = 0;
+						}
 					}
 				}
 			}
@@ -446,8 +479,9 @@ public:
 				break;
 			auto& e = *evt;
 			RulesetRecord.Events.push_back(e);
-			ProcessAction(e.Action, e.Pressed, e.Clock);
-			if (wt_mode)
+			if (!wt_mode || e.Pressed)
+				ProcessAction(e.Action, e.Pressed, e.Clock);
+			if (wt_mode && e.Pressed)
 				KeyHighlight[e.Action].Start(time);
 		}
 	}
@@ -587,5 +621,40 @@ public:
 		if (!Clock.Running())
 			return 999999;
 		return end_obj - first_obj;
+	}
+
+	// 通过 Ruleset 继承
+	virtual std::string GetBgPath() override {
+		return (parent_path / orig_bmp.Background).string();
+	}
+
+	// 通过 Ruleset 继承
+	virtual Record GetAutoplayRecord() override {
+		Record record{};
+		record.PlayerName = "Autoplay";
+		record.Events.clear();
+
+		for (auto& obj : Beatmap) {
+			InputEvent evt{};
+			evt.Action = obj.Column;
+			evt.Pressed = true;
+			evt.Clock = obj.StartTime;
+			record.Events.push_back(evt);
+
+			if (obj.EndTime != 0) {
+				// Handle holds
+				evt.Pressed = false;
+				evt.Clock = obj.EndTime;
+				record.Events.push_back(evt);
+			}
+			else {
+				evt.Pressed = false;
+				evt.Clock = obj.StartTime + 50;
+				record.Events.push_back(evt);
+			}
+		}
+		std::sort(record.Events.begin(), record.Events.end(), [](auto& a, auto& b) { return a.Clock < b.Clock; });
+
+		return record;
 	}
 };
