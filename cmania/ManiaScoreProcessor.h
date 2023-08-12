@@ -7,12 +7,15 @@
 #pragma "记得去除这一段，别忘了"
 #include <numeric>
 inline double variance(double mean, const std::vector<double>& values) {
+	if (values.size() < 2)
+		return 0;
+
 	auto sq_diff_sum = std::accumulate(values.begin(), values.end(), 0.0,
 		[mean](double sum, double val) {
 			double diff = val - mean;
 			return sum + diff * diff;
 		});
-
+	
 	return sq_diff_sum / (values.size() - 1);
 }
 
