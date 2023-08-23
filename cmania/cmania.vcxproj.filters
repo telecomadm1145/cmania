@@ -26,9 +26,6 @@
     <ClCompile Include="Win32ConsoleComponent.cpp">
       <Filter>Core\System</Filter>
     </ClCompile>
-    <ClCompile Include="BeatmapManagementService.cpp">
-      <Filter>Beatmap</Filter>
-    </ClCompile>
     <ClCompile Include="BassAudioManager.cpp">
       <Filter>Core\Audio</Filter>
     </ClCompile>
@@ -47,12 +44,6 @@
     <ClCompile Include="GameplayScreen.cpp">
       <Filter>Game</Filter>
     </ClCompile>
-    <ClCompile Include="DifficultyCalculator.cpp">
-      <Filter>Beatmap</Filter>
-    </ClCompile>
-    <ClCompile Include="OsuBeatmap.cpp">
-      <Filter>Beatmap</Filter>
-    </ClCompile>
     <ClCompile Include="KeyBinds.cpp">
       <Filter>Game</Filter>
     </ClCompile>
@@ -65,6 +56,10 @@
     <ClCompile Include="ConsoleText.cpp">
       <Filter>Core\UI</Filter>
     </ClCompile>
+    <ClCompile Include="OsuBeatmap.cpp">
+      <Filter>Game\Gameplay\Osu</Filter>
+    </ClCompile>
+    <ClCompile Include="RulesetManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ConsoleInput.h">
@@ -96,12 +91,6 @@
     </ClInclude>
     <ClInclude Include="Hpet.h">
       <Filter>Core\System</Filter>
-    </ClInclude>
-    <ClInclude Include="BeatmapManagementService.h">
-      <Filter>Beatmap</Filter>
-    </ClInclude>
-    <ClInclude Include="DifficultyCalculator.h">
-      <Filter>Beatmap</Filter>
     </ClInclude>
     <ClInclude Include="KeepAwake.h">
       <Filter>Core</Filter>
@@ -160,9 +149,6 @@
     <ClInclude Include="HitObject.h">
       <Filter>Game\Gameplay</Filter>
     </ClInclude>
-    <ClInclude Include="Beatmap.h">
-      <Filter>Game\Gameplay</Filter>
-    </ClInclude>
     <ClInclude Include="InputHandler.h">
       <Filter>Game\Gameplay</Filter>
     </ClInclude>
@@ -188,9 +174,6 @@
       <Filter>Game\Gameplay</Filter>
     </ClInclude>
     <ClInclude Include="ManiaScoreProcessor.h">
-      <Filter>Game\Gameplay\Mania</Filter>
-    </ClInclude>
-    <ClInclude Include="ManiaRuleset.h">
       <Filter>Game\Gameplay\Mania</Filter>
     </ClInclude>
     <ClInclude Include="ManiaObject.h">
@@ -220,6 +203,40 @@
     <ClInclude Include="OsuMods.h">
       <Filter>Game\Gameplay\Osu</Filter>
     </ClInclude>
+    <ClInclude Include="OsuSampleProcessor.h">
+      <Filter>Game\Gameplay\Osu</Filter>
+    </ClInclude>
+    <ClInclude Include="ManiaDifficultyCalculator.h">
+      <Filter>Game\Gameplay\Mania</Filter>
+    </ClInclude>
+    <ClInclude Include="DifficultyCalculator.h">
+      <Filter>Game\Gameplay</Filter>
+    </ClInclude>
+    <ClInclude Include="RulesetManager.h" />
+    <ClInclude Include="WorkingBeatmap.h">
+      <Filter>Game\Gameplay</Filter>
+    </ClInclude>
+    <ClInclude Include="osuManiaRuleset.h">
+      <Filter>Game\Gameplay\Osu\Unused</Filter>
+    </ClInclude>
+    <ClInclude Include="ManiaRuleset.cpp">
+      <Filter>Game\Gameplay\Mania</Filter>
+    </ClInclude>
+    <ClInclude Include="Gameplay.h">
+      <Filter>Game\Gameplay</Filter>
+    </ClInclude>
+    <ClInclude Include="Beatmap.h">
+      <Filter>Game\Gameplay\Osu</Filter>
+    </ClInclude>
+    <ClInclude Include="ManiaRuleset.h">
+      <Filter>Game\Gameplay\Mania</Filter>
+    </ClInclude>
+    <ClInclude Include="OmDifficultyCalculator.h">
+      <Filter>Game\Gameplay\Mania</Filter>
+    </ClInclude>
+    <ClInclude Include="OmDifficultyCalculator.cpp">
+      <Filter>Game\Gameplay\Mania</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Core">
@@ -230,9 +247,6 @@
     </Filter>
     <Filter Include="Core\Audio">
       <UniqueIdentifier>{e900a488-785f-43b3-b44a-5c56769cf970}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Beatmap">
-      <UniqueIdentifier>{1127def3-ecb6-45f6-b421-e238d8d72d08}</UniqueIdentifier>
     </Filter>
     <Filter Include="Include">
       <UniqueIdentifier>{876618ec-5bbc-4c7b-af96-a478b5bb26ac}</UniqueIdentifier>
@@ -251,6 +265,9 @@
     </Filter>
     <Filter Include="Game\Gameplay\Osu">
       <UniqueIdentifier>{cf5d59e0-d725-4815-ac3f-e40cafc9fe79}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game\Gameplay\Osu\Unused">
+      <UniqueIdentifier>{cbcca15a-3e4f-44a7-b4af-dcc4f9c4fbdc}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -311,12 +328,6 @@
     <None Include="Samples\Triangles\soft-sliderslide.wav" />
     <None Include="Samples\Triangles\soft-slidertick.wav" />
     <None Include="Samples\Triangles\soft-sliderwhistle.wav" />
-    <None Include="Samples\*\*" />
-    <None Include="Samples\*\*" />
-    <None Include="Samples\*\*" />
-    <None Include="Samples\*\*" />
-    <None Include="Samples\*\*" />
-    <None Include="Samples\*\*" />
     <None Include="Samples\*\*" />
     <None Include="Samples\*\*" />
     <None Include="Samples\*\*" />

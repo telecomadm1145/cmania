@@ -83,10 +83,11 @@ public:
 	struct StoryboardSoundSample
 	{
 		double StartTime = 0;
+		double Volume = 0;
 		std::string path;
 	};
 	std::vector<StoryboardSoundSample> StoryboardSamples;
 	std::vector<std::tuple<std::string, std::string, std::string>> Others;
 
-	static OsuBeatmap Parse(std::istream& sr);
+	static OsuBeatmap Parse(std::istream& sr, bool metaonly = false);
 };

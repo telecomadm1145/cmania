@@ -7,7 +7,7 @@
 #include "ResultScreen.h"
 
 class GameplayScreen : public Screen {
-	std::unique_ptr<RulesetBase> ruleset;
+	std::unique_ptr<Ruleset> ruleset;
 	std::string beatmap_path;
 	std::unique_ptr<ConsolePlayerInputHandler> def_input_handler;
 	std::unique_ptr<RecordInputHandler> rec_input_handler;
@@ -15,6 +15,7 @@ class GameplayScreen : public Screen {
 	bool game_ended = false;
 	bool rec_saved = false;
 	std::string RecordPath;
+	Record rec;
 	OsuMods mods;
 	BackgroundComponent bg;
 
@@ -23,7 +24,7 @@ public:
 		LoadForGameplay(mod, bmp_path);
 	}
 	void LoadForGameplay(OsuMods mod, const std::string& bmp_path) {
-		ruleset = std::unique_ptr<RulesetBase>((RulesetBase*)new ManiaRuleset());
+		ruleset = std::unique_ptr<Ruleset>((Ruleset*)new ManiaRuleset());
 		if (!HasFlag(mod, OsuMods::Auto)) {
 			def_input_handler = std::unique_ptr<ConsolePlayerInputHandler>(new ConsolePlayerInputHandler());
 			ruleset->RulesetInputHandler = def_input_handler.get();
@@ -40,10 +41,11 @@ public:
 	}
 	void LoadForReplay(Record& rec, const std::string& bmp_path) {
 		rec_input_handler = std::unique_ptr<RecordInputHandler>(new RecordInputHandler(rec));
-		ruleset = std::unique_ptr<RulesetBase>((RulesetBase*)new ManiaRuleset());
+		ruleset = std::unique_ptr<Ruleset>((Ruleset*)new ManiaRuleset());
 		ruleset->RulesetInputHandler = rec_input_handler.get();
 		mods = ruleset->Mods = rec.Mods;
 		beatmap_path = bmp_path;
+		this->rec = rec;
 	}
 	virtual void Render(GameBuffer& buf) {
 		bg.Render(buf);
@@ -84,6 +86,25 @@ public:
 			centre1.append("     ");
 			centre1.append(std::to_string(scp->Rating));
 			buf.DrawString(centre1, (buf.Width - centre1.size()) / 2, 2, { 255, 255, 255, 255 }, {});
+			if (rec_input_handler != 0)
+			{
+				buf.DrawString("Replaying record of \"" + rec.PlayerName + "\"", 0, 2, { 255, 255, 255, 255 }, {});
+			}
+			{
+				int i = buf.Height / 2 + 9;
+				for (auto& res : ruleset->GetScoreProcessor()->ResultCounter) {
+					auto name = GetHitResultName(res.first);
+					auto clr = GetHitResultColor(res.first);
+					auto val = std::to_string(res.second);
+					clr.Alpha = 20;
+					buf.FillRect(0, i - 2, 7, i + 1, { {}, clr,' ' });
+					buf.FillRect(buf.Width - 7, i - 2, buf.Width, i + 1, { {}, clr, ' ' });
+					clr.Alpha = 255;
+					buf.DrawString(val, (7 - val.size()) / 2, i - 1, clr, {});
+					buf.DrawString(val, buf.Width - 7 - (val.size() - 7) / 2, i - 1, clr, {});
+					i -= 3;
+				}
+			}
 
 			std::string corner = "";
 			corner.append(std::to_string(scp->Mean));
@@ -93,7 +114,7 @@ public:
 			corner.append(")");
 			buf.DrawString(corner, 0, buf.Height - 1, { 255, 255, 255, 255 }, {});
 			if (ruleset->GameEnded) {
-				buf.DrawString("按Escape键Continue.", 0, 0, {}, {});
+				buf.DrawString("按Escape键Continue",buf.Width / 2 - 8, buf.Height - 5, {255,255,255,255}, {});
 			}
 		}
 	};
@@ -189,7 +210,7 @@ public:
 		ruleset->Load(beatmap_path);
 		if (HasFlag(mods, OsuMods::Auto)) {
 			if (rec_input_handler)
-				rec_input_handler->LoadRecord(ruleset->GetAutoplayRecord());
+				rec_input_handler->LoadRecord(rec = ruleset->GetAutoplayRecord());
 		}
 	};
 	virtual void MouseKey(MouseKeyEventArgs mkea){

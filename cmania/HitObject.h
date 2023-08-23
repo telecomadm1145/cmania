@@ -1,6 +1,8 @@
 ﻿#pragma once
 #include <vector>
 #include "Linq.h"
+#include "AudioManager.h"
+
 struct HitObject {
 	std::vector<AudioSample> samples;
 	double StartTime;

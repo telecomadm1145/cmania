@@ -3,7 +3,6 @@
 #include "BassAudioManager.h"
 #include "ScreenController.h"
 #include "GameBuffer.h"
-#include "BeatmapManagementService.h"
 #include <vector>
 #include "Unicode.h"
 #include "String.h"
@@ -418,18 +417,6 @@ class SongSelectScreen : public Screen {
 		}
 	}
 	virtual void ProcessEvent(const char* evt, const void* evtargs) {
-		if (strcmp(evt, "songs_cache_ready") == 0) {
-			auto& screa = *(SongsCahceReadyEventArgs*)evtargs;
-			caches = screa.Songs->caches;
-			ready = true;
-		}
-		if (strcmp(evt, "require") == 0) {
-			auto str = (const char*)evtargs;
-			if (strcmp(str, "SongsPath") == 0) {
-				input_buf.resize(0);
-				require_songs_path = true;
-			}
-		}
 	}
 	void RebuildCache() {
 		ready = false;

@@ -11,7 +11,7 @@ inline double GetTimeDiff(double t) {
 		return GetTimeDiff(-t);
 	return 6 / 0.5;
 }
-double CalculateDiff(const OsuBeatmap& beatmap, OsuMods mods, int keys) {
+double OmCalculateDiff(const OsuBeatmap& beatmap, OsuMods mods, int keys) {
 	if (beatmap.HitObjects.size() < 10)
 		return 0;
 	if (keys == 0) {

@@ -262,12 +262,14 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="BassAudioManager.cpp" />
-    <ClCompile Include="BeatmapManagementService.cpp" />
     <ClCompile Include="BufferController.cpp" />
     <ClCompile Include="cmania.cpp" />
     <ClCompile Include="ConsoleText.cpp" />
     <ClCompile Include="Debug.cpp" />
-    <ClCompile Include="DifficultyCalculator.cpp" />
+    <ClInclude Include="Gameplay.h" />
+    <ClInclude Include="ManiaRuleset.cpp" />
+    <ClInclude Include="ManiaRuleset.h" />
+    <ClInclude Include="OmDifficultyCalculator.cpp" />
     <ClCompile Include="File.cpp" />
     <ClCompile Include="FpsOverlay.cpp" />
     <ClCompile Include="GameplayScreen.cpp" />
@@ -277,6 +279,7 @@
     <ClCompile Include="MainMenuScreen.cpp" />
     <ClCompile Include="OsuBeatmap.cpp" />
     <ClCompile Include="ResultScreen.cpp" />
+    <ClCompile Include="RulesetManager.cpp" />
     <ClCompile Include="SettingsScreen.cpp" />
     <ClCompile Include="SongSelectScreen.cpp" />
     <ClCompile Include="SpeedSettingScreen.cpp" />
@@ -290,6 +293,7 @@
     <ClInclude Include="Beatmap.h" />
     <ClInclude Include="ConsoleInputHandler.h" />
     <ClInclude Include="Debug.h" />
+    <ClInclude Include="DifficultyCalculator.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="GameBuffer.h" />
     <ClInclude Include="HitObject.h" />
@@ -298,11 +302,10 @@
     <ClInclude Include="KeyBinds.h" />
     <ClInclude Include="Linq.h" />
     <ClInclude Include="AudioManager.h" />
-    <ClInclude Include="BeatmapManagementService.h" />
     <ClInclude Include="BufferController.h" />
     <ClInclude Include="ConsoleInput.h" />
     <ClInclude Include="ConsoleText.h" />
-    <ClInclude Include="DifficultyCalculator.h" />
+    <ClInclude Include="OmDifficultyCalculator.h" />
     <ClInclude Include="EnumFlag.h" />
     <ClInclude Include="BassAudioManager.h" />
     <ClInclude Include="File.h" />
@@ -311,16 +314,19 @@
     <ClInclude Include="Hpet.h" />
     <ClInclude Include="KeepAwake.h" />
     <ClInclude Include="MainMenuScreen.h" />
+    <ClInclude Include="ManiaDifficultyCalculator.h" />
     <ClInclude Include="ManiaObject.h" />
-    <ClInclude Include="ManiaRuleset.h" />
+    <ClInclude Include="osuManiaRuleset.h" />
     <ClInclude Include="ManiaScoreProcessor.h" />
     <ClInclude Include="OsuBeatmap.h" />
     <ClInclude Include="OsuMods.h" />
+    <ClInclude Include="OsuSampleProcessor.h" />
     <ClInclude Include="OsuStatic.h" />
     <ClInclude Include="Record.h" />
     <ClInclude Include="RecordInputHandler.h" />
     <ClInclude Include="ResultScreen.h" />
     <ClInclude Include="Ruleset.h" />
+    <ClInclude Include="RulesetManager.h" />
     <ClInclude Include="RulesetRenderer.h" />
     <ClInclude Include="ScoreProcessor.h" />
     <ClInclude Include="ScreenController.h" />
@@ -336,6 +342,7 @@
     <ClInclude Include="TickSource.h" />
     <ClInclude Include="Unicode.h" />
     <ClInclude Include="Win32ConsoleComponent.h" />
+    <ClInclude Include="WorkingBeatmap.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".clang-format" />

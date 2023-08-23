@@ -1,5 +1,9 @@
-﻿#pragma once
-#include "OsuBeatmap.h"
+#pragma once
 #include "OsuMods.h"
+#include "Beatmap.h"
 
-double CalculateDiff(const OsuBeatmap& beatmap, OsuMods om = OsuMods::None, int keys = 0);
+template <class HitObject>
+class DifficultyCalculator {
+public:
+	double GetDifficulty(const Beatmap<HitObject>& objects,OsuMods mods);
+};

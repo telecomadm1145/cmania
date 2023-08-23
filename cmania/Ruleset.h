@@ -7,36 +7,31 @@
 #include "GameBuffer.h"
 #include "ScoreProcessor.h"
 #include "Beatmap.h"
+#include "Gameplay.h"
 #include "RulesetRenderer.h"
-class RulesetBase {
-public:
-	InputHandler* RulesetInputHandler = 0;
-	Stopwatch Clock;
-	OsuMods Mods = OsuMods::None;
-	bool GameEnded = false;
-	Record RulesetRecord{};
-	virtual void LoadSettings(BinaryStorage& settings) = 0;
-	virtual void Load(std::filesystem::path beatmap_path) = 0;
-	virtual Record GetAutoplayRecord() = 0;
-	virtual void Update() = 0;
-	virtual void Pause() = 0;
-	virtual void Render(GameBuffer&) = 0;
-	virtual void Resume() = 0;
-	virtual void Skip() = 0;
-	virtual double GetCurrentTime() = 0;
-	virtual double GetDuration() = 0;
-	virtual ScoreProcessorBase* GetScoreProcessor() = 0;
-	virtual std::string GetBgPath() = 0;
+#include "WorkingBeatmap.h"
 
+class BeatmapInfo {
 public:
-	virtual ~RulesetBase() {}
+	uint64_t RulesetId = 114514;
+	std::string Title;
+	std::string Background;
+	std::string Audio;
+	std::string Name;
+	double PreviewPoint;
+	double Length;
+	BeatmapDifficultyInfo DifficultyInfo;
+	std::string Path;
 };
-template <class HitObject>
-class Ruleset : public RulesetBase {
+
+class Ruleset {
 public:
-	ScoreProcessor<HitObject>* RulesetScoreProcessor = 0;
-	Beatmap<HitObject> Beatmap;
-	virtual ScoreProcessorBase* GetScoreProcessor() override {
-		return RulesetScoreProcessor;
-	}
+	virtual uint64_t GetRulesetId() = 0;
+	virtual void LoadSettings(BinaryStorage& settings) = 0;
+	virtual void GetBeatmaps(std::string bmppath, std::vector<BeatmapInfo>& infos) = 0;
+	virtual double CalculateDifficulty(std::string bmppath, OsuMods mods) = 0;
+	virtual Gameplay* CreateGameplay(std::string bmppath) = 0;
+	
+public:
+	virtual ~Ruleset() {}
 };

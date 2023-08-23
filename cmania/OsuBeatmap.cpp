@@ -1,6 +1,6 @@
 ﻿#include "OsuBeatmap.h"
 
-OsuBeatmap OsuBeatmap::Parse(std::istream& sr) {
+OsuBeatmap OsuBeatmap::Parse(std::istream& sr,bool metaonly = false) {
 	OsuBeatmap bm{};
 	std::string line;
 	std::string category;
@@ -25,6 +25,15 @@ OsuBeatmap OsuBeatmap::Parse(std::istream& sr) {
 					auto args = split(line, ',');
 					bm.Video = Trim(args[2], '\"');
 					bm.VideoOffset = std::stoi(args[1]);
+				}
+				if (line.starts_with("Sample"))
+				{
+					auto args = split(line, ',');
+					StoryboardSoundSample sss;
+					sss.StartTime = std::stod(args[1]);
+					sss.Volume = std::stod(args[4]);
+					sss.path = Trim(args[3], '\"');
+					bm.StoryboardSamples.push_back(sss);
 				}
 				// ？
 			}

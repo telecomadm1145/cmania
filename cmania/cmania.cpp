@@ -12,6 +12,7 @@
 #include "BeatmapManagementService.h"
 #include "KeepAwake.h"
 #include "BassAudioManager.h"
+#include <iostream>
 
 // Cmania 的入口点
 int main() {
