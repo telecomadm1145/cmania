@@ -1,5 +1,6 @@
 ﻿#pragma once
-#include "OsuBeatmap.h"
+#include "Beatmap.h"
+#include "ManiaObject.h"
 #include "OsuMods.h"
 
-double CalculateDiff(const OsuBeatmap& beatmap, OsuMods om = OsuMods::None, int keys = 0);
+double CalculateDiff(const Beatmap<ManiaObject>& beatmap, OsuMods om, int keys);

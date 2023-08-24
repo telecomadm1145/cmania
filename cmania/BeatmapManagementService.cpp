@@ -92,13 +92,12 @@ class BeatmapManagementService : public GameComponent {
 											dce.name = bmp.Version;
 											dce.path = diff.path().string();
 											dce.nps = bmp.HitObjects.size() / dce.length * 1000;
-											dce.diff = CalculateDiff(bmp);
 											dce.preview = bmp.PreviewTime;
 											cache.difficulties.emplace_back(dce);
 										}
 									}
 								}
-								std::sort(cache.difficulties.begin(), cache.difficulties.end(), [](const auto& a, const auto& b) { return a.diff < b.diff; });
+								std::sort(cache.difficulties.begin(), cache.difficulties.end(), [](const auto& a, const auto& b) { return a.nps < b.nps; });
 								if (!cache.difficulties.empty()) {
 									std::lock_guard<std::mutex> l(lock);
 									if (disk_cache == 0)

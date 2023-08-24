@@ -10,7 +10,6 @@ struct DifficultyCacheEntry {
 	std::string name;
 	double preview;
 	double nps;
-	double diff;
 	double length;
 	double keys;
 	double od;
@@ -22,7 +21,6 @@ struct DifficultyCacheEntry {
 		Binary::Write(os, name);
 		Binary::Write(os, preview);
 		Binary::Write(os, nps);
-		Binary::Write(os, diff);
 		Binary::Write(os, length);
 		Binary::Write(os, keys);
 		Binary::Write(os, od);
@@ -35,7 +33,6 @@ struct DifficultyCacheEntry {
 		Binary::Read(is, name);
 		Binary::Read(is, preview);
 		Binary::Read(is, nps);
-		Binary::Read(is, diff);
 		Binary::Read(is, length);
 		Binary::Read(is, keys);
 		Binary::Read(is, od);

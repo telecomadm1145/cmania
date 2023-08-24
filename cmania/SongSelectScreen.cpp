@@ -123,17 +123,17 @@ class SongSelectScreen : public Screen {
 			buf.DrawString(entry1->artistunicode, 1, 5, {}, {});
 			auto entry2 = selected_entry_2;
 			if (entry2 != 0) {
-				auto difftext = std::to_string(entry2->diff);
+				auto difftext = std::to_string(0);
 				difftext.resize(difftext.find('.') + 2);
 				difftext.push_back('*');
-				auto clr = difficultyToRGBColor(entry2->diff);
+				auto clr = difficultyToRGBColor(0);
 				clr.Alpha = 255;
 				buf.DrawString(difftext, 48 - difftext.size(), 3, { 255, 255, 255, 255 }, clr);
 				auto minutes = int(entry2->length / (1000 * 60));
 				auto seconds = int(entry2->length / 1000) % 60;
 				auto npstext = std::to_string(entry2->nps);
 				npstext.resize(npstext.find('.') + 2);
-				auto difftext_d = std::to_string(entry2->diff);
+				auto difftext_d = std::to_string(0);
 				difftext_d.resize(difftext_d.find('.') + 3);
 				auto info = std::to_string(minutes) + ":" + std::to_string(seconds) + "   " + std::to_string(int(entry2->keys)) + "K" + "   OD" + std::to_string(int(entry2->od)) + "  " + npstext + "NPS  " + difftext_d + "*";
 				buf.DrawString(info, 1, 10, {}, {});

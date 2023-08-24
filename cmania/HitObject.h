@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include <vector>
+#include "AudioManager.h"
 #include "Linq.h"
 struct HitObject {
 	std::vector<AudioSample> samples;

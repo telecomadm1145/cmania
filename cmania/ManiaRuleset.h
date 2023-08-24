@@ -291,7 +291,7 @@ public:
 		RulesetScoreProcessor->SetDifficulty(orig_bmp.OverallDifficulty);
 		RulesetScoreProcessor->SetMods(Mods);
 
-		auto diff = CalculateDiff(orig_bmp, Mods, keys);
+		auto diff = CalculateDiff(Beatmap, Mods, keys);
 		RulesetScoreProcessor->ApplyBeatmap(diff * GetPlaybackRate(Mods));
 
 		miss_offset = GetHitRanges(orig_bmp.OverallDifficulty)[HitResult::Meh];

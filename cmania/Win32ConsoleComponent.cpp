@@ -51,7 +51,7 @@ public:
 		auto sout = GetStdHandle(STD_OUTPUT_HANDLE);
 		GetConsoleScreenBufferInfo(sout, &bufferInfo);
 		bufferInfo.dwSize = COORD{ bufferInfo.srWindow.Right - bufferInfo.srWindow.Left, bufferInfo.srWindow.Bottom - bufferInfo.srWindow.Top };
-		ResizeEventArgs rea{ bufferInfo.dwSize.X, bufferInfo.dwSize.Y };
+		ResizeEventArgs rea{ bufferInfo.dwSize.X + 1, bufferInfo.dwSize.Y + 1 };
 		parent->Raise("resize", rea);
 	}
 	static void InputWorker(Game* parent) {
