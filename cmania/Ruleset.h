@@ -14,6 +14,7 @@ public:
 	Stopwatch Clock;
 	OsuMods Mods = OsuMods::None;
 	bool GameEnded = false;
+	bool GameStarted = false;
 	Record RulesetRecord{};
 	virtual void LoadSettings(BinaryStorage& settings) = 0;
 	virtual void Load(std::filesystem::path beatmap_path) = 0;

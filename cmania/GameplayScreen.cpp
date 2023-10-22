@@ -67,6 +67,11 @@ public:
 		}
 		auto ruleset = &*this->ruleset;
 		if (ruleset != 0) {
+			if (!ruleset->GameStarted)
+			{
+				buf.DrawString("Loading...", 0, 0, {}, {});
+				return;
+			}
 			ruleset->Render(buf);
 
 			// We need to render the result of score processor
@@ -78,10 +83,15 @@ public:
 			buf.DrawLineV(0, (ruleset->GetCurrentTime() / ruleset->GetDuration()) * buf.Width, 0, { {}, { 60, 90, 255, 100 }, ' ' });
 			auto length_text = std::to_string(int(ruleset->GetDuration() / 1000 / 60)) + ":" + std::to_string(std::abs(int(ruleset->GetDuration() / 1000) % 60));
 			buf.DrawString(length_text, buf.Width - length_text.size() - 1, 0, {}, {});
+
 			auto clk_txt = std::to_string(ruleset->Clock.ClockRate());
 			clk_txt.resize(4);
 			clk_txt += "x";
 			buf.DrawString(clk_txt, buf.Width - clk_txt.size() - 1, 1, {}, {});
+
+			auto mods_txt = GetModsAbbr(mods);
+			buf.DrawString(mods_txt, buf.Width - mods_txt.size() - 1, 2, {}, {});
+			
 			auto current_text = std::to_string(int(ruleset->GetCurrentTime() / 1000 / 60)) + ":" + std::to_string(std::abs(int(ruleset->GetCurrentTime() / 1000) % 60));
 			buf.DrawString(current_text, 0, 0, {}, {});
 			centre1.append(std::to_string(scp->Combo));

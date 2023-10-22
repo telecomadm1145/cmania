@@ -302,6 +302,8 @@ public:
 		Clock.Start();									   // 开始Hpet计时器
 
 		RulesetInputHandler->SetClockSource(Clock);
+
+		GameStarted = true;
 	}
 	void ProcessAction(int action, bool pressed, double clock) {
 		if (!pressed) {

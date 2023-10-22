@@ -62,3 +62,26 @@ inline double GetPlaybackRate(OsuMods mods)
 		rate *= 0.75;
 	return rate;
 }
+constexpr inline std::string GetModsAbbr(OsuMods mods) {
+	std::string s = "";
+	if (HasFlag(mods, OsuMods::Auto))
+		s += "AT";
+	if (HasFlag(mods, OsuMods::Hardrock))
+		s += "HR";
+	if (HasFlag(mods, OsuMods::Easy))
+		s += "EZ";
+	if (HasFlag(mods, OsuMods::Nightcore))
+		s += "NC";
+	if (HasFlag(mods, OsuMods::HalfTime))
+		s += "HT";
+	if (HasFlag(mods, OsuMods::FadeOut))
+		s += "FO";
+	if (HasFlag(mods, OsuMods::Hidden))
+		s += "HD";
+	if (HasFlag(mods, OsuMods::NoFall))
+		s += "NF";
+	if (s.empty()) {
+		return "NM";
+	}
+	return s;
+}
