@@ -147,7 +147,7 @@ class SongSelectScreen : public Screen {
 				buf.DrawString(info, 1, 10, {}, {});
 
 				// records
-				buf.DrawString("Personal Best: " + (records.size() > 0 ? std::to_string((int)(records[0].Score * 10000000)) : "0"), 1, 14, {}, {});
+				buf.DrawString("个人最佳: " + (records.size() > 0 ? std::to_string((int)(records[0].Score * 10000000)) : "0"), 1, 14, {}, {});
 				int i = 16;
 				for (auto& rec : records) {
 					buf.DrawString(std::to_string((int)(rec.Score * 10000000)) + "@" + std::to_string(rec.Accuracy * 100) + "%", 1, i, {}, {});

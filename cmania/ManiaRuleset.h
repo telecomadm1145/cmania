@@ -602,6 +602,13 @@ public:
 		}
 		bgm->pause(true);
 		Clock.Stop();
+		for (auto& ho : Beatmap)
+		{
+			if (ho.ssample_stream != 0)
+				ho.ssample_stream->stop();
+			if (ho.ssamplew_stream != 0)
+				ho.ssamplew_stream->stop();
+		}
 	}
 	virtual void Resume() override {
 		resume_time = Clock.Elapsed();
