@@ -27,7 +27,7 @@
       <Filter>Core\System</Filter>
     </ClCompile>
     <ClCompile Include="BeatmapManagementService.cpp">
-      <Filter>Beatmap</Filter>
+      <Filter>Game\Beatmap</Filter>
     </ClCompile>
     <ClCompile Include="BassAudioManager.cpp">
       <Filter>Core\Audio</Filter>
@@ -48,10 +48,10 @@
       <Filter>Game</Filter>
     </ClCompile>
     <ClCompile Include="DifficultyCalculator.cpp">
-      <Filter>Beatmap</Filter>
+      <Filter>Game\Beatmap</Filter>
     </ClCompile>
     <ClCompile Include="OsuBeatmap.cpp">
-      <Filter>Beatmap</Filter>
+      <Filter>Game\Beatmap</Filter>
     </ClCompile>
     <ClCompile Include="KeyBinds.cpp">
       <Filter>Game</Filter>
@@ -98,10 +98,10 @@
       <Filter>Core\System</Filter>
     </ClInclude>
     <ClInclude Include="BeatmapManagementService.h">
-      <Filter>Beatmap</Filter>
+      <Filter>Game\Beatmap</Filter>
     </ClInclude>
     <ClInclude Include="DifficultyCalculator.h">
-      <Filter>Beatmap</Filter>
+      <Filter>Game\Beatmap</Filter>
     </ClInclude>
     <ClInclude Include="KeepAwake.h">
       <Filter>Core</Filter>
@@ -231,9 +231,6 @@
     <Filter Include="Core\Audio">
       <UniqueIdentifier>{e900a488-785f-43b3-b44a-5c56769cf970}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Beatmap">
-      <UniqueIdentifier>{1127def3-ecb6-45f6-b421-e238d8d72d08}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Include">
       <UniqueIdentifier>{876618ec-5bbc-4c7b-af96-a478b5bb26ac}</UniqueIdentifier>
     </Filter>
@@ -251,6 +248,9 @@
     </Filter>
     <Filter Include="Game\Gameplay\Osu">
       <UniqueIdentifier>{cf5d59e0-d725-4815-ac3f-e40cafc9fe79}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game\Beatmap">
+      <UniqueIdentifier>{1127def3-ecb6-45f6-b421-e238d8d72d08}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -311,7 +311,6 @@
     <None Include="Samples\Triangles\soft-sliderslide.wav" />
     <None Include="Samples\Triangles\soft-slidertick.wav" />
     <None Include="Samples\Triangles\soft-sliderwhistle.wav" />
-    <None Include="Samples\*\*" />
     <None Include="Samples\*\*" />
     <None Include="Samples\*\*" />
     <None Include="Samples\*\*" />

@@ -243,6 +243,8 @@ class SongSelectScreen : public Screen {
 			buf.DrawString("Esc - 返回", 0, buf.Height - 1, {}, {});
 		}
 	}
+	double random_last_off = 1.0 / 0 * 0;
+	int random_last_i = 0;
 	double offset = 0;
 	int selected = INT_MAX;
 	SongsCacheEntry* selected_entry;
@@ -331,6 +333,7 @@ class SongSelectScreen : public Screen {
 	int last_y = -999;
 	double last_offset;
 	void MakeSelected(int i, auto& cache) {
+		random_last_off = 1.0 / 0.0 * 0.0;
 		selected = i;
 		if (i != INT_MAX) {
 			selected_entry = &cache;
@@ -338,6 +341,8 @@ class SongSelectScreen : public Screen {
 		selected_entry_2 = 0;
 		LoadBg();
 		PlayPreview();
+	}
+	void FocusCurrent() {
 	}
 	void MakeSelected(int i, auto& cache, auto& diff) {
 		selected = i;
@@ -449,114 +454,218 @@ class SongSelectScreen : public Screen {
 		});
 	}
 	virtual void Key(KeyEventArgs kea) {
-		std::lock_guard lock(res_lock);
 		if (kea.Pressed) {
-			if (mod_flyout) {
+			{
+				std::lock_guard lock(res_lock);
+				if (mod_flyout) {
+					if (kea.Key == ConsoleKey::Escape) {
+						mod_flyout = !mod_flyout;
+					}
+
+					// Key binds
+					if (kea.Key == ConsoleKey::E)
+						mods = ToggleFlag(mods, OsuMods::Easy);
+					if (kea.Key == ConsoleKey::N)
+						mods = ToggleFlag(mods, OsuMods::NoFall);
+					if (kea.Key == ConsoleKey::H)
+						mods = ToggleFlag(mods, OsuMods::HalfTime);
+					if (kea.Key == ConsoleKey::R)
+						mods = ToggleFlag(mods, OsuMods::Hardrock);
+					if (kea.Key == ConsoleKey::I)
+						mods = ToggleFlag(mods, OsuMods::Nightcore);
+					if (kea.Key == ConsoleKey::D)
+						mods = ToggleFlag(mods, OsuMods::Hidden);
+					if (kea.Key == ConsoleKey::F)
+						mods = ToggleFlag(mods, OsuMods::FadeOut);
+					if (kea.Key == ConsoleKey::A)
+						mods = ToggleFlag(mods, OsuMods::Auto);
+					if (kea.Key == ConsoleKey::O)
+						mods = ToggleFlag(mods, OsuMods::Random);
+					if (kea.Key == ConsoleKey::L)
+						mods = ToggleFlag(mods, OsuMods::Relax);
+					if (kea.Key == ConsoleKey::C)
+						mods = ToggleFlag(mods, OsuMods::Coop);
+					if (kea.Key == ConsoleKey::M)
+						mods = ToggleFlag(mods, OsuMods::Mirror);
+
+					if (kea.Key >= ConsoleKey::NumPad1 && kea.Key <= ConsoleKey::NumPad9) {
+						mods = OsuMods((((unsigned long long)mods) & 0xfffffffffff0ffff) | (((int)kea.Key - 97ULL + 1) << 16));
+						if (!HasFlag(mods, OsuMods::Random)) {
+							mods = ToggleFlag(mods, OsuMods::Random);
+						}
+					}
+					if (kea.Key == ConsoleKey::NumPad0) {
+						mods = OsuMods(((unsigned long long)mods) & 0xfffffffffff0ffff);
+					}
+					game->Settings["Mods"].Set(mods);
+					game->Settings.Write();
+					return;
+				}
 				if (kea.Key == ConsoleKey::Escape) {
+					parent->Back();
+				}
+				if (!ready && require_songs_path) {
+					if (kea.Key == ConsoleKey::Backspace) {
+						if (input_buf.size() > 0) {
+							input_buf.resize(input_buf.size() - 1);
+						}
+						return;
+					}
+					if (kea.Key == ConsoleKey::Enter) {
+						auto str = Utf162Utf8(std::wstring{ input_buf.begin(), input_buf.end() });
+						game->Settings["SongsPath"].SetArray(str.c_str(), str.size() + 1);
+						game->Settings.Write();
+						RebuildCache();
+						require_songs_path = false;
+					}
+					if (kea.UnicodeChar >= 31) {
+						input_buf.push_back(kea.UnicodeChar);
+					}
+					return;
+				}
+				{
+					if (kea.Key == ConsoleKey::Backspace) {
+						if (search_buf.size() >= 2 && IsMultiUtf16(search_buf[search_buf.size() - 2]) && IsMultiUtf16(search_buf[search_buf.size() - 1])) {
+							search_buf.resize(search_buf.size() - 2);
+							UpdateSearch();
+						}
+						else if (search_buf.size() >= 1) {
+							search_buf.resize(search_buf.size() - 1);
+							UpdateSearch();
+						}
+						return;
+					}
+					if (kea.UnicodeChar > 31) {
+						search_buf.push_back(kea.UnicodeChar);
+						if (!IsMultiUtf16(kea.UnicodeChar)) {
+							UpdateSearch();
+						}
+					}
+				}
+				if (kea.Key == ConsoleKey::F3) {
 					mod_flyout = !mod_flyout;
 				}
-
-				// Key binds
-				if (kea.Key == ConsoleKey::E)
-					mods = ToggleFlag(mods, OsuMods::Easy);
-				if (kea.Key == ConsoleKey::N)
-					mods = ToggleFlag(mods, OsuMods::NoFall);
-				if (kea.Key == ConsoleKey::H)
-					mods = ToggleFlag(mods, OsuMods::HalfTime);
-				if (kea.Key == ConsoleKey::R)
-					mods = ToggleFlag(mods, OsuMods::Hardrock);
-				if (kea.Key == ConsoleKey::I)
-					mods = ToggleFlag(mods, OsuMods::Nightcore);
-				if (kea.Key == ConsoleKey::D)
-					mods = ToggleFlag(mods, OsuMods::Hidden);
-				if (kea.Key == ConsoleKey::F)
-					mods = ToggleFlag(mods, OsuMods::FadeOut);
-				if (kea.Key == ConsoleKey::A)
-					mods = ToggleFlag(mods, OsuMods::Auto);
-				if (kea.Key == ConsoleKey::O)
-					mods = ToggleFlag(mods, OsuMods::Random);
-				if (kea.Key == ConsoleKey::L)
-					mods = ToggleFlag(mods, OsuMods::Relax);
-				if (kea.Key == ConsoleKey::C)
-					mods = ToggleFlag(mods, OsuMods::Coop);
-				if (kea.Key == ConsoleKey::M)
-					mods = ToggleFlag(mods, OsuMods::Mirror);
-
-				if (kea.Key >= ConsoleKey::NumPad1 && kea.Key <= ConsoleKey::NumPad9) {
-					mods = OsuMods((((unsigned long long)mods) & 0xfffffffffff0ffff) | (((int)kea.Key - 97ULL + 1) << 16));
-					if (!HasFlag(mods, OsuMods::Random)) {
-						mods = ToggleFlag(mods, OsuMods::Random);
-					}
-				}
-				if (kea.Key == ConsoleKey::NumPad0) {
-					mods = OsuMods(((unsigned long long)mods) & 0xfffffffffff0ffff);
-				}
-				game->Settings["Mods"].Set(mods);
-				game->Settings.Write();
-				return;
-			}
-			if (kea.Key == ConsoleKey::Escape) {
-				parent->Back();
-			}
-			if (!ready && require_songs_path) {
-				if (kea.Key == ConsoleKey::Backspace) {
-					if (input_buf.size() > 0) {
-						input_buf.resize(input_buf.size() - 1);
-					}
-					return;
+				if (kea.Key == ConsoleKey::F4) {
+					parent->Navigate(MakeSettingsScreen());
 				}
 				if (kea.Key == ConsoleKey::Enter) {
-					auto str = Utf162Utf8(std::wstring{ input_buf.begin(), input_buf.end() });
-					game->Settings["SongsPath"].SetArray(str.c_str(), str.size() + 1);
-					game->Settings.Write();
-					RebuildCache();
-					require_songs_path = false;
-				}
-				if (kea.UnicodeChar >= 31) {
-					input_buf.push_back(kea.UnicodeChar);
-				}
-				return;
-			}
-			{
-				if (kea.Key == ConsoleKey::Backspace) {
-					if (search_buf.size() >= 2 && IsMultiUtf16(search_buf[search_buf.size() - 2]) && IsMultiUtf16(search_buf[search_buf.size() - 1])) {
-						search_buf.resize(search_buf.size() - 2);
-						UpdateSearch();
+					if (selected_entry_2 != 0 && selected != INT_MAX) {
+						if (kea.CtrlDown()) {
+							mods = ModifyFlag(mods, OsuMods::Auto);
+						}
+						parent->Navigate(MakeGameplayScreen(selected_entry_2->path, mods));
 					}
-					else if (search_buf.size() >= 1) {
-						search_buf.resize(search_buf.size() - 1);
-						UpdateSearch();
+				}
+				if (kea.Key == ConsoleKey::Insert) {
+					if (selected_entry_2 != 0 && selected != INT_MAX) {
+						if (records.size() > 0)
+							parent->Navigate(MakeGameplayScreen(records[0], selected_entry_2->path));
+					}
+				}
+			}
+			if (caches.empty())
+				return;
+			if (kea.Key == ConsoleKey::PageDown) {
+				offset += h_cache;
+			}
+			if (kea.Key == ConsoleKey::PageUp) {
+				offset -= h_cache;
+			}
+			if (kea.Key == ConsoleKey::F2) {
+				if (HasFlag(kea.KeyState, ControlKeyState::Shift))
+				{
+					if (!isnan(random_last_off))
+					{
+						offset = random_last_off;
+						MakeSelected(random_last_i, caches[random_last_i % caches.size()]);
 					}
 					return;
 				}
-				if (kea.UnicodeChar > 31) {
-					search_buf.push_back(kea.UnicodeChar);
-					if (!IsMultiUtf16(kea.UnicodeChar)) {
-						UpdateSearch();
+				auto soff = offset;
+				auto sslt = selected;
+				offset += rand() % 100 - 50;
+				auto val = size_t(offset / 4 + 2) % caches.size();
+				MakeSelected(offset / 4 + 2, caches[val]);
+				random_last_off = soff;
+				random_last_i = sslt;
+			}
+			if (kea.Key == ConsoleKey::DownArrow || kea.Key == ConsoleKey::UpArrow ||
+				kea.Key == ConsoleKey::RightArrow || kea.Key == ConsoleKey::LeftArrow) {
+				bool up_or_down = kea.Key == ConsoleKey::DownArrow || kea.Key == ConsoleKey::LeftArrow;
+				bool forced = kea.Key == ConsoleKey::RightArrow || kea.Key == ConsoleKey::LeftArrow;
+				if (selected_entry != 0 && !kea.CtrlDown()) {
+					auto& caches = matched_caches;
+					if (search_buf.empty()) {
+						caches = this->caches;
+					}
+					if (caches.empty())
+						return;
+					int c1 = 45;
+					int c2 = std::min((int)(w_cache / 2), 10) + c1;
+					int gap = 1;
+					int songheight = 3;
+					int originpointx = c1 + w_cache;
+					int originpointy = (int)(h_cache / 2);
+					double startangle = calculateAngle(w_cache, 0, originpointx, originpointy); // 起始角度
+					double endangle = calculateAngle(w_cache, h_cache, originpointx, originpointy);
+					double distance = sqrt(pow(c1, 2) + pow(h_cache / 2, 2));
+
+					int index = (int)(offset / (songheight + gap) + h_cache / 2);
+					int max = (int)(h_cache / (songheight + gap) + 10);
+					int min = index - h_cache / 2 - 5 - (selected_entry != 0 ? selected_entry->difficulties.size() : 0);
+					for (int i = min; i < index + max; i++) {
+						int j = std::abs((int)(i % caches.size()));
+						auto& cache = caches[j];
+						auto basicoff = (i * (songheight + gap) - offset);
+						if (i > selected && selected_entry != 0) {
+							basicoff += selected_entry->difficulties.size() * (songheight + gap);
+						}
+						double b = distance * sin(basicoff / h_cache * (startangle - endangle) - startangle);
+						int b2 = w_cache + abs(b) - c2;
+						if (forced && i == selected) {
+							auto sfi = j + (up_or_down ? 1 : -1);
+							if (sfi >= caches.size())
+								sfi = 0;
+							if (sfi < 0)
+								sfi = caches.size() - 1;
+							MakeSelected(i + (up_or_down ? 1 : -1), caches[sfi]);
+							offset += basicoff - 8;
+							break;
+						}
+						if (i == selected) {
+							int k = 1;
+							int diffxpos = 3;
+							for (auto& diff : cache.difficulties) {
+								auto diffoff = basicoff + (k * (songheight + gap));
+								if (selected_entry_2 == &diff || selected_entry_2 == 0) {
+									auto sfi2 = k - 1 + (up_or_down ? 1 : -1);
+									if (selected_entry_2 == 0)
+									{
+										sfi2 = 0;
+									}
+									if (sfi2 >= cache.difficulties.size() || sfi2 < 0) {
+										auto sfi = j + (up_or_down ? 1 : -1);
+										if (sfi >= caches.size())
+											sfi = 0;
+										if (sfi < 0)
+											sfi = caches.size() - 1;
+										MakeSelected(i + (up_or_down ? 1 : -1), caches[sfi]);
+										offset += basicoff - 8;
+										return;
+									}
+									else {
+										MakeSelected(i, cache, cache.difficulties[sfi2]);
+										offset += diffoff - 12;
+										return;
+									}
+								}
+								k++;
+							}
+						}
 					}
 				}
-			}
-			if (kea.Key == ConsoleKey::F2) {
-				offset = rand();
-			}
-			if (kea.Key == ConsoleKey::F3) {
-				mod_flyout = !mod_flyout;
-			}
-			if (kea.Key == ConsoleKey::F4) {
-				parent->Navigate(MakeSettingsScreen());
-			}
-			if (kea.Key == ConsoleKey::Enter) {
-				if (selected_entry_2 != 0 && selected != INT_MAX) {
-					if (kea.CtrlDown()) {
-						mods = ModifyFlag(mods, OsuMods::Auto);
-					}
-					parent->Navigate(MakeGameplayScreen(selected_entry_2->path, mods));
-				}
-			}
-			if (kea.Key == ConsoleKey::Insert) {
-				if (selected_entry_2 != 0 && selected != INT_MAX) {
-					if (records.size() > 0)
-						parent->Navigate(MakeGameplayScreen(records[0], selected_entry_2->path));
+				else {
+					offset += up_or_down ? -4 : 4;
 				}
 			}
 		}

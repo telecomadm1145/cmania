@@ -105,9 +105,11 @@ public:
 			}
 			case WINDOW_BUFFER_SIZE_EVENT: {
 				SendResize(parent);
+				break;
 			}
 			case FOCUS_EVENT: {
 				parent->Raise("focus", record.Event.FocusEvent.bSetFocus);
+				break;
 			}
 			default:
 				break;
