@@ -29,7 +29,7 @@ public:
 			int y = 0;
 			for (size_t i = 0; i < rbg.Width() * rbg.Height() * 3; i += 3) {
 				auto scan0 = rbg.Scan0();
-				buffer.SetPixel(x, y, { {}, { 255, (unsigned char)(scan0[i + 0] / 2), (unsigned char)(scan0[i + 1] / 2), (unsigned char)(scan0[i + 2] / 2) }, ' ' });
+				buffer.SetPixel(x, y, { {}, { 255, (unsigned char)(scan0[i + 0] / 5), (unsigned char)(scan0[i + 1] / 5), (unsigned char)(scan0[i + 2] / 5) }, ' ' });
 				x++;
 				if (x >= buffer.Width) {
 					x = 0;

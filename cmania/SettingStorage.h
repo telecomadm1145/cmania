@@ -143,7 +143,9 @@ concept BinaryMap =
 		{ m.cbegin() } -> std::convertible_to<typename T::const_iterator>;
 		{ m.cend() } -> std::convertible_to<typename T::const_iterator>;
 	};
-#define _BIN_DBG
+
+//#define _BIN_DBG
+
 /// <summary>
 /// 提供结构化的二进制与stl的转换
 /// </summary>
@@ -169,10 +171,6 @@ public:
 		unsigned long long size = 0;
 		Read(stm, size);
 		if (size > 1ULL << 48) {
-#if _DEBUG
-			auto off = stm.tellg();
-			off;
-#endif
 			__debugbreak();
 		}
 		vec.reserve(size);

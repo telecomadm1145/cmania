@@ -13,7 +13,7 @@
 #include "KeepAwake.h"
 #include "BassAudioManager.h"
 
-// Cmania 的入口点
+// cmania 的入口点
 int main() {
 	auto am = GetBassAudioManager();							  // 获取全局的bass引擎包装
 	am->openDevice(AudioManagerExtensions::getDefaultDevice(am)); // 初始化Bass引擎

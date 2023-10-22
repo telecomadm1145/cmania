@@ -9,10 +9,10 @@ private:
 
 public:
 	ResultScreen(Record rec, std::string bg_path) : rec(rec) {
-		bg.LoadBackground(bg_path);
+		//bg.LoadBackground(bg_path);
 	}
 	virtual void Render(GameBuffer& buf) override {
-		bg.Render(buf);
+		//bg.Render(buf);
 		auto line = std::string();
 		line.append(rec.PlayerName);
 		line.append(" played ");
