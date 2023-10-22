@@ -27,6 +27,10 @@ class SettingsScreen : public Screen {
 		line.push_back(game->Settings["TailHs"].Get<bool>() ? 'x' : ' ');
 		line.push_back(']');
 		line.append("长按尾击打声(T)\n");
+		line.push_back('[');
+		line.push_back(game->Settings["MyCompSuck"].Get<bool>() ? 'x' : ' ');
+		line.push_back(']');
+		line.append("低性能模式(F)\n");
 		line.append("速度设置向导(S)\n");
 		line.append("重置Songs路径(R)\n");
 		for (size_t i = 0; i < buf.Height; i++) {
@@ -71,6 +75,11 @@ class SettingsScreen : public Screen {
 			}
 			if (kea.Key == ConsoleKey::B) {
 				game->Settings["NoBg"].Set(!game->Settings["NoBg"].Get<bool>());
+				game->Settings.Write();
+				return;
+			}
+			if (kea.Key == ConsoleKey::F) {
+				game->Settings["MyCompSuck"].Set(!game->Settings["MyCompSuck"].Get<bool>());
 				game->Settings.Write();
 				return;
 			}

@@ -16,6 +16,7 @@
 #include "BackgroundComponent.h"
 #include "GameplayScreen.h"
 #include "SongSelectScreen.h"
+#include "Animator.h"
 
 class SongSelectScreen : public Screen {
 	BackgroundComponent bg;
@@ -28,6 +29,7 @@ class SongSelectScreen : public Screen {
 	std::unique_ptr<IAudioManager::IAudioStream> preview;
 	bool mod_flyout;
 	OsuMods mods;
+	using TransOut = Transition<EaseOut<PowerEasingFunction<5.0>>>;
 	GameBuffer::Color difficultyToRGBColor(float difficulty) {
 		std::vector<std::tuple<double, double, GameBuffer::Color>> ranges = {
 			{ 0, 1, { 0, 204, 204, 204 } },								   // 灰
@@ -52,6 +54,7 @@ class SongSelectScreen : public Screen {
 		// If the difficulty does not fall within any range, return black color
 		return { 255, 0, 0, 0 };
 	}
+	TransOut OffsetTrans{ 0, 200 };
 	virtual void Render(GameBuffer& buf) {
 		std::lock_guard lock(res_lock);
 		h_cache = buf.Height;
@@ -80,8 +83,9 @@ class SongSelectScreen : public Screen {
 		double startangle = calculateAngle(buf.Width, 0, originpointx, originpointy); // 起始角度
 		double endangle = calculateAngle(buf.Width, buf.Height, originpointx, originpointy);
 		double distance = sqrt(pow(c1, 2) + pow(buf.Height / 2, 2));
-
-		int index = (int)(offset / (songheight + gap) + buf.Height / 2);
+		OffsetTrans.SetValue(HpetClock(), offset);
+		auto realoff = OffsetTrans.GetCurrentValue(HpetClock());
+		int index = (int)(realoff / (songheight + gap) + buf.Height / 2);
 		int max = (int)(buf.Height / (songheight + gap) + 10);
 		int min = index - h_cache / 2 - 5 - (selected_entry != 0 ? selected_entry->difficulties.size() : 0);
 
@@ -92,7 +96,7 @@ class SongSelectScreen : public Screen {
 			for (int i = min; i < index + max; i++) {
 				int j = abs((int)(i % caches.size()));
 				auto& cache = caches[j];
-				auto basicoff = (i * (songheight + gap) - offset);
+				auto basicoff = (i * (songheight + gap) - realoff);
 				if (i > selected && selected_entry != 0) {
 					basicoff += selected_entry->difficulties.size() * (songheight + gap);
 				}
@@ -531,6 +535,9 @@ class SongSelectScreen : public Screen {
 						UpdateSearch();
 					}
 				}
+			}
+			if (kea.Key == ConsoleKey::F2) {
+				offset = rand();
 			}
 			if (kea.Key == ConsoleKey::F3) {
 				mod_flyout = !mod_flyout;

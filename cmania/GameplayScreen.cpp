@@ -19,6 +19,8 @@ class GameplayScreen : public Screen {
 	OsuMods mods;
 	BackgroundComponent bg;
 
+	using TransOut = Transition<EaseOut<PowerEasingFunction<4.0>>>;
+
 public:
 	GameplayScreen(const std::string& bmp_path, OsuMods mod) {
 		LoadForGameplay(mod, bmp_path);
@@ -47,6 +49,16 @@ public:
 		beatmap_path = bmp_path;
 		this->rec = rec;
 	}
+
+private:
+	TransOut AccTrans{ 0, 500 };
+	TransOut ScoreTrans{ 0, 500 };
+	TransOut ErrorTrans{ 0, 500 };
+	TransOut VarianceTrans{ 0, 500 };
+	TransOut RatingTrans{ 0, 500 };
+	TransOut ComboTrans{ 0, 500 };
+
+public:
 	virtual void Render(GameBuffer& buf) {
 		bg.Render(buf);
 		if (pause) {
@@ -59,20 +71,30 @@ public:
 
 			// We need to render the result of score processor
 			auto scp = ruleset->GetScoreProcessor();
+			auto clk = ruleset->Clock.Elapsed();
 
 			std::string centre1 = ""; // this is the major counter.
 			buf.DrawLineV(0, buf.Width, 0, { {}, { 60, 255, 255, 255 }, ' ' });
 			buf.DrawLineV(0, (ruleset->GetCurrentTime() / ruleset->GetDuration()) * buf.Width, 0, { {}, { 60, 90, 255, 100 }, ' ' });
 			auto length_text = std::to_string(int(ruleset->GetDuration() / 1000 / 60)) + ":" + std::to_string(std::abs(int(ruleset->GetDuration() / 1000) % 60));
 			buf.DrawString(length_text, buf.Width - length_text.size() - 1, 0, {}, {});
+			auto clk_txt = std::to_string(ruleset->Clock.ClockRate());
+			clk_txt.resize(4);
+			clk_txt += "x";
+			buf.DrawString(clk_txt, buf.Width - clk_txt.size() - 1, 1, {}, {});
 			auto current_text = std::to_string(int(ruleset->GetCurrentTime() / 1000 / 60)) + ":" + std::to_string(std::abs(int(ruleset->GetCurrentTime() / 1000) % 60));
 			buf.DrawString(current_text, 0, 0, {}, {});
 			centre1.append(std::to_string(scp->Combo));
 			centre1.push_back('x');
-			centre1.append("     ");
-			centre1.append(std::to_string((int)(scp->Score * 1000000)));
-			centre1.append("     ");
-			centre1.append(std::to_string(scp->Accuracy * 100));
+			centre1.append("\t\t\t\t\t");
+			ScoreTrans.SetValue(clk, scp->Score * 1000000);
+			auto scr = std::to_string((int)(ScoreTrans.GetCurrentValue(clk)));
+			centre1.append(scr);
+			centre1.append("\t\t\t\t\t");
+			AccTrans.SetValue(clk, scp->Accuracy * 100);
+			auto acc = std::to_string(AccTrans.GetCurrentValue(clk));
+			acc.resize(6);
+			centre1.append(acc);
 			centre1.push_back('%');
 			buf.DrawString(centre1, (buf.Width - centre1.size()) / 2, 1, { 255, 255, 255, 255 }, {});
 
@@ -83,11 +105,14 @@ public:
 			centre1.append(std::to_string(scp->BeatmapMaxCombo));
 			centre1.push_back('x');
 			centre1.push_back(')');
-			centre1.append("     ");
-			centre1.append(std::to_string(scp->Rating));
+			centre1.append("\t\t\t\t");
+			RatingTrans.SetValue(clk, scp->Rating);
+			auto rt = std::to_string(RatingTrans.GetCurrentValue(clk));
+			rt.resize(6);
+			centre1.append(rt);
 			buf.DrawString(centre1, (buf.Width - centre1.size()) / 2, 2, { 255, 255, 255, 255 }, {});
 			if (rec_input_handler != 0) {
-				buf.DrawString("Replaying record of \"" + rec.PlayerName + "\"", 0, 2, { 255, 255, 255, 255 }, {});
+				buf.DrawString("Replaying record of \"" + rec.PlayerName + "\"", 0, 1, { 255, 255, 255, 255 }, {});
 			}
 			{
 				int i = buf.Height / 2 + 9;
@@ -106,7 +131,10 @@ public:
 			}
 
 			std::string corner = "";
-			corner.append(std::to_string(scp->Mean));
+			ErrorTrans.SetValue(clk, scp->Mean);
+			auto err = std::to_string(ErrorTrans.GetCurrentValue(clk));
+			err.resize(5);
+			corner.append(err);
 			corner.append("ms");
 			corner.append("(UR");
 			corner.append(std::to_string((int)scp->Error));

@@ -232,10 +232,11 @@ public:
 							  end_obj = std::max(end_obj, obj.EndTime);
 
 						  // 计算是否为多押
-						  orig_bmp.HitObjects > ForEach([&](const auto& obj2) {
-							  if (&obj2 != &obj && (std::abs(obj.StartTime - obj2.StartTime) < 0.5 || (obj2.EndTime != 0 && std::abs(obj.StartTime - obj2.EndTime) < 0.5)))
-								  mo.Multi = true;
-						  });
+						  if (jump_helper)
+							  orig_bmp.HitObjects > ForEach([&](const auto& obj2) {
+								  if (&obj2 != &obj && (std::abs(obj.StartTime - obj2.StartTime) < 0.5 || (obj2.EndTime != 0 && std::abs(obj.StartTime - obj2.EndTime) < 0.5)))
+									  mo.Multi = true;
+							  });
 
 						  // 获取最近的 TimingPoint
 						  auto& tp = GetTimingPoint(orig_bmp, obj.StartTime);
@@ -346,6 +347,7 @@ public:
 
 		if (bgm != 0 && (time > bgm->getDuration() * 1000 + 3000 || time > end_obj + 3000)) {
 			GameEnded = true;
+			Clock.Stop();
 			return;
 		}
 
@@ -613,13 +615,9 @@ public:
 
 	// 通过 Ruleset 继承
 	virtual double GetCurrentTime() override {
-		if (!Clock.Running())
-			return 0;
 		return Clock.Elapsed() - first_obj;
 	}
 	virtual double GetDuration() override {
-		if (!Clock.Running())
-			return 999999;
 		return end_obj - first_obj;
 	}
 
