@@ -27,10 +27,10 @@ public:
 			}
 			int x = 0;
 			int y = 0;
-			GameBuffer::Color clr;
+			Color clr;
 			for (size_t i = 0; i < rbg.Width() * rbg.Height() * 3; i += 3) {
 				auto scan0 = rbg.Scan0();
-				GameBuffer::Color clr2{ 255, (unsigned char)(scan0[i + 0] / 5), (unsigned char)(scan0[i + 1] / 5), (unsigned char)(scan0[i + 2] / 5) };
+				Color clr2{ 255, (unsigned char)(scan0[i + 0] / 5), (unsigned char)(scan0[i + 1] / 5), (unsigned char)(scan0[i + 2] / 5) };
 				if (clr.Difference(clr2) > 0.01)
 				{
 					clr = clr2;

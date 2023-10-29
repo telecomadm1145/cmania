@@ -220,6 +220,9 @@
     <ClInclude Include="OsuMods.h">
       <Filter>Game\Gameplay\Osu</Filter>
     </ClInclude>
+    <ClInclude Include="Label.h">
+      <Filter>Core\UI</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Core">
@@ -311,7 +314,6 @@
     <None Include="Samples\Triangles\soft-sliderslide.wav" />
     <None Include="Samples\Triangles\soft-slidertick.wav" />
     <None Include="Samples\Triangles\soft-sliderwhistle.wav" />
-    <None Include="Samples\*\*" />
     <None Include="Samples\*\*" />
     <None Include="Samples\*\*" />
     <None Include="Samples\*\*" />

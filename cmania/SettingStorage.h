@@ -144,7 +144,7 @@ concept BinaryMap =
 		{ m.cend() } -> std::convertible_to<typename T::const_iterator>;
 	};
 
-//#define _BIN_DBG
+// #define _BIN_DBG
 
 /// <summary>
 /// 提供结构化的二进制与stl的转换
@@ -167,7 +167,7 @@ public:
 		cls.Read(stm);
 	}
 	static void Read(std::istream& stm, BinaryVector auto& vec) {
-		using ContainerChild = std::remove_cvref<decltype(*&vec[0])>::type;
+		using ContainerChild = ::ContainerChild<decltype(vec)>;
 		unsigned long long size = 0;
 		Read(stm, size);
 		if (size > 1ULL << 48) {
@@ -193,7 +193,7 @@ public:
 			__debugbreak();
 	}
 	static void Read(std::istream& stm, BinaryMap auto& map) {
-		using ContainerChild = std::remove_cvref<decltype(*map.cbegin())>::type;
+		using ContainerChild = ::ContainerChild<decltype(map)>;
 		unsigned long long size = 0;
 		Read(stm, size);
 		if (size > 1ULL << 48) {

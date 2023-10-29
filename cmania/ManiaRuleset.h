@@ -531,8 +531,7 @@ public:
 				if (obj.Column == j) {
 					auto ratio = 1 - (obj.StartTime - e_ms) / scrollspeed;
 					auto starty = ratio * (buffer.Height - judge_height + 1);
-					// Break();
-					auto base = GameBuffer::Color{ 0, 0, 160, 230 };
+					auto base = Color{ 0, 0, 160, 230 };
 					auto flashlight_num = CalcFlashlight(Mods, ratio);
 					if (obj.Multi)
 						base = { 0, 204, 187, 102 };
@@ -566,7 +565,7 @@ public:
 			}
 
 			// 绘制 Mania 台阶
-			auto clr = GameBuffer::Color{ 255, 204, 187, 102 };
+			auto clr = Color{ 255, 204, 187, 102 };
 			buffer.DrawLineH(i, 0, buffer.Height, { clr, {}, '|' });
 			buffer.DrawLineH(i + key_width, 0, buffer.Height, { clr, {}, '|' });
 			buffer.FillRect(i + 1, buffer.Height - judge_height + 1, i + key_width, buffer.Height, { {}, { 120, 255, 255, 255 }, ' ' });

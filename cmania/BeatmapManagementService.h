@@ -4,6 +4,8 @@
 #include <string>
 #include <vector>
 #include <filesystem>
+#include <functional>
+
 struct DifficultyCacheEntry {
 	std::string background;
 	std::string audio;
@@ -89,3 +91,10 @@ struct SongsCahceReadyEventArgs {
 	SongsCache* Songs;
 };
 GameComponent* MakeBeatmapManagementService();
+
+class IBeatmapManagement {
+public:
+	virtual void Refesh(std::function<void(bool)>) = 0;
+	virtual void Save() = 0;
+	virtual std::vector<SongsCacheEntry>& GetSongsCache() = 0;
+};

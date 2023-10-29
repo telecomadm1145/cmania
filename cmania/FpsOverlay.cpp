@@ -6,6 +6,7 @@
 #pragma warning(disable: 4267)
 
 class FpsOverlay : public GameComponent {
+	
 	// 通过 Component 继承
 	virtual void ProcessEvent(const char* evt, const void* evtargs) {
 		static int tickcount = 0;

@@ -296,6 +296,7 @@
     <ClInclude Include="InputEvent.h" />
     <ClInclude Include="InputHandler.h" />
     <ClInclude Include="KeyBinds.h" />
+    <ClInclude Include="Label.h" />
     <ClInclude Include="Linq.h" />
     <ClInclude Include="AudioManager.h" />
     <ClInclude Include="BeatmapManagementService.h" />

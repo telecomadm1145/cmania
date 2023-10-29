@@ -139,7 +139,7 @@ constexpr inline std::string GetHitResultName(HitResult res) {
 		return "Unknown";
 	}
 }
-constexpr inline GameBuffer::Color GetHitResultColor(HitResult res) {
+constexpr inline Color GetHitResultColor(HitResult res) {
 	switch (res) {
 	case HitResult::Miss:
 		return { 255, 255, 0, 0 };

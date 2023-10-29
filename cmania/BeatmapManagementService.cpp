@@ -10,23 +10,26 @@
 #include "String.h"
 #include "OsuBeatmap.h"
 
-class BeatmapManagementService : public GameComponent {
+class BeatmapManagementService : public GameComponent, public IBeatmapManagement {
 	SongsCache sc;
-	static void GetSongsCache(BeatmapManagementService* pthis) {
-		auto song_path = pthis->parent->Settings["SongsPath"].GetString();
+	static void RefreshCache(BeatmapManagementService* pthis, std::function<void(bool)> callback) {
+		pthis->RealRefresh(callback);
+	}
+	void RealRefresh(std::function<void(bool)> callback) {
+		auto song_path = parent->Settings["SongsPath"].GetString();
 		if (song_path != 0 && std::filesystem::exists(song_path)) {
 			SongsCahceReadyEventArgs screa{};
 			auto songs_path = std::filesystem::path(song_path);
 			std::fstream fs("Songs.bin", std::ios::in | std::ios::out | std::ios::binary);
-			pthis->sc = SongsCache{};
+			sc = SongsCache{};
 			if (fs.good())
-				Binary::Read(fs, pthis->sc);
+				Binary::Read(fs, sc);
 			auto tm = std::filesystem::last_write_time(songs_path).time_since_epoch();
-			if (tm > pthis->sc.lastchanged) {
+			if (tm > sc.lastchanged) {
 				std::filesystem::directory_iterator dir(songs_path);
 				std::vector<std::filesystem::directory_entry> dirs;
 				std::move(dir, {}, std::insert_iterator(dirs, dirs.begin()));
-				pthis->sc.caches.reserve(dirs.size() + 10);
+				sc.caches.reserve(dirs.size() + 10);
 				std::mutex lock;
 				std::vector<std::thread> threads;
 				for (size_t i = 0; i < 16; i++) {
@@ -47,10 +50,10 @@ class BeatmapManagementService : public GameComponent {
 								SongsCacheEntry* disk_cache = 0;
 								{
 									std::lock_guard<std::mutex> l(lock);
-									auto iter = std::find_if(pthis->sc.caches.begin(), pthis->sc.caches.end(), [&](SongsCacheEntry& dat) -> bool {
+									auto iter = std::find_if(sc.caches.begin(), sc.caches.end(), [&](SongsCacheEntry& dat) -> bool {
 										return song.path() == dat.path;
 									});
-									if (iter != pthis->sc.caches.end())
+									if (iter != sc.caches.end())
 										disk_cache = &*iter;
 								}
 								if (disk_cache != 0) {
@@ -101,7 +104,7 @@ class BeatmapManagementService : public GameComponent {
 								if (!cache.difficulties.empty()) {
 									std::lock_guard<std::mutex> l(lock);
 									if (disk_cache == 0)
-										pthis->sc.caches.push_back(cache);
+										sc.caches.push_back(cache);
 									else
 										*disk_cache = cache;
 								}
@@ -118,28 +121,37 @@ class BeatmapManagementService : public GameComponent {
 				if (!fs.good())
 					throw std::invalid_argument("Cannot save to the Songs.bin");
 			}
-			pthis->sc.lastchanged = tm;
+			sc.lastchanged = tm;
 			fs.seekp(0);
-			Binary::Write(fs, pthis->sc);
+			Binary::Write(fs, sc);
 			fs.close();
-			screa.Songs = &pthis->sc;
-			pthis->parent->Raise("songs_cache_ready", screa);
-			return;
+			screa.Songs = &sc;
+			callback(true);
 		}
-		pthis->parent->Raise("require", "SongsPath");
+		else {
+			callback(false);
+		}
 	}
 	// 通过 Component 继承
 	virtual void ProcessEvent(const char* evt, const void* evtargs) {
-		if (strcmp(evt, "get_songs_cache") == 0) {
-			std::thread(GetSongsCache, this).detach();
+		if (strcmp(evt, "start") == 0) {
+			parent->RegisterFeature((IBeatmapManagement*)this);
 		}
-		if (strcmp(evt, "save_db") == 0) {
-			auto fs = std::ofstream("Songs.bin", std::ios::out | std::ios::binary);
-			fs.seekp(0);
-			if (!fs.good())
-				throw std::invalid_argument("Cannot save to the Songs.bin");
-			Binary::Write(fs, sc);
-		}
+	}
+
+	// 通过 IBeatmapManagement 继承
+	void Refesh(std::function<void(bool)> callback) override {
+		std::thread(RefreshCache, this, callback).detach();
+	}
+
+	// 通过 IBeatmapManagement 继承
+	void Save() override {
+		std::fstream fs("Songs.bin", std::ios::out | std::ios::binary);
+		Binary::Write(fs, sc);
+		fs.close();
+	}
+	std::vector<SongsCacheEntry>& GetSongsCache() override {
+		return sc.caches;
 	}
 };
 

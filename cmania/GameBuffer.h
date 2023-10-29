@@ -6,49 +6,48 @@
 #include <string>
 #include <algorithm>
 #include <functional>
+#include <utility>
+struct Color {
+	unsigned char Alpha;
+	unsigned char Red;
+	unsigned char Green;
+	unsigned char Blue;
+	bool operator==(Color b) {
+		return *(int*)(this) == *(int*)&b;
+	}
+	static Color Blend(Color a, Color b) {
+		if (a == Color{})
+			return b;
+		if (b == Color{})
+			return a;
+		Color result;
+		float alpha = static_cast<float>(b.Alpha) / 255.0f;
+		float invAlpha = 1.0f - alpha;
+
+		result.Red = static_cast<unsigned char>((a.Red * invAlpha) + (b.Red * alpha));
+		result.Green = static_cast<unsigned char>((a.Green * invAlpha) + (b.Green * alpha));
+		result.Blue = static_cast<unsigned char>((a.Blue * invAlpha) + (b.Blue * alpha));
+		auto sum = a.Alpha + b.Alpha;
+		if (sum > 255)
+			sum = 255;
+		result.Alpha = static_cast<unsigned char>(sum);
+
+		return result;
+	}
+	Color operator-(Color b) {
+		return Color{ Alpha, (unsigned char)(Red - b.Red), (unsigned char)(Green - b.Green), (unsigned char)(Blue - b.Blue) };
+	}
+	double Difference(Color b) {
+		return (std::abs((Red - b.Red) / 255.0) + std::abs((Blue - b.Blue) / 255.0) + std::abs((Green - b.Green) / 255.0)) / 3.0;
+	}
+};
+struct PixelData {
+	Color Foreground;
+	Color Background;
+	unsigned int UcsChar;
+};
 
 class GameBuffer {
-public:
-	struct Color {
-		unsigned char Alpha;
-		unsigned char Red;
-		unsigned char Green;
-		unsigned char Blue;
-		bool operator==(Color b) {
-			return *(int*)(this) == *(int*)&b;
-		}
-		static Color Blend(Color a, Color b) {
-			if (a == Color{})
-				return b;
-			if (b == Color{})
-				return a;
-			Color result;
-			float alpha = static_cast<float>(b.Alpha) / 255.0f;
-			float invAlpha = 1.0f - alpha;
-
-			result.Red = static_cast<unsigned char>((a.Red * invAlpha) + (b.Red * alpha));
-			result.Green = static_cast<unsigned char>((a.Green * invAlpha) + (b.Green * alpha));
-			result.Blue = static_cast<unsigned char>((a.Blue * invAlpha) + (b.Blue * alpha));
-			auto sum = a.Alpha + b.Alpha;
-			if (sum > 255)
-				sum = 255;
-			result.Alpha = static_cast<unsigned char>(sum);
-
-			return result;
-		}
-		Color operator-(Color b) {
-			return Color{ Alpha, (unsigned char)(Red - b.Red), (unsigned char)(Green - b.Green), (unsigned char)(Blue - b.Blue) };
-		}
-		double Difference(Color b) {
-			return (std::abs((Red - b.Red) / 255.0) + std::abs((Blue - b.Blue) / 255.0) + std::abs((Green - b.Green) / 255.0)) / 3.0;
-		}
-	};
-	struct PixelData {
-		Color Foreground;
-		Color Background;
-		unsigned int UcsChar;
-	};
-
 private:
 	std::vector<PixelData> PixelBuffer;
 
@@ -151,17 +150,11 @@ public:
 					itoa(dat.Foreground.Red, commonbuf, 10);
 					WriteBufferString(commonbuf);
 					outbuf.emplace_back(';');
-					commonbuf[0] = 0;
-					commonbuf[1] = 0;
-					commonbuf[2] = 0;
-					commonbuf[3] = 0;
+					std::memset(commonbuf, 0, 4);
 					itoa(dat.Foreground.Green, commonbuf, 10);
 					WriteBufferString(commonbuf);
 					outbuf.emplace_back(';');
-					commonbuf[0] = 0;
-					commonbuf[1] = 0;
-					commonbuf[2] = 0;
-					commonbuf[3] = 0;
+					std::memset(commonbuf, 0, 4);
 					itoa(dat.Foreground.Blue, commonbuf, 10);
 					WriteBufferString(commonbuf);
 					outbuf.emplace_back('m');
@@ -172,17 +165,11 @@ public:
 					itoa(dat.Background.Red, commonbuf, 10);
 					WriteBufferString(commonbuf);
 					outbuf.emplace_back(';');
-					commonbuf[0] = 0;
-					commonbuf[1] = 0;
-					commonbuf[2] = 0;
-					commonbuf[3] = 0;
+					std::memset(commonbuf, 0, 4);
 					itoa(dat.Background.Green, commonbuf, 10);
 					WriteBufferString(commonbuf);
 					outbuf.emplace_back(';');
-					commonbuf[0] = 0;
-					commonbuf[1] = 0;
-					commonbuf[2] = 0;
-					commonbuf[3] = 0;
+					std::memset(commonbuf, 0, 4);
 					itoa(dat.Background.Blue, commonbuf, 10);
 					WriteBufferString(commonbuf);
 					outbuf.emplace_back('m');
@@ -219,8 +206,7 @@ public:
 			}
 			else {
 				// Measure the width of the character
-				if (c == '\t')
-				{
+				if (c == '\t') {
 					x++;
 					continue;
 				}

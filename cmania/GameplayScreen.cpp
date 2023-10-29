@@ -161,7 +161,7 @@ public:
 			ruleset->Update();
 			if (!game_ended) {
 				if (ruleset->GameEnded) {
-					if (rec_input_handler == 0) {
+					if (rec_input_handler == 0 && !rec_saved) {
 						ruleset->GetScoreProcessor()->SaveRecord();
 						std::filesystem::create_directory("Records");
 						RecordPath = "Records/CmaniaRecord_" + std::to_string(HpetClock()) + ".bin";
@@ -172,8 +172,17 @@ public:
 						auto rec = ruleset->RulesetRecord;
 						Binary::Write(ofs, rec);
 						ofs.close();
-						game->Raise("get_songs_cache");
-						game_ended = true;
+						auto& caches = game->GetFeature<IBeatmapManagement>().GetSongsCache();
+						auto match = std::find_if(caches.begin(), caches.end(), [&](SongsCacheEntry& c) { return c.path == std::filesystem::path(beatmap_path).parent_path(); });
+						if (match != caches.end()) {
+							auto& diffcache = match->difficulties;
+							auto match2 = std::find_if(diffcache.begin(), diffcache.end(), [&](DifficultyCacheEntry& c) { return c.path == std::filesystem::path(beatmap_path); });
+							if (match2 != diffcache.end()) {
+								match2->records.push_back(RecordPath);
+							}
+						}
+						game->GetFeature<IBeatmapManagement>().Save();
+						rec_saved = true;
 					}
 				}
 			}
@@ -249,24 +258,6 @@ public:
 	};
 	virtual void MouseKey(MouseKeyEventArgs mkea){
 
-	};
-	virtual void ProcessEvent(const char* evt, const void* evtargs) {
-		if (game_ended && strcmp(evt, "songs_cache_ready") == 0) {
-			auto& screa = *(SongsCahceReadyEventArgs*)evtargs;
-			auto& caches = screa.Songs->caches;
-			auto match = std::find_if(caches.begin(), caches.end(), [&](SongsCacheEntry& c) { return c.path == std::filesystem::path(beatmap_path).parent_path(); });
-			if (match != caches.end()) {
-				auto& diffcache = match->difficulties;
-				auto match2 = std::find_if(diffcache.begin(), diffcache.end(), [&](DifficultyCacheEntry& c) { return c.path == std::filesystem::path(beatmap_path); });
-				if (match2 != diffcache.end()) {
-					match2->records.push_back(RecordPath);
-				}
-			}
-			std::ofstream ofs("Songs.bin", std::ios::out | std::ios::binary);
-			if (ofs.good()) {
-				Binary::Write(ofs, *screa.Songs);
-			}
-		}
 	};
 };
 

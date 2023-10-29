@@ -48,7 +48,7 @@ class SpeedSettingScreen :public Screen
 			int j = 0;
 			for (double i = clock2 - speed * 32; i < clock2 + speed * 32; i += speed / 2)
 			{
-				auto clr = GameBuffer::Color{ 255,255,255,255 };
+				auto clr = Color{ 255,255,255,255 };
 				if ((j + 2) % 4 == 0)
 				{
 					clr = { 255,255,0,0 };

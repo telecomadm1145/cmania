@@ -29,9 +29,9 @@ class SongSelectScreen : public Screen {
 	std::unique_ptr<IAudioManager::IAudioStream> preview;
 	bool mod_flyout;
 	OsuMods mods;
-	using TransOut = Transition<EaseOut<PowerEasingFunction<5.0>>>;
-	GameBuffer::Color difficultyToRGBColor(float difficulty) {
-		std::vector<std::tuple<double, double, GameBuffer::Color>> ranges = {
+	using TransOut = Transition<EaseOut<PowerEasingFunction<12.0>>>;
+	Color difficultyToRGBColor(float difficulty) {
+		std::vector<std::tuple<double, double, Color>> ranges = {
 			{ 0, 1, { 0, 204, 204, 204 } },								   // 灰
 			{ 1, 2, { 0, 77, 230, 46 } },								   // 绿
 			{ 2, 3, { 0, 61, 135, 204 } },								   // 蓝
@@ -54,7 +54,7 @@ class SongSelectScreen : public Screen {
 		// If the difficulty does not fall within any range, return black color
 		return { 255, 0, 0, 0 };
 	}
-	TransOut OffsetTrans{ 0, 200 };
+	TransOut OffsetTrans{ 0, 1500 };
 	virtual void Render(GameBuffer& buf) {
 		std::lock_guard lock(res_lock);
 		h_cache = buf.Height;
@@ -70,7 +70,7 @@ class SongSelectScreen : public Screen {
 		}
 		auto& caches = matched_caches;
 		if (search_buf.empty()) {
-			caches = this->caches;
+			caches = game->GetFeature<IBeatmapManagement>().GetSongsCache();
 		}
 
 		bg.Render(buf);
@@ -103,8 +103,7 @@ class SongSelectScreen : public Screen {
 				double b = distance * sin(basicoff / buf.Height * (startangle - endangle) - startangle);
 				int b2 = buf.Width + abs(b) - c2;
 				if (i == selected) {
-					if (b2 > w_cache - 40)
-					{
+					if (b2 > w_cache - 40) {
 						b2 = w_cache - 40;
 					}
 					buf.FillRect(b2, basicoff, b2 + c2, basicoff + songheight, { {}, { 100, 255, 255, 255 }, ' ' }); // 高亮
@@ -120,7 +119,7 @@ class SongSelectScreen : public Screen {
 						k++;
 					}
 				}
-				buf.FillRect(b2, basicoff, b2 + c2, basicoff + songheight, { {}, { 150, 32, 32, 32 }, ' ' }); // 左上右下
+				buf.FillRect(b2, basicoff, b2 + c2, basicoff + songheight, { {}, { 150, 32, 32, 32 }, ' ' });
 				buf.DrawString(cache.artist + " - " + cache.title, b2 + 1, basicoff + 1, {}, {});
 			}
 		}
@@ -158,7 +157,7 @@ class SongSelectScreen : public Screen {
 		else {
 			buf.DrawString("No song selected.", 1, 3, {}, {});
 		}
-		buf.DrawString("Esc - 返回 上下左右/鼠标 - 选歌 F2 随机 F3 Mods F4 选项 Enter/点击 开始     Written by telecomadm1145", 0, buf.Height - 1, {}, {});
+		buf.DrawString("Esc - 返回 上下左右/鼠标 - 选歌 F2 随机 F3 Mods F4 选项 Enter/点击 开始", 0, buf.Height - 1, {}, {});
 		buf.FillRect(buf.Width - 30, 2, buf.Width - 3, 2, { {}, { 130, 128, 128, 128 }, ' ' });
 		buf.DrawString("搜索:", buf.Width - 30, 2, { 255, 100, 255, 150 }, {});
 		buf.DrawString(std::wstring{ search_buf.begin(), search_buf.end() }, buf.Width - 24, 2, { 255, 100, 255, 150 }, {});
@@ -260,7 +259,6 @@ class SongSelectScreen : public Screen {
 		double angleRad = atan2(deltaY, deltaX);
 		return angleRad;
 	}
-	std::vector<SongsCacheEntry> caches;
 	std::vector<SongsCacheEntry> matched_caches;
 	bool ready;
 	bool require_songs_path;
@@ -268,8 +266,13 @@ class SongSelectScreen : public Screen {
 	virtual void Activate(bool y) {
 		if (y) {
 			mods = game->Settings["Mods"].Get<OsuMods>();
+			auto& caches = game->GetFeature<IBeatmapManagement>().GetSongsCache();
 			if (caches.empty()) {
 				RebuildCache();
+			}
+			if (selected_entry_2 != 0)
+			{
+				RefreshRecords();
 			}
 			if (preview != 0) {
 				preview->play();
@@ -288,7 +291,7 @@ class SongSelectScreen : public Screen {
 	virtual void Move(MoveEventArgs mea) {
 		if (!mod_flyout)
 			if (last_y >= 0) {
-				offset = last_offset - mea.Y + last_y;
+				offset = last_offset - (mea.Y - last_y) * 1.2;
 			}
 	}
 	void PlayPreview() {
@@ -357,19 +360,23 @@ class SongSelectScreen : public Screen {
 			}
 			selected_entry = &cache;
 			selected_entry_2 = &diff;
-			records.clear();
-			for (auto& rec : selected_entry_2->records) {
-				Record rec2{};
-				std::ifstream ifs(rec, std::ios::binary | std::ios::in);
-				if (!ifs.good())
-					continue;
-				Binary::Read(ifs, rec2);
-				records.push_back(rec2);
-			}
-			std::sort(records.begin(), records.end(), [](Record& a, Record& b) { return a.Score > b.Score; });
+			RefreshRecords();
 		}
 		LoadBg();
 		PlayPreview();
+	}
+	void RefreshRecords()
+	{
+		records.clear();
+		for (auto& rec : selected_entry_2->records) {
+			Record rec2{};
+			std::ifstream ifs(rec, std::ios::binary | std::ios::in);
+			if (!ifs.good())
+				continue;
+			Binary::Read(ifs, rec2);
+			records.push_back(rec2);
+		}
+		std::sort(records.begin(), records.end(), [](Record& a, Record& b) { return a.Score > b.Score; });
 	}
 	virtual void MouseKey(MouseKeyEventArgs mkea) {
 		if (mod_flyout) {
@@ -381,10 +388,10 @@ class SongSelectScreen : public Screen {
 			last_offset = offset;
 		}
 		else {
-			if (mkea.X == last_x && mkea.Y == last_y && !caches.empty()) {
+			if (mkea.X == last_x && mkea.Y == last_y && !matched_caches.empty()) {
 				auto& caches = matched_caches;
 				if (search_buf.empty()) {
-					caches = this->caches;
+					caches = game->GetFeature<IBeatmapManagement>().GetSongsCache();
 				}
 				if (caches.empty())
 					return;
@@ -433,29 +440,18 @@ class SongSelectScreen : public Screen {
 			last_y = -999;
 		}
 	}
-	virtual void ProcessEvent(const char* evt, const void* evtargs) {
-		if (strcmp(evt, "songs_cache_ready") == 0) {
-			auto& screa = *(SongsCahceReadyEventArgs*)evtargs;
-			caches = screa.Songs->caches;
-			ready = true;
-		}
-		if (strcmp(evt, "require") == 0) {
-			auto str = (const char*)evtargs;
-			if (strcmp(str, "SongsPath") == 0) {
-				input_buf.resize(0);
-				require_songs_path = true;
-			}
-		}
-	}
 	void RebuildCache() {
 		ready = false;
-		game->Raise("get_songs_cache");
+		game->GetFeature<IBeatmapManagement>().Refesh([&](bool yes) {
+			ready = yes;
+		});
 	}
 	void UpdateSearch() {
 		selected = INT_MAX;
 		selected_entry = 0;
 		matched_caches.clear();
 		std::string str = Utf162Utf8(std::wstring{ search_buf.begin(), search_buf.end() });
+		auto& caches = game->GetFeature<IBeatmapManagement>().GetSongsCache();
 		std::copy_if(caches.begin(), caches.end(), std::back_inserter(matched_caches), [str](const SongsCacheEntry& sce) {
 			return search_meta(str, sce.artist, sce.title, sce.artistunicode, sce.titleunicode, sce.tags, sce.source);
 		});
@@ -570,7 +566,7 @@ class SongSelectScreen : public Screen {
 					}
 				}
 			}
-			if (caches.empty())
+			if (!ready)
 				return;
 			if (kea.Key == ConsoleKey::PageDown) {
 				offset += h_cache;
@@ -578,11 +574,10 @@ class SongSelectScreen : public Screen {
 			if (kea.Key == ConsoleKey::PageUp) {
 				offset -= h_cache;
 			}
+			auto& caches = game->GetFeature<IBeatmapManagement>().GetSongsCache();
 			if (kea.Key == ConsoleKey::F2) {
-				if (HasFlag(kea.KeyState, ControlKeyState::Shift))
-				{
-					if (!isnan(random_last_off))
-					{
+				if (HasFlag(kea.KeyState, ControlKeyState::Shift)) {
+					if (!isnan(random_last_off)) {
 						offset = random_last_off;
 						MakeSelected(random_last_i, caches[random_last_i % caches.size()]);
 					}
@@ -603,7 +598,7 @@ class SongSelectScreen : public Screen {
 				if (selected_entry != 0 && !kea.CtrlDown()) {
 					auto& caches = matched_caches;
 					if (search_buf.empty()) {
-						caches = this->caches;
+						caches = game->GetFeature<IBeatmapManagement>().GetSongsCache();
 					}
 					if (caches.empty())
 						return;
@@ -646,8 +641,7 @@ class SongSelectScreen : public Screen {
 								auto diffoff = basicoff + (k * (songheight + gap));
 								if (selected_entry_2 == &diff || selected_entry_2 == 0) {
 									auto sfi2 = k - 1 + (up_or_down ? 1 : -1);
-									if (selected_entry_2 == 0)
-									{
+									if (selected_entry_2 == 0) {
 										sfi2 = 0;
 									}
 									if (sfi2 >= cache.difficulties.size() || sfi2 < 0) {
