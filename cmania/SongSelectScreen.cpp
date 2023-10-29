@@ -266,12 +266,10 @@ class SongSelectScreen : public Screen {
 	virtual void Activate(bool y) {
 		if (y) {
 			mods = game->Settings["Mods"].Get<OsuMods>();
-			auto& caches = game->GetFeature<IBeatmapManagement>().GetSongsCache();
-			if (caches.empty()) {
+			if (!ready) {
 				RebuildCache();
 			}
-			if (selected_entry_2 != 0)
-			{
+			if (selected_entry_2 != 0) {
 				RefreshRecords();
 			}
 			if (preview != 0) {
@@ -291,7 +289,7 @@ class SongSelectScreen : public Screen {
 	virtual void Move(MoveEventArgs mea) {
 		if (!mod_flyout)
 			if (last_y >= 0) {
-				offset = last_offset - (mea.Y - last_y) * 1.2;
+				offset = last_offset - (mea.Y - last_y) * 2;
 			}
 	}
 	void PlayPreview() {
@@ -365,8 +363,7 @@ class SongSelectScreen : public Screen {
 		LoadBg();
 		PlayPreview();
 	}
-	void RefreshRecords()
-	{
+	void RefreshRecords() {
 		records.clear();
 		for (auto& rec : selected_entry_2->records) {
 			Record rec2{};
