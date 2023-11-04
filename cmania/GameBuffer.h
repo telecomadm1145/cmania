@@ -77,7 +77,6 @@ private:
 			PixelBuffer.resize(target);
 		}
 	}
-	std::vector<char> outbuf;
 	void _ResizeBuffer() {
 		EnsureCapacity();
 	}
@@ -108,9 +107,22 @@ public:
 	}
 
 private:
+	char* outbuf = 0;
+	size_t buf_cap = 114514;
+	size_t buf_i = 0;
+	void WriteBufferChar(char c) {
+		if (buf_i >= buf_cap) {
+			auto newbuf = new char[buf_cap * 2];
+			std::memcpy(newbuf, outbuf, buf_cap);
+			buf_cap *= 2;
+			delete outbuf;
+			outbuf = newbuf;
+		}
+		outbuf[buf_i++] = c;
+	}
 	void WriteBufferString(const char* str) {
 		while (*str != '\0') {
-			outbuf.push_back(*str);
+			WriteBufferChar(*str);
 			str++;
 		}
 	}
@@ -122,10 +134,32 @@ public:
 			PixelBuffer[i] = {};
 		}
 	}
+	template <std::integral Int, typename CharT>
+	void itoa_2(Int num, CharT* out) {
+		int j = 0;
+		if (num == 0) {
+			out[j++] = '0';
+			out[j++] = 0;
+			return;
+		}
+		Int num2 = num;
+		while (num2 > 0) {
+			num2 /= 10;
+			j++;
+		}
+		out[j] = 0;
+		j--;
+		while (num) {
+			out[j--] = "0123456789"[num % 10];
+			num /= 10;
+		}
+	}
 	void Output() {
 		CheckBuffer();
-		outbuf.clear();
-		outbuf.reserve(Height * Width * 20);
+		if (outbuf == 0) {
+			outbuf = new char[buf_cap];
+		}
+		buf_i = 0;
 		Color LastFg{ 255, 255, 255, 255 };
 		Color LastBg{ 255, 0, 0, 0 };
 		if (Height <= 0 && Width <= 0)
@@ -141,14 +175,14 @@ public:
 						WriteBufferString("\u001b[48;2;0;0;0m");
 						LastBg = {};
 					}
-					outbuf.emplace_back(' ');
+					WriteBufferChar(' ');
 					continue;
 				}
 				int len = Measure(dat.UcsChar);
 				if (len == 0)
 					continue;
 				if (len < 0 || dat.UcsChar < 32) {
-					outbuf.emplace_back('?');
+					WriteBufferChar('?');
 					continue;
 				}
 				dat.Background = Color::Blend(Color{ 255, 0, 0, 0 }, dat.Background);
@@ -159,46 +193,45 @@ public:
 				char commonbuf[4]{};
 				if (LastFg != dat.Foreground) {
 					WriteBufferString("\u001b[38;2;");
-					itoa(dat.Foreground.Red, commonbuf, 10);
+					itoa_2(dat.Foreground.Red, commonbuf);
 					WriteBufferString(commonbuf);
-					outbuf.emplace_back(';');
+					WriteBufferChar(';');
 					std::memset(commonbuf, 0, 4);
-					itoa(dat.Foreground.Green, commonbuf, 10);
+					itoa_2(dat.Foreground.Green, commonbuf);
 					WriteBufferString(commonbuf);
-					outbuf.emplace_back(';');
+					WriteBufferChar(';');
 					std::memset(commonbuf, 0, 4);
-					itoa(dat.Foreground.Blue, commonbuf, 10);
+					itoa_2(dat.Foreground.Blue, commonbuf);
 					WriteBufferString(commonbuf);
-					outbuf.emplace_back('m');
+					WriteBufferChar('m');
 					LastFg = dat.Foreground;
 				}
 				if (LastBg != dat.Background) {
 					WriteBufferString("\u001b[48;2;");
-					itoa(dat.Background.Red, commonbuf, 10);
+					itoa_2(dat.Background.Red, commonbuf);
 					WriteBufferString(commonbuf);
-					outbuf.emplace_back(';');
+					WriteBufferChar(';');
 					std::memset(commonbuf, 0, 4);
-					itoa(dat.Background.Green, commonbuf, 10);
+					itoa_2(dat.Background.Green, commonbuf);
 					WriteBufferString(commonbuf);
-					outbuf.emplace_back(';');
+					WriteBufferChar(';');
 					std::memset(commonbuf, 0, 4);
-					itoa(dat.Background.Blue, commonbuf, 10);
+					itoa_2(dat.Background.Blue, commonbuf);
 					WriteBufferString(commonbuf);
-					outbuf.emplace_back('m');
+					WriteBufferChar('m');
 					LastBg = dat.Background;
 				}
 				char buf[4]{ 0 };
 				int written = 0;
 				Ucs4Char2Utf8(dat.UcsChar, buf, written);
 				for (size_t i = 0; i < written; i++) {
-					outbuf.emplace_back(buf[i]);
+					WriteBufferChar(buf[i]);
 				}
 			}
-			outbuf.emplace_back('\n');
+			WriteBufferChar('\n');
 		}
-		if (outbuf.size() >= 1)
-			outbuf.erase(outbuf.end() - 1); // 去除末尾的换行
-		write(outbuf.data(), outbuf.size());
+		buf_i--;
+		write(outbuf, buf_i);
 	}
 	void DrawString(const std::string& text, int startX, int startY, Color fg, Color bg) {
 		DrawString(Utf82Ucs4(text), startX, startY, fg, bg);
@@ -207,13 +240,13 @@ public:
 		DrawString(Utf162Ucs4(text), startX, startY, fg, bg);
 	}
 	void DrawCircle(int x, int y, double sz, double width, double whratio, PixelData pd) {
-		double radius = sz / 2+2;
+		double radius = sz / 2 + 2;
 		radius *= whratio;
 		double c = pow(radius, 2);
 		width *= whratio;
 		for (int i = x - radius - width / 2; i <= x + radius + width / 2; i++) {
 			for (int j = y - radius - width / 2; j <= y + radius + width / 2; j++) {
-				auto t = pow(i - x, 2) + pow(j - y, 2)*whratio;
+				auto t = pow(i - x, 2) + pow(j - y, 2) * whratio;
 
 				// Adjust the condition to account for the width
 				if (t >= (c - pow(width, 2)) && t <= (c + pow(width, 2))) {
@@ -226,7 +259,7 @@ public:
 					pd2.Foreground = pd.Foreground * weight;
 					pd2.Background = pd.Background * weight;
 
-					SetPixel(x+(i-x)/2, y+(j-y) /2, pd2);
+					SetPixel(x + (i - x) / 2, y + (j - y) / 2, pd2);
 				}
 			}
 		}
