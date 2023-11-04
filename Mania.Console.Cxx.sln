@@ -7,15 +7,10 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cmania", "cmania\cmania.vcx
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "解决方案项", "解决方案项", "{D1BE6A95-1044-4DA0-B2FE-70AA4CE6D09A}"
 	ProjectSection(SolutionItems) = preProject
-		cmania_aN8z47lWFJ.png = cmania_aN8z47lWFJ.png
-		cmania_r73nviy2Kx.png = cmania_r73nviy2Kx.png
 		GB2UTF8.ps1 = GB2UTF8.ps1
 		LICENSE = LICENSE
 		README.en.md = README.en.md
 		README.md = README.md
-		WindowsTerminal_ihoKC2ns1k.png = WindowsTerminal_ihoKC2ns1k.png
-		WindowsTerminal_OF4gQdllRZ.png = WindowsTerminal_OF4gQdllRZ.png
-		WindowsTerminal_RaPclfQL8v.png = WindowsTerminal_RaPclfQL8v.png
 	EndProjectSection
 EndProject
 Global

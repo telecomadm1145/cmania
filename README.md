@@ -3,9 +3,21 @@
 
 在 Windows 终端(也许linux?)上玩 osu!mania
 
-![Cmania songselct](WindowsTerminal_OF4gQdllRZ.png)
+![0](0.png)
 
-![Cmania gameplay](WindowsTerminal_ihoKC2ns1k.png)
+![1](1.png)
+
+![2](2.png)
+
+![3](3.png)
+
+![4](4.png)
+
+![5](5.png)
+
+![6](6.png)
+
+![7](7.png)
 
 ## 功能
 - 在终端上运行 osu!mania 游戏
