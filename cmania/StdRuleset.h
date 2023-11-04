@@ -105,23 +105,24 @@ private:
 							  so.Velocity = velocity;
 							  bool rev = false;
 							  double time = obj.StartTime;
-							  if (tickdist > 20)
-								  for (size_t i = 0; i < obj.RepeatCount; i++) {
+							  for (size_t i = 0; i < obj.RepeatCount; i++) {
+								  if (tickdist > 20)
 									  for (double j = tickdist; j < sp.actualLength; j += tickdist) {
 										  Event evt{};
 										  evt.EventType = Event::Tick;
 										  auto prog = j / sp.actualLength;
-										  evt.Location = sp.PositionAt(rev ? 1 - prog : prog);
+										  evt.Location = sp.PositionAt(prog);
 										  evt.StartTime = time + j / velocity;
 										  so.Events.push_back(evt);
 									  }
-									  Event evt2{};
-									  evt2.EventType = Event::Repeat;
-									  time += sp.actualLength / velocity;
-									  evt2.StartTime = time;
-									  evt2.Location = rev ? PointD{ obj.X, obj.Y } : PointD(sp.PositionAt(1));
-									  so.Events.push_back(evt2);
-								  }
+								  Event evt2{};
+								  evt2.EventType = Event::Repeat;
+								  time += sp.actualLength / velocity;
+								  evt2.StartTime = time;
+								  evt2.Location = rev ? PointD{ obj.X, obj.Y } : PointD(sp.PositionAt(1));
+								  so.Events.push_back(evt2);
+							  }
+							  so.RepeatCount = obj.RepeatCount;
 						  }
 
 						  endtime = std::max(endtime, std::max(obj.EndTime, obj.StartTime));
@@ -199,7 +200,12 @@ private:
 
 		return rect;
 	}
-
+	struct Trail {
+		PointD loc{};
+		double time = -1e300;
+	};
+	Trail cursortrail[64];
+	double lastrec = -1e300;
 	void Render(GameBuffer& buf) override { // 512 , 384 osu pixel
 		const auto rt = 2;
 		auto vp = calcViewport(512 * rt, 384, buf.Width - 4, buf.Height - 4);
@@ -226,12 +232,15 @@ private:
 				// 转盘
 				continue;
 			}
-
+			Color comboclr{ 255, 120, 160, 240 };
+			if (ho.Path != 0) {
+				comboclr = { 255, 255, 0, 0 };
+			}
 			// Slider
 			if (ho.Path != 0 && t > ho.StartTime - preempt) {
 				// 渲染滑条体...
 				auto points = ho.Path->calcedPath;
-				for (int i = 0; i < points.size(); i++) {
+				for (int i = 0; i < points.size() - 1; i++) {
 					PointD currentPoint = points[i];
 					PointD nextPoint = points[(i + 1) % points.size()];
 
@@ -246,9 +255,16 @@ private:
 						double x = currentPoint.X + static_cast<int>(stepX * j);
 						double y = currentPoint.Y + static_cast<int>(stepY * j);
 
-						// 检查当前点与路径上的每个点的距离是否小于等于半径
-						buf.SetPixel(vp.x1 + x / 512 * vp.x2, vp.y1 + y / 384 * vp.y2, { {}, { 255, 255, 255, 255 }, ' ' });
+						buf.FillCircle(vp.x1 + x / 512 * vp.x2, vp.y1 + y / 384 * vp.y2,scale,rt+1, { {}, { 10, 255, 255, 255 }, ' ' });
 					}
+				}
+				if (t < ho.EndTime && t > ho.StartTime) {
+					auto duration = ho.Path->actualLength / ho.Velocity;
+					auto progress = std::clamp(fmod(t - ho.StartTime, duration * 2) / duration, 0.0, 2.0);
+					if (progress > 1)
+						progress = 2 - progress;
+					auto sb = ho.Path->PositionAt(progress);
+					buf.FillCircle(vp.x1 + sb.X / 512.0 * vp.x2, vp.y1 + sb.Y / 384.0 * vp.y2, scale, rt + 1, { {}, (comboclr * 0.8), ' ' });
 				}
 			}
 			// HeadCircle
@@ -257,15 +273,33 @@ private:
 				if (t > ho.StartTime - fadein) {
 					alpha = 1.0;
 				}
-				buf.FillCircle(vp.x1 + ho.Location.X / 512.0 * vp.x2, vp.y1 + ho.Location.Y / 384.0 * vp.y2, scale, rt + 1, { {}, (Color{ 255, 120, 160, 240 } * (alpha * 0.8)), ' ' });
-				//buf.DrawCircle(vp.x1 + ho.Location.X / 512.0 * vp.x2, vp.y1 + ho.Location.Y / 384.0 * vp.y2, scale, 1.5, rt + 1, { {}, (Color{ 255, 255, 255, 255 } * alpha), ' ' });
-				//  缩圈
-				if (t < ho.StartTime) {
-					auto progress = 1 + (1 - (t - (ho.StartTime - preempt)) / preempt) * 3;
-					buf.DrawCircle(vp.x1 + ho.Location.X / 512.0 * vp.x2, vp.y1 + ho.Location.Y / 384.0 * vp.y2, scale * progress, 2, rt + 1, { {}, (Color{ 255, 255, 255, 255 } * alpha), ' ' });
+				if (ho.Path != 0) {
+					if (t > ho.StartTime)
+						continue;
 				}
+				buf.FillCircle(vp.x1 + ho.Location.X / 512.0 * vp.x2, vp.y1 + ho.Location.Y / 384.0 * vp.y2, scale, rt + 1, { {}, (comboclr * (alpha * 0.8)), ' ' });
+				// buf.DrawCircle(vp.x1 + ho.Location.X / 512.0 * vp.x2, vp.y1 + ho.Location.Y / 384.0 * vp.y2, scale, 1.5, rt + 1, { {}, (Color{ 255, 255, 255, 255 } * alpha), ' ' });
+				// 缩圈
+				auto progress = std::max(1 + (1 - (t - (ho.StartTime - preempt)) / preempt) * 3, 1.0);
+				buf.DrawCircle(vp.x1 + ho.Location.X / 512.0 * vp.x2, vp.y1 + ho.Location.Y / 384.0 * vp.y2, scale * progress, 2, rt + 1, { {}, (Color{ 255, 255, 255, 255 } * alpha), ' ' });
 			}
 		}
+		auto evt = RulesetInputHandler->PollEvent();
+		auto mpos = RulesetInputHandler->GetMousePosition();
+		if (evt.has_value()) {
+			// Process it...
+		}
+		for (size_t i = 0; i < 64; i++) {
+			buf.SetPixel(cursortrail[i].loc.X, cursortrail[i].loc.Y, { {}, Color{ 160, 85, 153, 255 } * std::clamp(1 - (t - cursortrail[i].time) / 500.0, 0.0, 1.0), ' ' });
+		}
+		if (t > lastrec + 20) {
+			Trail buff[63];
+			std::memcpy(buff, cursortrail, 63 * sizeof(Trail));
+			std::memcpy(cursortrail + 1, buff, 63 * sizeof(Trail));
+			cursortrail[0] = { { (double)std::get<0>(mpos), (double)std::get<1>(mpos) }, t };
+			lastrec = t;
+		}
+		buf.SetPixel(std::get<0>(mpos), std::get<1>(mpos), { {}, { 255, 85, 153, 255 }, ' ' });
 	}
 	// 通过 Ruleset 继承
 	virtual void Pause() override {

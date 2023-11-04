@@ -18,24 +18,32 @@ struct SliderPath {
 		if (ControlPoints.size() == 0)
 			return;
 		size_t start = 0;
+		PathType pt = PathType::None;
 		for (size_t i = 0; i < ControlPoints.size() - 1; i++) {
 			auto& cp = ControlPoints[i];
-			if (cp.first == PathType::None)
-				continue;
-			CalcSubPath(start, 1 - start + 1, cp.first);
-			start = i;
+			if (cp.first != PathType::None) {
+				if (pt != PathType::None) {
+					CalcSubPath(start, i + 1, pt);
+					start = i;
+				}
+				pt = cp.first;
+			}
+		}
+		if (pt != PathType::None) {
+			CalcSubPath(start, ControlPoints.size(), pt);
 		}
 	}
 	void CalcSubPath(int start, int end, PathType type) {
 		std::vector<PointD> temp;
-		for (auto& pt : ControlPoints) {
-			temp.push_back(pt.second);
+		for (size_t i = start; i < end; i++) {
+			temp.push_back(ControlPoints[i].second);
 		}
 		switch (type) {
 		case PathType::Catmull:
+			calcedPath > AddRange(PathApproximator::ApproximateCatmull(temp));
 			break;
 		case PathType::PerfectCurve:
-			break;
+
 		case PathType::Bezier:
 			calcedPath > AddRange(PathApproximator::ApproximateBezier(temp));
 			break;
@@ -56,38 +64,43 @@ struct SliderPath {
 			calcedLength.push_back(actualLength);
 		}
 		if (!isnan(expectedLength) && expectedLength != actualLength) {
-			auto sz = ControlPoints.size();
-			if (sz >= 2) {
+			 auto sz = ControlPoints.size();
+			 if (sz >= 2) {
 				// In osu-stable, if the last two control points of a slider are equal, extension is not performed.
 				if (ControlPoints[sz - 1] == ControlPoints[sz - 2]) {
 					calcedLength.push_back(expectedLength);
 					return;
 				}
-			}
-			calcedLength.resize(calcedLength.size() - 1);
-			int pathEndIndex = calcedPath.size() - 1;
-			if (actualLength > expectedLength) {
+			 }
+			 calcedLength.resize(calcedLength.size() - 1);
+			 int pathEndIndex = calcedPath.size() - 1;
+			 if (actualLength > expectedLength) {
 				while (calcedLength.size() > 0 && calcedLength[calcedLength.size() - 1] >= expectedLength) {
 					calcedLength.resize(calcedLength.size() - 1);
 					calcedPath.resize(pathEndIndex--);
 				}
-			}
-			if (pathEndIndex <= 0) {
+			 }
+			 if (pathEndIndex <= 0) {
 				actualLength = 0;
 				calcedLength.push_back(0);
 				return;
-			}
-			VectorD dir = calcedPath[pathEndIndex] - calcedPath[pathEndIndex - 1];
-			dir.Normalize();
-			calcedPath[pathEndIndex] = calcedPath[pathEndIndex - 1] + dir * (expectedLength - calcedLength[calcedLength.size() - 1]);
-			calcedLength.push_back(expectedLength);
-			actualLength = expectedLength;
+			 }
+			 VectorD dir = calcedPath[pathEndIndex] - calcedPath[pathEndIndex - 1];
+			 dir.Normalize();
+			 auto l = 0.0;
+			 if (calcedLength.size() >= 1)
+				l = calcedLength[calcedLength.size() - 1];
+			 calcedPath[pathEndIndex] = calcedPath[pathEndIndex - 1] + dir * (expectedLength - l);
+			 calcedLength.push_back(expectedLength);
+			 actualLength = expectedLength;
 		}
 	}
 	size_t IndexOfDistance(double d) {
-		auto it = std::lower_bound(calcedLength.begin(), calcedLength.end(), d);
-		if (it != calcedLength.end()) {
-			return std::distance(calcedLength.begin(), it);
+		int i = 1;
+		for (auto d2 : calcedLength) {
+			if (d2 >= d)
+				return i;
+			i++;
 		}
 		return 0;
 	}
@@ -102,16 +115,12 @@ struct SliderPath {
 
 		VectorD p0 = calcedPath[i - 1];
 		VectorD p1 = calcedPath[i];
-
+		VectorD dir = p1-p0;
+		dir.Normalize();
 		double d0 = calcedLength[i - 1];
-		double d1 = calcedLength[i];
-
-		// Avoid division by and almost-zero number in case two points are extremely close to each other.
-		if (abs(d0 - d1) < 0.001)
+		if (d0 - d < 0.1)
 			return p0;
-
-		double w = (d - d0) / (d1 - d0);
-		return p0 + (p1 - p0) * (float)w;
+		return p1 - dir * (d0 - d);
 	}
 	double ProgressToDistance(double progress) {
 		return progress * actualLength;
@@ -154,10 +163,10 @@ struct SliderPath {
 					break;
 				}
 				case 3: {
-					if (!first)
-					{
+					if (!first) {
 						pts.push_back(SliderControlPoint{ pt, orig });
 						first = 1;
+						pt = PathType::None;
 					}
 					auto ptr = s.data();
 					SliderControlPoint scp{};
@@ -174,11 +183,11 @@ struct SliderPath {
 				}
 			}
 		}
-		if (status == 3)
-		{
+		if (status == 3) {
 			if (!first) {
 				pts.push_back(SliderControlPoint{ pt, orig });
 				first = 1;
+				pt = PathType::None;
 			}
 			auto ptr = s.data();
 			SliderControlPoint scp{};
@@ -210,6 +219,7 @@ struct StdObject : public HitObject {
 	double EndTime;
 	double LastHoldOff = -1;
 	double Velocity = 1;
+	int RepeatCount = 0;
 	std::vector<Event> Events;
 	SliderPath* Path = 0;
 };

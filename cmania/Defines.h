@@ -68,7 +68,7 @@ struct Point {
 	friend Vector<T>;
 	Point() {}
 	Point(T X, T Y) : X(X), Y(Y) {}
-	Point(Vector<T> vec) : X(vec.X), Y(vec.Y) {
+	Point(const Vector<T> vec) : X(vec.X), Y(vec.Y) {
 	}
 	T X = T{};
 	T Y = T{};
@@ -91,7 +91,7 @@ struct Point {
 	Point operator/(T b) {
 		return { X / b, Y / b };
 	}
-	operator Vector<T>() {
+	operator Vector<T>() const {
 		return { X, Y };
 	}
 	bool operator==(Point b) const {

@@ -34,7 +34,7 @@ public:
 		HitSoundType SoundType;
 		std::string PathRecord;
 		int RepeatCount;
-		double Length;
+		double Length = 1.0 / 0.0 * 0.0;
 		double EndTime;
 		double CustomSampleVolume;
 		std::string CustomSampleFilename;

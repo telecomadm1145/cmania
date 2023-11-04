@@ -242,7 +242,9 @@ public:
 
 	};
 	virtual void Move(MoveEventArgs mea){
-
+		if (def_input_handler == nullptr)
+			return;
+		def_input_handler->OnMouseMove(mea);
 	};
 	virtual void Activate(bool yes) {
 		if (!yes) {
@@ -268,7 +270,9 @@ public:
 		}
 	};
 	virtual void MouseKey(MouseKeyEventArgs mkea){
-
+		if (def_input_handler == nullptr)
+			return;
+		def_input_handler->OnMouseKey(mkea);
 	};
 };
 
