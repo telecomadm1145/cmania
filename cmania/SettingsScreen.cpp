@@ -31,6 +31,9 @@ class SettingsScreen : public Screen {
 		line.push_back(game->Settings["MyCompSuck"].Get<bool>() ? 'x' : ' ');
 		line.push_back(']');
 		line.append("低性能模式(F)\n");
+		line.append("偏移:");
+		line.append(std::to_string(game->Settings["Offset"].Get<double>()));
+		line.append("ms(+/-调整,Shift==0.1,大写锁定==10,判定偏移量(不是歌曲偏移量))\n");
 		line.append("速度设置向导(S)\n");
 		line.append("重置Songs路径(R)\n");
 		for (size_t i = 0; i < buf.Height; i++) {
@@ -89,6 +92,25 @@ class SettingsScreen : public Screen {
 			}
 			if (kea.Key == ConsoleKey::R) {
 				game->Settings["SongsPath"].SetArray("", 0);
+				game->Settings.Write();
+				return;
+			}
+			if (kea.Key == ConsoleKey::Add || kea.Key == ConsoleKey::Subtract)
+			{
+				auto movement = 1.0;
+				if (HasFlag(kea.KeyState, ControlKeyState::Capslock))
+				{
+					movement = 10;
+				}
+				if (HasFlag(kea.KeyState,ControlKeyState::Shift))
+				{
+					movement = 0.1;
+				}
+				if (kea.Key == ConsoleKey::Subtract)
+				{
+					movement = -movement;
+				}
+				game->Settings["Offset"].Set(game->Settings["Offset"].Get<double>() + movement);
 				game->Settings.Write();
 				return;
 			}

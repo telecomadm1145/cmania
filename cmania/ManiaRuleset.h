@@ -278,7 +278,7 @@ public:
 					while (bgm->getCurrent() < 0.003) {
 					}
 					Clock.Reset();
-					Clock.Offset(bgm->getCurrent() * 1000);
+					Clock.Offset(bgm->getCurrent() * 1000 + offset);
 					Clock.Start();
 				}
 				else {
@@ -413,7 +413,7 @@ public:
 		return 1;
 	}
 	virtual void Render(GameBuffer& buffer) override {
-		auto e_ms = Clock.Elapsed() - offset;
+		auto e_ms = Clock.Elapsed();
 		double key_width = 10;
 		double key_height = int(std::max(buffer.Height / 50.0,0.0));
 		key_width = int(std::min(std::max(key_width, (double)buffer.Width * 0.3 / keys), (double)buffer.Width / keys * 2 - 3));
