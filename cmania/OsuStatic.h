@@ -29,6 +29,14 @@ enum class HitResult : unsigned int {
 	IgnoreHit,
 };
 
+enum class PathType : char {
+	None = 0,
+	Catmull = 'C',
+	Bezier = 'B',
+	Linear = 'L',
+	PerfectCurve = 'P',
+};
+
 enum class HitSoundType : unsigned int {
 	None,
 	Normal = 1,

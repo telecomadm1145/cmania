@@ -223,6 +223,24 @@
     <ClInclude Include="Label.h">
       <Filter>Core\UI</Filter>
     </ClInclude>
+    <ClInclude Include="StdObject.h">
+      <Filter>Game\Gameplay\Std</Filter>
+    </ClInclude>
+    <ClInclude Include="StdRuleset.h">
+      <Filter>Game\Gameplay\Std</Filter>
+    </ClInclude>
+    <ClInclude Include="StdScoreProcessor.h">
+      <Filter>Game\Gameplay\Std</Filter>
+    </ClInclude>
+    <ClInclude Include="Defines.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Path.h">
+      <Filter>Game\Gameplay\Std</Filter>
+    </ClInclude>
+    <ClInclude Include="OsuSample.h">
+      <Filter>Game\Gameplay\Osu</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Core">
@@ -254,6 +272,9 @@
     </Filter>
     <Filter Include="Game\Beatmap">
       <UniqueIdentifier>{1127def3-ecb6-45f6-b421-e238d8d72d08}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game\Gameplay\Std">
+      <UniqueIdentifier>{d299fe9d-5f73-418f-9826-e7341f051a88}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -314,7 +335,6 @@
     <None Include="Samples\Triangles\soft-sliderslide.wav" />
     <None Include="Samples\Triangles\soft-slidertick.wav" />
     <None Include="Samples\Triangles\soft-sliderwhistle.wav" />
-    <None Include="Samples\*\*" />
     <None Include="Samples\*\*" />
     <None Include="Samples\*\*" />
     <None Include="Samples\*\*" />

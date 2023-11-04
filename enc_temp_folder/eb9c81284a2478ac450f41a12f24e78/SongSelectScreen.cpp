@@ -138,10 +138,6 @@ class SongSelectScreen : public Screen {
 			auto artist = entry1->artistunicode;
 			if (artist.empty())
 				artist = entry1->artist;
-			if (artist.size() > 30) {
-				artist.resize(30);
-				artist += "...";
-			}
 			buf.DrawString(artist, 1, 5, {}, {});
 			auto entry2 = selected_entry_2;
 			if (entry2 != 0) {

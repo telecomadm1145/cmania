@@ -70,8 +70,6 @@ class BeatmapManagementService : public GameComponent, public IBeatmapManagement
 										if (EndsWith(diff.path().string(), ".osu")) {
 											std::ifstream stm(diff.path());
 											OsuBeatmap bmp = OsuBeatmap::Parse(stm);
-											if (bmp.Mode != GameMode::Mania)
-												continue;
 											if (bmp.CircleSize < 1)
 												continue;
 											if (bmp.HitObjects.size() == 0)
@@ -93,6 +91,7 @@ class BeatmapManagementService : public GameComponent, public IBeatmapManagement
 											dce.keys = bmp.CircleSize;
 											dce.od = bmp.OverallDifficulty;
 											dce.name = bmp.Version;
+											dce.mode = (int)bmp.Mode;
 											dce.path = diff.path().string();
 											dce.nps = bmp.HitObjects.size() / dce.length * 1000;
 											dce.preview = bmp.PreviewTime;

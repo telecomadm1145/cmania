@@ -290,6 +290,7 @@
     <ClInclude Include="Beatmap.h" />
     <ClInclude Include="ConsoleInputHandler.h" />
     <ClInclude Include="Debug.h" />
+    <ClInclude Include="Defines.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="GameBuffer.h" />
     <ClInclude Include="HitObject.h" />
@@ -317,7 +318,9 @@
     <ClInclude Include="ManiaScoreProcessor.h" />
     <ClInclude Include="OsuBeatmap.h" />
     <ClInclude Include="OsuMods.h" />
+    <ClInclude Include="OsuSample.h" />
     <ClInclude Include="OsuStatic.h" />
+    <ClInclude Include="Path.h" />
     <ClInclude Include="Record.h" />
     <ClInclude Include="RecordInputHandler.h" />
     <ClInclude Include="ResultScreen.h" />
@@ -332,6 +335,9 @@
     <ClInclude Include="StbImage.h" />
     <ClInclude Include="stb_image.h" />
     <ClInclude Include="stb_image_resize.h" />
+    <ClInclude Include="StdObject.h" />
+    <ClInclude Include="StdRuleset.h" />
+    <ClInclude Include="StdScoreProcessor.h" />
     <ClInclude Include="Stopwatch.h" />
     <ClInclude Include="String.h" />
     <ClInclude Include="TickSource.h" />

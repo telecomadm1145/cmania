@@ -126,23 +126,8 @@ class SongSelectScreen : public Screen {
 		buf.FillPolygon({ { 0, 2 }, { 50, 2 }, { 40, 12 }, { 0, 12 } }, { {}, { 150, 32, 32, 32 }, ' ' });
 		auto entry1 = selected_entry;
 		if (entry1 != 0) {
-			auto title = entry1->titleunicode;
-			if (title.empty())
-				title = entry1->title;
-			if (title.size() > 34)
-			{
-				title.resize(34);
-				title += "...";
-			}
-			buf.DrawString(title, 1, 3, {}, {});
-			auto artist = entry1->artistunicode;
-			if (artist.empty())
-				artist = entry1->artist;
-			if (artist.size() > 30) {
-				artist.resize(30);
-				artist += "...";
-			}
-			buf.DrawString(artist, 1, 5, {}, {});
+			buf.DrawString(entry1->titleunicode, 1, 3, {}, {});
+			buf.DrawString(entry1->artistunicode, 1, 5, {}, {});
 			auto entry2 = selected_entry_2;
 			if (entry2 != 0) {
 				auto minutes = int(entry2->length / (1000 * 60));

@@ -51,7 +51,7 @@ public:
 			events.push(evt);
 		}
 	}
-	virtual void SetBinds(std::vector<int>& KeyBinds) override {
+	virtual void SetBinds(const std::vector<int>& KeyBinds) override {
 		int i = 0;
 		for (auto bind : KeyBinds) {
 			this->KeyBinds[i++] = (ConsoleKey)bind;

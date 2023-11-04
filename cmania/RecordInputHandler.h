@@ -37,6 +37,6 @@ public:
 	virtual void SetClockSource(Stopwatch& sw) override {
 		this->sw = &sw;
 	}
-	virtual void SetBinds(std::vector<int>& KeyBinds) override {
+	virtual void SetBinds(const std::vector<int>& KeyBinds) override {
 	}
 };
