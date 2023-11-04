@@ -419,7 +419,7 @@ public:
 		key_width = int(std::min(std::max(key_width, (double)buffer.Width * 0.3 / keys), (double)buffer.Width / keys * 2 - 3));
 		double centre = (double)buffer.Width / 2;
 		double centre_start = centre - (keys * key_width) / 2;
-		double judge_height = (key_height + 1) * 2;
+		double judge_height = std::max((key_height + 1) * 2,4.0);
 		auto j = 0;
 		for (double i = centre_start; i < keys * key_width + centre_start; i += key_width) {
 			int visible = 0;
