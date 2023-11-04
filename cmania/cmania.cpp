@@ -12,6 +12,7 @@
 #include "BeatmapManagementService.h"
 #include "KeepAwake.h"
 #include "BassAudioManager.h"
+#include "LogOverlay.h"
 
 // cmania 的入口点
 int main() {
@@ -26,6 +27,7 @@ int main() {
 		.Use(MakeBufferController)
 		.Use(MakeScreenController)
 		.Use(MakeBeatmapManagementService)
+		.Use(MakeLogOverlay)
 		.Use(MakeFpsOverlay); // 注入组件依赖
 
 	game.Raise("start"); // 初始化组件

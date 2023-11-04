@@ -2,6 +2,7 @@
 #include "ScreenController.h"
 #include "SettingsScreen.h"
 #include "MainMenuScreen.h"
+#include "LogOverlay.h"
 
 class MainMenuScreen : public Screen {
 	bool is_name_exists = false;

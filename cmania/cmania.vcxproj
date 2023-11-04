@@ -135,6 +135,7 @@
       <BuildStlModules>false</BuildStlModules>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <ScanSourceForModuleDependencies>false</ScanSourceForModuleDependencies>
+      <ExceptionHandling>Async</ExceptionHandling>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -158,6 +159,7 @@
       <ScanSourceForModuleDependencies>false</ScanSourceForModuleDependencies>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <ExceptionHandling>Async</ExceptionHandling>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -181,6 +183,7 @@
       <WholeProgramOptimization>false</WholeProgramOptimization>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <ScanSourceForModuleDependencies>false</ScanSourceForModuleDependencies>
+      <ExceptionHandling>Async</ExceptionHandling>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -204,6 +207,7 @@
       <BuildStlModules>false</BuildStlModules>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <ScanSourceForModuleDependencies>false</ScanSourceForModuleDependencies>
+      <ExceptionHandling>Async</ExceptionHandling>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -227,6 +231,7 @@
       <ScanSourceForModuleDependencies>false</ScanSourceForModuleDependencies>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <ExceptionHandling>Async</ExceptionHandling>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -250,6 +255,7 @@
       <WholeProgramOptimization>false</WholeProgramOptimization>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <ScanSourceForModuleDependencies>false</ScanSourceForModuleDependencies>
+      <ExceptionHandling>Async</ExceptionHandling>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -274,6 +280,7 @@
     <ClCompile Include="Hpet.cpp" />
     <ClCompile Include="KeepAwake.cpp" />
     <ClCompile Include="KeyBinds.cpp" />
+    <ClCompile Include="LogOverlay.cpp" />
     <ClCompile Include="MainMenuScreen.cpp" />
     <ClCompile Include="OsuBeatmap.cpp" />
     <ClCompile Include="ResultScreen.cpp" />
@@ -312,6 +319,7 @@
     <ClInclude Include="GameplayScreen.h" />
     <ClInclude Include="Hpet.h" />
     <ClInclude Include="KeepAwake.h" />
+    <ClInclude Include="LogOverlay.h" />
     <ClInclude Include="MainMenuScreen.h" />
     <ClInclude Include="ManiaObject.h" />
     <ClInclude Include="ManiaRuleset.h" />

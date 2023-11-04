@@ -3,6 +3,7 @@
 #include "Game.h"
 #include "ConsoleInput.h"
 #include "Win32ConsoleComponent.h"
+#include "LogOverlay.h"
 #pragma warning(disable : 4267)
 
 class Win32ConsoleComponent : public GameComponent {
@@ -59,60 +60,68 @@ public:
 		unsigned long read = 0;
 		INPUT_RECORD record{};
 		while (ReadConsoleInputW(hstdin, &record, 1, &read)) {
-			switch (record.EventType) {
-			case KEY_EVENT: {
-				auto ke = record.Event.KeyEvent;
-				KeyEventArgs kea(ke.dwControlKeyState, ke.bKeyDown, ke.wVirtualKeyCode, ke.uChar.UnicodeChar, ke.wRepeatCount);
-				parent->Raise("key", kea);
-				break;
+			try {
+				switch (record.EventType) {
+				case KEY_EVENT: {
+					auto ke = record.Event.KeyEvent;
+					KeyEventArgs kea(ke.dwControlKeyState, ke.bKeyDown, ke.wVirtualKeyCode, ke.uChar.UnicodeChar, ke.wRepeatCount);
+					parent->Raise("key", kea);
+					break;
+				}
+				case MOUSE_EVENT: {
+					auto me = record.Event.MouseEvent;
+					if (me.dwEventFlags == MOUSE_MOVED) {
+						MoveEventArgs mea(me.dwMousePosition.X, me.dwMousePosition.Y);
+						parent->Raise("move", mea);
+					}
+					if (me.dwEventFlags == MOUSE_WHEELED) {
+						WheelEventArgs wea(double(HighShort(me.dwButtonState)) / 120, WheelEventArgs::Direction::Vertical);
+						parent->Raise("wheel", wea);
+					}
+					if (me.dwEventFlags == MOUSE_HWHEELED) {
+						WheelEventArgs wea(double(HighShort(me.dwButtonState)) / 120, WheelEventArgs::Direction::Horizontal);
+						parent->Raise("wheel", wea);
+					}
+					bool leftnow = HasFlag(me.dwButtonState, FROM_LEFT_1ST_BUTTON_PRESSED);
+					static bool leftclicked = false;
+					if (leftnow ^ leftclicked) {
+						MouseKeyEventArgs mkea(me.dwMousePosition.X, me.dwMousePosition.Y, MouseKeyEventArgs::Button::Left, leftnow);
+						parent->Raise("mousekey", mkea);
+						leftclicked = leftnow;
+					}
+					bool rightnow = HasFlag(me.dwButtonState, RIGHTMOST_BUTTON_PRESSED);
+					static bool rightclicked = false;
+					if (rightnow ^ rightclicked) {
+						MouseKeyEventArgs mkea(me.dwMousePosition.X, me.dwMousePosition.Y, MouseKeyEventArgs::Button::Right, rightnow);
+						parent->Raise("mousekey", mkea);
+						rightclicked = rightnow;
+					}
+					bool middlenow = HasFlag(me.dwButtonState, FROM_LEFT_2ND_BUTTON_PRESSED);
+					static bool middleclicked = false;
+					if (middlenow ^ middleclicked) {
+						MouseKeyEventArgs mkea(me.dwMousePosition.X, me.dwMousePosition.Y, MouseKeyEventArgs::Button::Middle, middlenow);
+						parent->Raise("mousekey", mkea);
+						middleclicked = middlenow;
+					}
+					break;
+				}
+				case WINDOW_BUFFER_SIZE_EVENT: {
+					SendResize(parent);
+					break;
+				}
+				case FOCUS_EVENT: {
+					parent->Raise("focus", record.Event.FocusEvent.bSetFocus);
+					break;
+				}
+				default:
+					break;
+				}
 			}
-			case MOUSE_EVENT: {
-				auto me = record.Event.MouseEvent;
-				if (me.dwEventFlags == MOUSE_MOVED) {
-					MoveEventArgs mea(me.dwMousePosition.X, me.dwMousePosition.Y);
-					parent->Raise("move", mea);
-				}
-				if (me.dwEventFlags == MOUSE_WHEELED) {
-					WheelEventArgs wea(double(HighShort(me.dwButtonState)) / 120, WheelEventArgs::Direction::Vertical);
-					parent->Raise("wheel", wea);
-				}
-				if (me.dwEventFlags == MOUSE_HWHEELED) {
-					WheelEventArgs wea(double(HighShort(me.dwButtonState)) / 120, WheelEventArgs::Direction::Horizontal);
-					parent->Raise("wheel", wea);
-				}
-				bool leftnow = HasFlag(me.dwButtonState, FROM_LEFT_1ST_BUTTON_PRESSED);
-				static bool leftclicked = false;
-				if (leftnow ^ leftclicked) {
-					MouseKeyEventArgs mkea(me.dwMousePosition.X, me.dwMousePosition.Y, MouseKeyEventArgs::Button::Left, leftnow);
-					parent->Raise("mousekey", mkea);
-					leftclicked = leftnow;
-				}
-				bool rightnow = HasFlag(me.dwButtonState, RIGHTMOST_BUTTON_PRESSED);
-				static bool rightclicked = false;
-				if (rightnow ^ rightclicked) {
-					MouseKeyEventArgs mkea(me.dwMousePosition.X, me.dwMousePosition.Y, MouseKeyEventArgs::Button::Right, rightnow);
-					parent->Raise("mousekey", mkea);
-					rightclicked = rightnow;
-				}
-				bool middlenow = HasFlag(me.dwButtonState, FROM_LEFT_2ND_BUTTON_PRESSED);
-				static bool middleclicked = false;
-				if (middlenow ^ middleclicked) {
-					MouseKeyEventArgs mkea(me.dwMousePosition.X, me.dwMousePosition.Y, MouseKeyEventArgs::Button::Middle, middlenow);
-					parent->Raise("mousekey", mkea);
-					middleclicked = middlenow;
-				}
-				break;
+			catch (const std::exception& ex) {
+				parent->GetFeature<ILogger>().LogError(ex.what());
 			}
-			case WINDOW_BUFFER_SIZE_EVENT: {
-				SendResize(parent);
-				break;
-			}
-			case FOCUS_EVENT: {
-				parent->Raise("focus", record.Event.FocusEvent.bSetFocus);
-				break;
-			}
-			default:
-				break;
+			catch (...) {
+				parent->GetFeature<ILogger>().LogError("Error during key.");
 			}
 		}
 	}
