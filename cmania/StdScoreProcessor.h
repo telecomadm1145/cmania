@@ -1,11 +1,10 @@
-ï»¿#pragma once
+#pragma once
 #include "ScoreProcessor.h"
-#include "ManiaObject.h"
+#include "StdObject.h"
 #include "Linq.h"
 #include "Defines.h"
 
-class ManiaScoreProcessor : public ScoreProcessor<ManiaObject> {
-	bool wt_mode = false;
+class StdScoreProcessor : public ScoreProcessor<StdObject> {
 	std::map<HitResult, double> hit_ranges;
 	double reference_rating = 1;
 	double pp_m = 1;
@@ -21,13 +20,10 @@ public:
 		mods = RemoveFlag(mods, OsuMods::Nightcore);
 		pp_m = GetModScale(mods);
 	}
-	void SetWtMode(bool enable) {
-		wt_mode = enable;
-	}
 	virtual void SetDifficulty(double od) override {
 		hit_ranges = GetHitRanges(od);
 	}
-	ManiaScoreProcessor() {
+	StdScoreProcessor() {
 		ResultCounter[HitResult::Perfect];
 		ResultCounter[HitResult::Great];
 		ResultCounter[HitResult::Good];
@@ -36,9 +32,9 @@ public:
 		ResultCounter[HitResult::Miss];
 		hit_ranges = GetHitRanges(0);
 	}
-	// é€šè¿‡ ScoreProcessor ç»§æ‰¿
-	virtual HitResult ApplyHit(ManiaObject& mo, double err) override {
-		auto is_hold = mo.EndTime != 0 && !wt_mode;
+	// Í¨¹ý ScoreProcessor ¼Ì³Ð
+	virtual HitResult ApplyHit(StdObject& mo, double err) override {
+		auto is_hold = mo.EndTime != 0;
 		if (mo.HasHit && !is_hold) {
 			return HitResult::None;
 		}
@@ -74,7 +70,7 @@ public:
 
 			Accuracy = (double)RawAccuracy / AppliedHit / GetBaseScore(HitResult::Great);
 
-			Rating = reference_rating * std::pow(((double)MaxCombo / BeatmapMaxCombo), 0.3) * pow(Accuracy, 1.3) * pow(pp_m, 1.2) * pow(0.95, ResultCounter[HitResult::Miss]) * (wt_mode ? 0.75 : 1);
+			Rating = reference_rating * std::pow(((double)MaxCombo / BeatmapMaxCombo), 0.3) * pow(Accuracy, 1.3) * pow(pp_m, 1.2) * pow(0.95, ResultCounter[HitResult::Miss]);
 
 			RawScore += GetBaseScore(res);
 
@@ -95,7 +91,7 @@ public:
 		return 0.0;
 	}
 
-	// é€šè¿‡ ScoreProcessor ç»§æ‰¿
+	// Í¨¹ý ScoreProcessor ¼Ì³Ð
 	virtual void SaveRecord() override {
 		RulesetRecord->Rating = Rating;
 		RulesetRecord->Mean = Mean;

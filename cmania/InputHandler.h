@@ -18,7 +18,7 @@ public:
 	// 设置时钟来源
 	virtual void SetClockSource(Stopwatch& sw) = 0;
 	// 加载Action的键位绑定
-	virtual void SetBinds(std::vector<int>& KeyBinds) = 0;
+	virtual void SetBinds(const std::vector<int>& KeyBinds) = 0;
 
 public:
 	virtual ~InputHandler() {

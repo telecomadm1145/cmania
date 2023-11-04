@@ -1,4 +1,5 @@
-﻿#include "ManiaRuleset.h"
+﻿#include "StdRuleset.h"
+#include "ManiaRuleset.h"
 #include "ScreenController.h"
 #include "ConsoleInputHandler.h"
 #include "RecordInputHandler.h"
@@ -17,16 +18,22 @@ class GameplayScreen : public Screen {
 	std::string RecordPath;
 	Record rec;
 	OsuMods mods;
+	int mode = 0;
 	BackgroundComponent bg;
 
 	using TransOut = Transition<EaseOut<PowerEasingFunction<4.0>>>;
 
 public:
-	GameplayScreen(const std::string& bmp_path, OsuMods mod) {
-		LoadForGameplay(mod, bmp_path);
+	GameplayScreen(const std::string& bmp_path, OsuMods mod, int mode) : mode(mode) {
+		LoadForGameplay(mod, bmp_path, mode);
 	}
-	void LoadForGameplay(OsuMods mod, const std::string& bmp_path) {
-		ruleset = std::unique_ptr<RulesetBase>((RulesetBase*)new ManiaRuleset());
+	void LoadForGameplay(OsuMods mod, const std::string& bmp_path, int mode) {
+		if (mode == 0)
+			ruleset = std::unique_ptr<RulesetBase>((RulesetBase*)new StdRuleset());
+		else if (mode == 3)
+			ruleset = std::unique_ptr<RulesetBase>((RulesetBase*)new ManiaRuleset());
+		else
+			throw std::exception("no supportion for this mode.");
 		if (!HasFlag(mod, OsuMods::Auto)) {
 			def_input_handler = std::unique_ptr<ConsolePlayerInputHandler>(new ConsolePlayerInputHandler());
 			ruleset->RulesetInputHandler = def_input_handler.get();
@@ -38,12 +45,17 @@ public:
 		mods = ruleset->Mods = mod;
 		beatmap_path = bmp_path;
 	}
-	GameplayScreen(Record rec, const std::string& bmp_path) {
-		LoadForReplay(rec, bmp_path);
+	GameplayScreen(Record rec, const std::string& bmp_path, int mode) : mode(mode) {
+		LoadForReplay(rec, bmp_path, mode);
 	}
-	void LoadForReplay(Record& rec, const std::string& bmp_path) {
+	void LoadForReplay(Record& rec, const std::string& bmp_path, int mode) {
 		rec_input_handler = std::unique_ptr<RecordInputHandler>(new RecordInputHandler(rec));
-		ruleset = std::unique_ptr<RulesetBase>((RulesetBase*)new ManiaRuleset());
+		if (mode == 0)
+			ruleset = std::unique_ptr<RulesetBase>((RulesetBase*)new StdRuleset());
+		else if (mode == 3)
+			ruleset = std::unique_ptr<RulesetBase>((RulesetBase*)new ManiaRuleset());
+		else
+			throw std::exception("no supportion for this mode.");
 		ruleset->RulesetInputHandler = rec_input_handler.get();
 		mods = ruleset->Mods = rec.Mods;
 		beatmap_path = bmp_path;
@@ -67,8 +79,7 @@ public:
 		}
 		auto ruleset = &*this->ruleset;
 		if (ruleset != 0) {
-			if (!ruleset->GameStarted)
-			{
+			if (!ruleset->GameStarted) {
 				buf.DrawString("Loading...", 0, 0, {}, {});
 				return;
 			}
@@ -91,7 +102,7 @@ public:
 
 			auto mods_txt = GetModsAbbr(mods);
 			buf.DrawString(mods_txt, buf.Width - mods_txt.size() - 1, 2, {}, {});
-			
+
 			auto current_text = std::to_string(int(ruleset->GetCurrentTime() / 1000 / 60)) + ":" + std::to_string(std::abs(int(ruleset->GetCurrentTime() / 1000) % 60));
 			buf.DrawString(current_text, 0, 0, {}, {});
 			centre1.append(std::to_string(scp->Combo));
@@ -197,7 +208,7 @@ public:
 				}
 				if (kea.Key == ConsoleKey::Oem3 && def_input_handler != 0) {
 					ruleset = 0;
-					LoadForGameplay(mods, beatmap_path); // 6
+					LoadForGameplay(mods, beatmap_path, mode); // 6
 					LoadRuleset();
 					pause = false;
 					return;
@@ -261,10 +272,10 @@ public:
 	};
 };
 
-Screen* MakeGameplayScreen(const std::string& bmp_path, OsuMods mod) {
-	return new GameplayScreen(bmp_path, mod);
+Screen* MakeGameplayScreen(const std::string& bmp_path, OsuMods mod, int mode) {
+	return new GameplayScreen(bmp_path, mod, mode);
 }
 
-Screen* MakeGameplayScreen(Record rec, const std::string& bmp_path) {
-	return new GameplayScreen(rec, bmp_path);
+Screen* MakeGameplayScreen(Record rec, const std::string& bmp_path, int mode) {
+	return new GameplayScreen(rec, bmp_path, mode);
 }

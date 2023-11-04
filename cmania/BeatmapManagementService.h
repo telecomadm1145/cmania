@@ -16,6 +16,7 @@ struct DifficultyCacheEntry {
 	double keys;
 	double od;
 	std::string path;
+	int mode;
 	std::vector<std::string> records;
 	void Write(std::ostream& os) const {
 		Binary::Write(os, background);
@@ -27,6 +28,7 @@ struct DifficultyCacheEntry {
 		Binary::Write(os, keys);
 		Binary::Write(os, od);
 		Binary::Write(os, records);
+		Binary::Write(os, mode);
 		Binary::Write(os, path);
 	}
 	void Read(std::istream& is) {
@@ -39,6 +41,7 @@ struct DifficultyCacheEntry {
 		Binary::Read(is, keys);
 		Binary::Read(is, od);
 		Binary::Read(is, records);
+		Binary::Read(is, mode);
 		Binary::Read(is, path);
 	}
 };

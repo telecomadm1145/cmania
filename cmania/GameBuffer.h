@@ -37,10 +37,21 @@ struct Color {
 	Color operator-(Color b) {
 		return Color{ Alpha, (unsigned char)(Red - b.Red), (unsigned char)(Green - b.Green), (unsigned char)(Blue - b.Blue) };
 	}
+	Color operator+(Color b) {
+		return Color{ Alpha, (unsigned char)(Red + b.Red), (unsigned char)(Green + b.Green), (unsigned char)(Blue + b.Blue) };
+	}
+	template <class T>
+	Color operator*(T x) {
+		return Color{ (unsigned char)(Alpha * x), Red, Green, Blue };
+	}
 	double Difference(Color b) {
 		return (std::abs((Red - b.Red) / 255.0) + std::abs((Blue - b.Blue) / 255.0) + std::abs((Green - b.Green) / 255.0)) / 3.0;
 	}
 };
+template <class T>
+Color operator*(T a, Color b) {
+	return b * a;
+}
 struct PixelData {
 	Color Foreground;
 	Color Background;
@@ -194,6 +205,44 @@ public:
 	void DrawString(const std::wstring& text, int startX, int startY, Color fg, Color bg) {
 		DrawString(Utf162Ucs4(text), startX, startY, fg, bg);
 	}
+	void DrawCircle(int x, int y, double sz, double width, double whratio, PixelData pd) {
+		double radius = sz / 2+2;
+		radius *= whratio;
+		double c = pow(radius, 2);
+		width *= whratio;
+		for (int i = x - radius - width / 2; i <= x + radius + width / 2; i++) {
+			for (int j = y - radius - width / 2; j <= y + radius + width / 2; j++) {
+				auto t = pow(i - x, 2) + pow(j - y, 2)*whratio;
+
+				// Adjust the condition to account for the width
+				if (t >= (c - pow(width, 2)) && t <= (c + pow(width, 2))) {
+					// Calculate the weight based on the distance from the center pixel
+					double distance = sqrt(t) - radius;
+					double weight = 1.0 - distance / (width / 2);
+					weight = std::max(0.0, std::min(1.0, weight)); // Clamp the weight between 0 and 1
+
+					PixelData pd2 = pd;
+					pd2.Foreground = pd.Foreground * weight;
+					pd2.Background = pd.Background * weight;
+
+					SetPixel(x+(i-x)/2, y+(j-y) /2, pd2);
+				}
+			}
+		}
+	}
+	void FillCircle(int x, int y, double sz, double whratio, PixelData pd) {
+		double radius = sz / 2 + 1;
+		double c = pow(radius, 2);
+		radius *= whratio;
+		for (int i = x - radius; i <= x + radius; i++) {
+			for (int j = y - radius; j <= y + radius; j++) {
+				auto t = pow(i - x, 2) + pow(j - y, 2) * whratio;
+				if (t <= c * whratio + 0.5) {
+					SetPixel(i, j, pd);
+				}
+			}
+		}
+	}
 	void DrawString(const std::u32string& text, int startX, int startY, Color fg, Color bg) {
 		int x = startX;
 		int y = startY;
@@ -300,6 +349,8 @@ public:
 			std::swap(y1, y2);
 		if (y1 == y2)
 			SetPixel(x, y1, pd);
+		y1 = std::max(0, y1);
+		y2 = std::min(y2, Height);
 		for (int i = y1; i < y2; i++) {
 			SetPixel(x, i, pd);
 		}
@@ -309,6 +360,8 @@ public:
 			std::swap(x1, x2);
 		if (x1 == x2)
 			SetPixel(x1, y, pd);
+		x1 = std::max(0, x1);
+		x2 = std::min(x2, Width);
 		for (int i = x1; i < x2; i++) {
 			SetPixel(i, y, pd);
 		}
