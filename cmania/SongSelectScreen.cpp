@@ -258,7 +258,7 @@ class SongSelectScreen : public Screen {
 			buf.FillRect(0, 0, buf.Width, buf.Height, { {}, { 170, 20, 20, 20 }, ' ' });
 			buf.DrawString("Ruleset 选择面板", 5, 6, {}, {});
 			buf.DrawString("在此可以选择你想要看到的Rulesets", 5, 8, {}, {});
-			std::string line1 = "难度降低: ";
+			std::string line1 = "Osu! Rulesets: ";
 			line1.push_back('[');
 			line1.push_back(IsRulesetToggled(0) ? 'x' : ' ');
 			line1.push_back(']');

@@ -110,7 +110,7 @@ public:
 private:
 	void WriteBufferString(const char* str) {
 		while (*str != '\0') {
-			outbuf.emplace_back(*str);
+			outbuf.push_back(*str);
 			str++;
 		}
 	}
@@ -125,6 +125,7 @@ public:
 	void Output() {
 		CheckBuffer();
 		outbuf.clear();
+		outbuf.reserve(Height * Width * 20);
 		Color LastFg{ 255, 255, 255, 255 };
 		Color LastBg{ 255, 0, 0, 0 };
 		if (Height <= 0 && Width <= 0)
