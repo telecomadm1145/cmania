@@ -415,10 +415,11 @@ public:
 	virtual void Render(GameBuffer& buffer) override {
 		auto e_ms = Clock.Elapsed() - offset;
 		double key_width = 10;
-		key_width = int(std::min(std::max(key_width, (double)buffer.Width * 0.06), (double)buffer.Width / keys * 2 - 3));
+		double key_height = int(std::max(buffer.Height / 50.0,0.0));
+		key_width = int(std::min(std::max(key_width, (double)buffer.Width * 0.3 / keys), (double)buffer.Width / keys * 2 - 3));
 		double centre = (double)buffer.Width / 2;
 		double centre_start = centre - (keys * key_width) / 2;
-		double judge_height = 4;
+		double judge_height = (key_height + 2) * 2;
 		auto j = 0;
 		for (double i = centre_start; i < keys * key_width + centre_start; i += key_width) {
 			int visible = 0;
@@ -454,7 +455,7 @@ public:
 						if (obj.HoldBroken) {
 							base.Alpha = base.Alpha * 0.2;
 						}
-						buffer.FillRect(i + 1, a, i + key_width, endy, { {}, base, ' ' });
+						buffer.FillRect(i + 1, a - key_height, i + key_width, endy + key_height, { {}, base, ' ' });
 						base.Alpha = (unsigned char)(255 * flashlight_num);
 						if (a >= buffer.Height - judge_height) {
 							base.Alpha = 255;
@@ -462,12 +463,12 @@ public:
 						if (obj.HoldBroken) {
 							base.Alpha = base.Alpha * 0.2;
 						}
-						buffer.FillRect(i + 1, a, i + key_width, a, { {}, base, ' ' });
+						buffer.FillRect(i + 1, a - key_height, i + key_width, a + key_height, { {}, base, ' ' });
 						continue;
 					}
 					base.Alpha = (unsigned char)(255 * flashlight_num);
 					if (!obj.HasHit)
-						buffer.FillRect(i + 1, starty, i + key_width, starty, { {}, base, ' ' });
+						buffer.FillRect(i + 1, starty - key_height, i + key_width, starty + key_height, { {}, base, ' ' });
 					visible++;
 				}
 			}

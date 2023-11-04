@@ -10,6 +10,7 @@
 #include <chrono>
 #include <mutex>
 #include <tuple>
+#include <unordered_set>
 #include "OsuMods.h"
 #include "File.h"
 #include "SettingsScreen.h"
@@ -28,6 +29,8 @@ class SongSelectScreen : public Screen {
 	std::string audioloc;
 	std::unique_ptr<IAudioManager::IAudioStream> preview;
 	bool mod_flyout;
+	bool ruleset_flyout;
+	std::unordered_set<int> selected_ruleset;
 	OsuMods mods;
 	using TransOut = Transition<EaseOut<PowerEasingFunction<12.0>>>;
 	Color difficultyToRGBColor(float difficulty) {
@@ -69,9 +72,6 @@ class SongSelectScreen : public Screen {
 			return;
 		}
 		auto& caches = matched_caches;
-		if (search_buf.empty()) {
-			caches = game->GetFeature<IBeatmapManagement>().GetSongsCache();
-		}
 
 		bg.Render(buf);
 		int c1 = 45;
@@ -115,7 +115,10 @@ class SongSelectScreen : public Screen {
 							buf.FillRect(b2 + diffxpos, diffoff, b2 + c2 + diffxpos, diffoff + songheight, { {}, { 120, 255, 255, 255 }, ' ' });
 						}
 						buf.FillRect(b2 + diffxpos, diffoff, b2 + c2 + diffxpos, diffoff + songheight, { {}, { 200, 32, 32, 32 }, ' ' });
-						buf.DrawString(diff.name, b2 + 1 + diffxpos, diffoff + 1, {}, {});
+						auto rul = GetRulesetName(diff.mode);
+						rul.resize(3, ' ');
+						buf.DrawString(rul, b2 + 1 + diffxpos, diffoff + 1, {}, { 255, 120, 120, 120 });
+						buf.DrawString(diff.name, b2 + 1 + diffxpos + 4, diffoff + 1, {}, {});
 						k++;
 					}
 				}
@@ -129,8 +132,7 @@ class SongSelectScreen : public Screen {
 			auto title = entry1->titleunicode;
 			if (title.empty())
 				title = entry1->title;
-			if (title.size() > 34)
-			{
+			if (title.size() > 34) {
 				title.resize(34);
 				title += "...";
 			}
@@ -149,12 +151,7 @@ class SongSelectScreen : public Screen {
 				auto seconds = int(entry2->length / 1000) % 60;
 				auto npstext = std::to_string(entry2->nps);
 				npstext.resize(npstext.find('.') + 2);
-				std::string m = "Unknown";
-				if (entry2->mode == 0)
-					m = "Std";
-				else if (entry2->mode == 3)
-					m = "Mania";
-				auto info = m + "  " + std::to_string(minutes) + ":" + std::to_string(seconds) + "   " + std::to_string(int(entry2->keys)) + "K" + "   OD" + std::to_string(int(entry2->od)) + "  " + npstext + "NPS";
+				auto info = GetRulesetName(entry2->mode) + "  " + std::to_string(minutes) + ":" + std::to_string(seconds) + "   " + std::to_string(int(entry2->keys)) + "K" + "   OD" + std::to_string(int(entry2->od)) + "  " + npstext + "NPS";
 				buf.DrawString(info, 1, 10, {}, {});
 
 				// records
@@ -169,7 +166,7 @@ class SongSelectScreen : public Screen {
 		else {
 			buf.DrawString("No song selected.", 1, 3, {}, {});
 		}
-		buf.DrawString("Esc - 返回 上下左右/鼠标 - 选歌 F2 随机 F3 Mods F4 选项 Enter/点击 开始", 0, buf.Height - 1, {}, {});
+		buf.DrawString("Esc - 返回 小键盘/鼠标 - 选歌 F1 Rulesets F2 随机 F3 Mods F4 选项 Enter/双击 开始", 0, buf.Height - 1, {}, {});
 		buf.FillRect(buf.Width - 30, 2, buf.Width - 3, 2, { {}, { 130, 128, 128, 128 }, ' ' });
 		buf.DrawString("搜索:", buf.Width - 30, 2, { 255, 100, 255, 150 }, {});
 		buf.DrawString(std::wstring{ search_buf.begin(), search_buf.end() }, buf.Width - 24, 2, { 255, 100, 255, 150 }, {});
@@ -257,6 +254,22 @@ class SongSelectScreen : public Screen {
 			buf.DrawString("需要额外注意的是: Keys mod 需要 Random mod ,用小键盘 1-9 选择.   Relax 忽略除 miss 外判定", 5, 28, {}, {});
 			buf.DrawString("Esc - 返回", 0, buf.Height - 1, {}, {});
 		}
+		if (ruleset_flyout) {
+			buf.FillRect(0, 0, buf.Width, buf.Height, { {}, { 170, 20, 20, 20 }, ' ' });
+			buf.DrawString("Ruleset 选择面板", 5, 6, {}, {});
+			buf.DrawString("在此可以选择你想要看到的Rulesets", 5, 8, {}, {});
+			std::string line1 = "难度降低: ";
+			line1.push_back('[');
+			line1.push_back(IsRulesetToggled(0) ? 'x' : ' ');
+			line1.push_back(']');
+			line1.append("(S)td");
+			line1.push_back(' ');
+			line1.push_back('[');
+			line1.push_back(IsRulesetToggled(3) ? 'x' : ' ');
+			line1.push_back(']');
+			line1.append("(M)ania");
+			buf.DrawString(line1, 5, 12, {}, {});
+		}
 	}
 	double random_last_off = 1.0 / 0 * 0;
 	int random_last_i = 0;
@@ -295,11 +308,11 @@ class SongSelectScreen : public Screen {
 		}
 	}
 	virtual void Wheel(WheelEventArgs wea) {
-		if (!mod_flyout)
+		if (!mod_flyout && !ruleset_flyout)
 			offset += wea.Delta;
 	}
 	virtual void Move(MoveEventArgs mea) {
-		if (!mod_flyout)
+		if (!mod_flyout && !ruleset_flyout)
 			if (last_y >= 0) {
 				offset = last_offset - (mea.Y - last_y) * 2;
 			}
@@ -388,7 +401,7 @@ class SongSelectScreen : public Screen {
 		std::sort(records.begin(), records.end(), [](Record& a, Record& b) { return a.Score > b.Score; });
 	}
 	virtual void MouseKey(MouseKeyEventArgs mkea) {
-		if (mod_flyout) {
+		if (mod_flyout || ruleset_flyout) {
 			return;
 		}
 		if (mkea.Pressed) {
@@ -399,9 +412,6 @@ class SongSelectScreen : public Screen {
 		else {
 			if (mkea.X == last_x && mkea.Y == last_y && !matched_caches.empty()) {
 				auto& caches = matched_caches;
-				if (search_buf.empty()) {
-					caches = game->GetFeature<IBeatmapManagement>().GetSongsCache();
-				}
 				if (caches.empty())
 					return;
 				int c1 = 45;
@@ -453,6 +463,9 @@ class SongSelectScreen : public Screen {
 		ready = false;
 		game->GetFeature<IBeatmapManagement>().Refesh([&](bool yes) {
 			ready = yes;
+			if (yes) {
+				UpdateSearch();
+			}
 			require_songs_path = !yes;
 		});
 	}
@@ -462,14 +475,37 @@ class SongSelectScreen : public Screen {
 		matched_caches.clear();
 		std::string str = Utf162Utf8(std::wstring{ search_buf.begin(), search_buf.end() });
 		auto& caches = game->GetFeature<IBeatmapManagement>().GetSongsCache();
-		std::copy_if(caches.begin(), caches.end(), std::back_inserter(matched_caches), [str](const SongsCacheEntry& sce) {
-			return search_meta(str, sce.artist, sce.title, sce.artistunicode, sce.titleunicode, sce.tags, sce.source);
+		std::copy_if(caches.begin(), caches.end(), std::back_inserter(matched_caches), [&](const SongsCacheEntry& sce) {
+			bool match = search_meta(str, sce.artist, sce.title, sce.artistunicode, sce.titleunicode, sce.tags, sce.source);
+			if (str.empty())
+				match = true;
+			if (!match)
+				return false;
+			bool match_ruleset = false;
+			if (selected_ruleset.empty())
+				return true;
+			for (auto& diff : sce.difficulties) {
+				match_ruleset = match_ruleset || !(selected_ruleset.find(diff.mode) == selected_ruleset.end());
+			}
+			return match_ruleset;
 		});
 	}
 	virtual void Key(KeyEventArgs kea) {
 		if (kea.Pressed) {
 			{
 				std::lock_guard lock(res_lock);
+				if (ruleset_flyout) {
+					if (kea.Key == ConsoleKey::Escape) {
+						ruleset_flyout = !ruleset_flyout;
+					}
+					if (kea.Key == ConsoleKey::S) {
+						ToggleRuleset(0);
+					}
+					if (kea.Key == ConsoleKey::M) {
+						ToggleRuleset(3);
+					}
+					return;
+				}
 				if (mod_flyout) {
 					if (kea.Key == ConsoleKey::Escape) {
 						mod_flyout = !mod_flyout;
@@ -566,7 +602,7 @@ class SongSelectScreen : public Screen {
 						if (kea.CtrlDown()) {
 							mods = ModifyFlag(mods, OsuMods::Auto);
 						}
-						parent->Navigate(MakeGameplayScreen(selected_entry_2->path, mods,selected_entry_2->mode));
+						parent->Navigate(MakeGameplayScreen(selected_entry_2->path, mods, selected_entry_2->mode));
 					}
 				}
 				if (kea.Key == ConsoleKey::Insert) {
@@ -585,6 +621,9 @@ class SongSelectScreen : public Screen {
 				offset -= h_cache;
 			}
 			auto& caches = game->GetFeature<IBeatmapManagement>().GetSongsCache();
+			if (kea.Key == ConsoleKey::F1) {
+				ruleset_flyout = !ruleset_flyout;
+			}
 			if (kea.Key == ConsoleKey::F2) {
 				if (HasFlag(kea.KeyState, ControlKeyState::Shift)) {
 					if (!isnan(random_last_off)) {
@@ -607,9 +646,6 @@ class SongSelectScreen : public Screen {
 				bool forced = kea.Key == ConsoleKey::RightArrow || kea.Key == ConsoleKey::LeftArrow;
 				if (selected_entry != 0 && !kea.CtrlDown()) {
 					auto& caches = matched_caches;
-					if (search_buf.empty()) {
-						caches = game->GetFeature<IBeatmapManagement>().GetSongsCache();
-					}
 					if (caches.empty())
 						return;
 					int c1 = 45;
@@ -680,6 +716,17 @@ class SongSelectScreen : public Screen {
 				}
 			}
 		}
+	}
+	void ToggleRuleset(int id) {
+		bool exists = IsRulesetToggled(id);
+		if (!exists)
+			selected_ruleset.emplace(id);
+		else
+			selected_ruleset.erase(id);
+		UpdateSearch();
+	}
+	bool IsRulesetToggled(int id) {
+		return selected_ruleset.find(id) != selected_ruleset.end();
 	}
 };
 
