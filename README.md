@@ -8,7 +8,7 @@
 ![Cmania gameplay](WindowsTerminal_ihoKC2ns1k.png)
 
 ## 功能
-- 在 Windows 终端上运行 osu!mania 游戏
+- 在终端上运行 osu!mania 游戏
 - 支持键盘输入，键位绑定为 dfjk (与原osu!mania默认键位一致)
 - 支持缓存谱面元数据
 - 支持录像和回放
@@ -19,23 +19,24 @@
 - Rating 计算
 
 ## 正在进行中的功能
-- 录像和回放可能并不稳定
+- 回放相关 UI
 - Rating
 - Player 档案
-- Ruleset 支持
+- 扩展 Ruleset 支持
+- osu!std 支持
 
 ## 未来计划的功能
 - 多人联机
-- 更多游戏模式的支持（osu!std osu!taiko osu!catch）
+- 更多游戏模式的支持（osu!taiko osu!catch）
 - 变速谱面支持
 - Ruleset 扩展加载
 - Linux 支持
 
-> 本人可能会因为学业问题不会积极维护此项目，但是这个暑假期间可能会维护到2023/8/30
+> 本人可能会因为学业问题不会积极维护此项目(已上高中)
 
 ## 下载与安装
 
-请注意，Release 中的二进制文件已经过时。建议按照以下步骤自行克隆代码并编译最新版本：
+请注意，Release 中的二进制文件可能过时。建议按照以下步骤自行克隆代码并编译最新版本：
 
 > 您现在可以直接去此项目的 Actions 获取自动构建（不一定每一个自动构建都可用）
 

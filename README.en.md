@@ -7,6 +7,8 @@ Play osu!mania on a Windows terminal (maybe Linux too?)
 
 ![Cmania gameplay](WindowsTerminal_ihoKC2ns1k.png)
 
+Warn: This file is older than chinese version,please see chinese ver for more information.
+
 ## Features
 - Play osu!mania game on a Windows terminal
 - Supports keyboard input with key bindings as dfjk (same as the default key bindings in osu!mania)
