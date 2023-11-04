@@ -230,7 +230,8 @@ public:
 			}
 			WriteBufferChar('\n');
 		}
-		buf_i--;
+		if (buf_i >= 1)
+			buf_i--;
 		write(outbuf, buf_i);
 	}
 	void DrawString(const std::string& text, int startX, int startY, Color fg, Color bg) {
