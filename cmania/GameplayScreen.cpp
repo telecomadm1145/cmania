@@ -21,7 +21,7 @@ class GameplayScreen : public Screen {
 	int mode = 0;
 	BackgroundComponent bg;
 
-	using TransOut = Transition<EaseOut<PowerEasingFunction<4.0>>>;
+	using TransOut = Transition<EaseOut<CubicEasingFunction>,ConstantEasingDurationCalculator<500.0>>;
 
 public:
 	GameplayScreen(const std::string& bmp_path, OsuMods mod, int mode) : mode(mode) {
@@ -63,12 +63,12 @@ public:
 	}
 
 private:
-	TransOut AccTrans{ 0, 500 };
-	TransOut ScoreTrans{ 0, 500 };
-	TransOut ErrorTrans{ 0, 500 };
-	TransOut VarianceTrans{ 0, 500 };
-	TransOut RatingTrans{ 0, 500 };
-	TransOut ComboTrans{ 0, 500 };
+	TransOut AccTrans{};
+	TransOut ScoreTrans{  };
+	TransOut ErrorTrans{};
+	TransOut VarianceTrans{ };
+	TransOut RatingTrans{  };
+	TransOut ComboTrans{  };
 
 public:
 	virtual void Render(GameBuffer& buf) {

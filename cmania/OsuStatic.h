@@ -151,6 +151,8 @@ constexpr inline std::string GetRulesetName(int id) {
 	switch (id) {
 	case 0:
 		return "Std";
+	case 1:
+		return "Taiko";
 	case 3:
 		return "Mania";
 	default:

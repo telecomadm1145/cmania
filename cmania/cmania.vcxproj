@@ -349,6 +349,9 @@
     <ClInclude Include="StdScoreProcessor.h" />
     <ClInclude Include="Stopwatch.h" />
     <ClInclude Include="String.h" />
+    <ClInclude Include="TaikoObject.h" />
+    <ClInclude Include="TaikoRuleset.h" />
+    <ClInclude Include="TaikoScoreProcessor.h" />
     <ClInclude Include="TickSource.h" />
     <ClInclude Include="Unicode.h" />
     <ClInclude Include="Win32ConsoleComponent.h" />

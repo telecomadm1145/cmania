@@ -244,6 +244,15 @@
       <Filter>Game\Gameplay\Osu</Filter>
     </ClInclude>
     <ClInclude Include="LogOverlay.h" />
+    <ClInclude Include="TaikoObject.h">
+      <Filter>Game\Gameplay\Taiko</Filter>
+    </ClInclude>
+    <ClInclude Include="TaikoRuleset.h">
+      <Filter>Game\Gameplay\Taiko</Filter>
+    </ClInclude>
+    <ClInclude Include="TaikoScoreProcessor.h">
+      <Filter>Game\Gameplay\Taiko</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Core">
@@ -278,6 +287,9 @@
     </Filter>
     <Filter Include="Game\Gameplay\Std">
       <UniqueIdentifier>{d299fe9d-5f73-418f-9826-e7341f051a88}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game\Gameplay\Taiko">
+      <UniqueIdentifier>{74dd2846-d58a-435c-8923-ee2622fcfe10}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

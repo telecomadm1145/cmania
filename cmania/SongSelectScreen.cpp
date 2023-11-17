@@ -32,7 +32,10 @@ class SongSelectScreen : public Screen {
 	bool ruleset_flyout;
 	std::unordered_set<int> selected_ruleset;
 	OsuMods mods;
-	using TransOut = Transition<EaseOut<PowerEasingFunction<12.0>>>;
+	using TransOut = Transition<
+		EaseOut<CubicEasingFunction>,
+		DurationRangeLimiter<800.0,3500.0,LinearEasingDurationCalculator<1>>
+	>;
 	Color difficultyToRGBColor(float difficulty) {
 		std::vector<std::tuple<double, double, Color>> ranges = {
 			{ 0, 1, { 0, 204, 204, 204 } },								   // 灰
@@ -57,7 +60,7 @@ class SongSelectScreen : public Screen {
 		// If the difficulty does not fall within any range, return black color
 		return { 255, 0, 0, 0 };
 	}
-	TransOut OffsetTrans{ 0, 1500 };
+	TransOut OffsetTrans{};
 	virtual void Render(GameBuffer& buf) {
 		std::lock_guard lock(res_lock);
 		h_cache = buf.Height;
@@ -263,6 +266,16 @@ class SongSelectScreen : public Screen {
 			line1.push_back(IsRulesetToggled(0) ? 'x' : ' ');
 			line1.push_back(']');
 			line1.append("(S)td");
+			line1.push_back(' ');
+			line1.push_back('[');
+			line1.push_back(IsRulesetToggled(1) ? 'x' : ' ');
+			line1.push_back(']');
+			line1.append("(T)aiko");
+			line1.push_back(' ');
+			line1.push_back('[');
+			line1.push_back(IsRulesetToggled(2) ? 'x' : ' ');
+			line1.push_back(']');
+			line1.append("(C)atch");
 			line1.push_back(' ');
 			line1.push_back('[');
 			line1.push_back(IsRulesetToggled(3) ? 'x' : ' ');
@@ -501,6 +514,12 @@ class SongSelectScreen : public Screen {
 					if (kea.Key == ConsoleKey::S) {
 						ToggleRuleset(0);
 					}
+					if (kea.Key == ConsoleKey::T) {
+						ToggleRuleset(1);
+					}
+					if (kea.Key == ConsoleKey::C) {
+						ToggleRuleset(2);
+					}
 					if (kea.Key == ConsoleKey::M) {
 						ToggleRuleset(3);
 					}
@@ -620,11 +639,11 @@ class SongSelectScreen : public Screen {
 			if (kea.Key == ConsoleKey::PageUp) {
 				offset -= h_cache;
 			}
-			auto& caches = game->GetFeature<IBeatmapManagement>().GetSongsCache();
 			if (kea.Key == ConsoleKey::F1) {
 				ruleset_flyout = !ruleset_flyout;
 			}
 			if (kea.Key == ConsoleKey::F2) {
+				auto& caches = matched_caches;
 				if (HasFlag(kea.KeyState, ControlKeyState::Shift)) {
 					if (!isnan(random_last_off)) {
 						offset = random_last_off;

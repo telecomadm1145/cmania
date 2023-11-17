@@ -14,6 +14,12 @@ public:
 		return pow(t, N);
 	}
 };
+class CubicEasingFunction {
+public:
+	static double Ease(double t) {
+		return t * t * t;
+	}
+};
 template <class EasingFunction>
 class EaseOut {
 public:
@@ -58,19 +64,41 @@ public:
 		: From(From), To(To), Offset(Offset), Duration(Duration), Clockrate(Clockrate) {
 	}
 };
-template <class EasingFunction, class Num = double>
+template<auto K>
+class LinearEasingDurationCalculator {
+public:
+	static inline auto Get(auto x) {
+		return K * x;
+	}
+};
+template <auto V>
+class ConstantEasingDurationCalculator {
+public:
+	static inline auto Get(auto x) {
+		return V;
+	}
+};
+template<auto Min,auto Max,class Base>
+class DurationRangeLimiter {
+public:
+	static inline auto Get(auto x) {
+		return std::clamp(Base::Get(x),Min,Max);
+	}
+};
+template <class EasingFunction, class EasingDurationCalculator, class Num = double, Num Inital = Num()>
 class Transition {
 private:
 	Animator<EasingFunction, Num> animator;
 
 public:
-	Transition(Num inital, double duration, double offset = 0, double clockrate = 1)
-		: animator(inital, inital, duration, offset, clockrate) {}
+	Transition()
+		: animator(Inital, Inital, 0, 0, 1) {}
 
 	void SetValue(double clock, Num value) {
 		if (animator.To != value) {
 			animator.From = animator.GetCurrentValue(clock);
 			animator.To = value;
+			animator.Duration = EasingDurationCalculator::Get(animator.To - animator.From);
 			animator.Start(clock);
 		}
 	}
