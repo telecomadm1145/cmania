@@ -207,7 +207,7 @@ private:
 	Trail cursortrail[64];
 	double lastrec = -1e300;
 	void Render(GameBuffer& buf) override { // 512 , 384 osu pixel
-		const auto rt = 2;
+		const auto rt = 1.8;
 		auto vp = calcViewport(512 * rt, 384, buf.Width - 4, buf.Height - 4);
 		vp.x1 += 2;
 		vp.y1 += 2;
@@ -239,32 +239,32 @@ private:
 			// Slider
 			if (ho.Path != 0 && t > ho.StartTime - preempt) {
 				// äÖÈ¾»¬ÌõÌå...
-				auto points = ho.Path->calcedPath;
-				for (int i = 0; i < points.size() - 1; i++) {
-					PointD currentPoint = points[i];
-					PointD nextPoint = points[(i + 1) % points.size()];
+				//auto points = ho.Path->calcedPath;
+				//for (int i = 0; i < points.size() - 1; i++) {
+				//	PointD currentPoint = points[i];
+				//	PointD nextPoint = points[(i + 1) % points.size()];
 
-					double dx = nextPoint.X - currentPoint.X;
-					double dy = nextPoint.Y - currentPoint.Y;
-					double distance = std::sqrt(dx * dx + dy * dy);
+				//	double dx = nextPoint.X - currentPoint.X;
+				//	double dy = nextPoint.Y - currentPoint.Y;
+				//	double distance = std::sqrt(dx * dx + dy * dy);
 
-					float stepX = static_cast<float>(dx) / distance;
-					float stepY = static_cast<float>(dy) / distance;
+				//	float stepX = static_cast<float>(dx) / distance;
+				//	float stepY = static_cast<float>(dy) / distance;
 
-					for (int j = 0; j < distance; j++) {
-						double x = currentPoint.X + static_cast<int>(stepX * j);
-						double y = currentPoint.Y + static_cast<int>(stepY * j);
+				//	for (int j = 0; j < distance; j++) {
+				//		double x = currentPoint.X + static_cast<int>(stepX * j);
+				//		double y = currentPoint.Y + static_cast<int>(stepY * j);
 
-						buf.FillCircle(vp.x1 + x / 512 * vp.x2, vp.y1 + y / 384 * vp.y2,scale,rt+1, { {}, { 10, 255, 255, 255 }, ' ' });
-					}
-				}
+				//		buf.FillCircle(vp.x1 + x / 512 * vp.x2, vp.y1 + y / 384 * vp.y2,scale,rt+1, { {}, { 10, 255, 255, 255 }, ' ' });
+				//	}
+				//}
 				if (t < ho.EndTime && t > ho.StartTime) {
 					auto duration = ho.Path->actualLength / ho.Velocity;
 					auto progress = std::clamp(fmod(t - ho.StartTime, duration * 2) / duration, 0.0, 2.0);
 					if (progress > 1)
 						progress = 2 - progress;
 					auto sb = ho.Path->PositionAt(progress);
-					buf.FillCircle(vp.x1 + sb.X / 512.0 * vp.x2, vp.y1 + sb.Y / 384.0 * vp.y2, scale, rt + 1, { {}, (comboclr * 0.8), ' ' });
+					buf.FillCircle(vp.x1 + sb.X / 512.0 * vp.x2, vp.y1 + sb.Y / 384.0 * vp.y2, scale, rt, { {}, (comboclr * 0.8), ' ' });
 				}
 			}
 			// HeadCircle
@@ -277,11 +277,11 @@ private:
 					if (t > ho.StartTime)
 						continue;
 				}
-				buf.FillCircle(vp.x1 + ho.Location.X / 512.0 * vp.x2, vp.y1 + ho.Location.Y / 384.0 * vp.y2, scale, rt + 1, { {}, (comboclr * (alpha * 0.8)), ' ' });
+				buf.FillCircle(vp.x1 + ho.Location.X / 512.0 * vp.x2, vp.y1 + ho.Location.Y / 384.0 * vp.y2, scale, rt, { {}, (comboclr * (alpha * 0.8)), ' ' });
 				// buf.DrawCircle(vp.x1 + ho.Location.X / 512.0 * vp.x2, vp.y1 + ho.Location.Y / 384.0 * vp.y2, scale, 1.5, rt + 1, { {}, (Color{ 255, 255, 255, 255 } * alpha), ' ' });
 				// ËõÈ¦
 				auto progress = std::max(1 + (1 - (t - (ho.StartTime - preempt)) / preempt) * 3, 1.0);
-				buf.DrawCircle(vp.x1 + ho.Location.X / 512.0 * vp.x2, vp.y1 + ho.Location.Y / 384.0 * vp.y2, scale * progress, 2, rt + 1, { {}, (Color{ 255, 255, 255, 255 } * alpha), ' ' });
+				buf.DrawCircle(vp.x1 + ho.Location.X / 512.0 * vp.x2, vp.y1 + ho.Location.Y / 384.0 * vp.y2, scale * progress, 2, rt, { {}, (Color{ 255, 255, 255, 255 } * alpha), ' ' });
 			}
 		}
 		auto evt = RulesetInputHandler->PollEvent();

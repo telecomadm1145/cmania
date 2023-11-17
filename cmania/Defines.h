@@ -1,9 +1,26 @@
 #pragma once
 #include <cmath>
+#include <vector>
 template <class T>
 struct Vector {
 	T X = T{};
 	T Y = T{};
+#ifdef _MSC_VER
+	inline T GetX() {
+		return X;
+	}
+	inline T SetX(T x) {
+		return X = x;
+	}
+	inline T GetY() {
+		return Y;
+	}
+	inline T SetY(T y) {
+		return Y = y;
+	}
+	__declspec(property(get = GetX,put=SetX)) T x;
+	__declspec(property(get = GetY,put=SetY)) T y;
+#endif
 	auto Length() {
 		return sqrt(X * X + Y * Y);
 	}
@@ -72,6 +89,22 @@ struct Point {
 	}
 	T X = T{};
 	T Y = T{};
+#ifdef _MSC_VER
+	inline T GetX() {
+		return X;
+	}
+	inline T SetX(T x) {
+		return X = x;
+	}
+	inline T GetY() {
+		return Y;
+	}
+	inline T SetY(T y) {
+		return Y = y;
+	}
+	__declspec(property(get = GetX, put = SetX)) T x;
+	__declspec(property(get = GetY, put = SetY)) T y;
+#endif
 
 	auto Length() {
 		return sqrt(X * X + Y * Y);
@@ -104,6 +137,8 @@ struct Point {
 };
 using PointD = Point<double>;
 using VectorD = Vector<double>;
+using PointI = Point<int>;
+using VectorI = Vector<int>;
 
 #include <numeric>
 inline double variance(double mean, const std::vector<double>& values) {

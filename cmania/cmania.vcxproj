@@ -276,6 +276,7 @@
     <ClCompile Include="DifficultyCalculator.cpp" />
     <ClCompile Include="File.cpp" />
     <ClCompile Include="FpsOverlay.cpp" />
+    <ClCompile Include="GameBuffer.cpp" />
     <ClCompile Include="GameplayScreen.cpp" />
     <ClCompile Include="Hpet.cpp" />
     <ClCompile Include="KeepAwake.cpp" />
