@@ -361,6 +361,7 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
 PatchableRelease
 enc_temp_folder
 
@@ -368,3 +369,6 @@ enc_temp_folder
 Records/
 Setting.bin
 Songs.bin
+
+#忽略自动生成的git信息头
+git_info.h

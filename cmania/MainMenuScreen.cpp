@@ -3,6 +3,10 @@
 #include "SettingsScreen.h"
 #include "MainMenuScreen.h"
 #include "LogOverlay.h"
+#include "git_info.h"
+
+#define QUOTE_S(x) #x
+#define QUOTE(x) QUOTE_S(x)
 
 class MainMenuScreen : public Screen {
 	bool is_name_exists = false;
@@ -18,8 +22,8 @@ class MainMenuScreen : public Screen {
 			buf.DrawString(input_buf, 0, 1, {}, {});
 			return;
 		}
-		buf.DrawString("Cmania Alpha v4\n\n按下 Enter 进入选歌界面\n按下 O 键进行设置", 0,0, {}, {});
-		buf.DrawString("Original game by peppy ( https://osu.ppy.sh )\nCopyright 2023 telecomadm1145 ( https://github.com/telecomadm1145/cmania )", 0, buf.Height - 2, {}, {});
+		buf.DrawString("Cmania " GIT_LATEST_TAG "\n\n按下 Enter 进入选歌界面\n按下 O 键进行设置", 0, 0, {}, {});
+		buf.DrawString("Compiled with MSVC v" QUOTE(_MSC_VER) "(git-" GIT_COMMIT_HASH "@" GIT_COMMIT_DATE ")\nOriginal game by peppy ( https://osu.ppy.sh )\nCopyright 2023 telecomadm1145 ( https://github.com/telecomadm1145/cmania )", 0, buf.Height - 3, {}, {});
 		//buf.DrawString("Loading beatmap cache...", 0, 0, {}, {});
 		//buf.DrawString("正在播放", 0, 0, {}, {});
 	}
