@@ -134,6 +134,7 @@ public:
 						  bool isLarge = HasFlag(obj.SoundType, HitSoundType::Finish);
 						  auto scoringdist = BASE_SCORING_DISTANCE * orig_bmp.SliderMultiplier * vec;
 						  auto velocity = scoringdist / tp.BeatLength;
+						  to.Velocity = vec;
 						  if (HasFlag(obj.Type, HitObjectType::Slider)) {
 							  // 我们需要计算 Slider 需要击打几下
 							  /*
@@ -151,7 +152,7 @@ public:
 							  auto hits = (int)(duration / blen);
 							  to.TotalHits = to.RemainsHits = hits;
 							  to.TickTime = blen;
-							  to.ObjectType = ModifyFlag(to.ObjectType,isKat ? TaikoObject::Kat : TaikoObject::Don);
+							  to.ObjectType = ModifyFlag(to.ObjectType, isKat ? TaikoObject::Kat : TaikoObject::Don);
 							  if (isLarge)
 								  to.ObjectType = ModifyFlag(to.ObjectType, TaikoObject::Large);
 							  to.EndTime = to.StartTime + duration;
@@ -278,8 +279,37 @@ public:
 		}
 		return 1;
 	}
-	virtual void Render(GameBuffer& buffer) override {
+	virtual void Render(GameBuffer& buf) override {
+		const auto rt = 2.0;
 		auto e_ms = Clock.Elapsed();
+
+		// now we need to render all objects.
+
+		auto scale = buf.Height / 40.0;
+
+		auto hitpos = PointI{ (int)(20 * scale) + 5, buf.Height * 3 / 8 };
+		buf.FillRect(0, buf.Height / 4, buf.Width, buf.Height * 2 / 4, { {}, { 255, 40, 40, 40 }, ' ' });
+		buf.FillRect(hitpos.X - 2, buf.Height / 4,hitpos.X + 2, buf.Height * 2 / 4, { {}, { 255, 80, 80, 80 }, ' ' });
+		for (auto& obj : Beatmap)
+		{
+			auto off = obj.StartTime - e_ms;
+			Color fill = { 220, 255, 30, 30 };
+			unsigned int chr = 'O';
+			double sz = scale * 6;
+			if (HasFlag(obj.ObjectType, TaikoObject::Kat))
+			{
+				fill = { 220, 20, 212, 255 };
+				chr = 'X';
+			}
+			if (HasFlag(obj.ObjectType, TaikoObject::Large))
+			{
+				sz = scale * 8;
+			}
+			auto objx = (int)(hitpos.X + off / obj.Velocity / 1000 * (double)buf.Width);
+			buf.FillCircle(objx, hitpos.Y, sz, rt, { {}, fill, ' ' });
+			buf.DrawCircle(objx, hitpos.Y, sz, 0.25, rt, { {}, { 255, 255, 255, 255 }, ' ' });
+			buf.SetPixel(objx, hitpos.Y, { {255,0,0,0}, {},chr });
+		}
 	}
 
 	// 通过 Ruleset 继承

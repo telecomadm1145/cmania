@@ -129,8 +129,8 @@ private:
 
 						  first_obj = std::min(first_obj, obj.StartTime);
 						  end_obj = std::max(end_obj, obj.StartTime);
-						  if (obj.EndTime != 0)
-							  end_obj = std::max(end_obj, obj.EndTime);
+						  if (so.EndTime != 0)
+							  end_obj = std::max(end_obj, so.EndTime);
 						  return so;
 					  }));
 		// º”‘ÿbgm

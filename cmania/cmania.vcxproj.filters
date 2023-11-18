@@ -65,9 +65,11 @@
     <ClCompile Include="ConsoleText.cpp">
       <Filter>Core\UI</Filter>
     </ClCompile>
-    <ClCompile Include="LogOverlay.cpp" />
     <ClCompile Include="GameBuffer.cpp">
       <Filter>Core\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="LogOverlay.cpp">
+      <Filter>Core</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -245,7 +247,6 @@
     <ClInclude Include="OsuSample.h">
       <Filter>Game\Gameplay\Osu</Filter>
     </ClInclude>
-    <ClInclude Include="LogOverlay.h" />
     <ClInclude Include="TaikoObject.h">
       <Filter>Game\Gameplay\Taiko</Filter>
     </ClInclude>
@@ -254,6 +255,9 @@
     </ClInclude>
     <ClInclude Include="TaikoScoreProcessor.h">
       <Filter>Game\Gameplay\Taiko</Filter>
+    </ClInclude>
+    <ClInclude Include="LogOverlay.h">
+      <Filter>Core</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
