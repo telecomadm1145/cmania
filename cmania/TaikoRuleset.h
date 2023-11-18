@@ -172,6 +172,23 @@ public:
 							  if (isLarge)
 								  to.ObjectType = ModifyFlag(to.ObjectType, TaikoObject::Large);
 						  }
+
+
+						  //加载采样
+						  
+						  //  将 fspath 转换为 AudioSample
+						  auto sample_selector = [&](const std::filesystem::path& sample) -> auto {
+							  return SampleCaches[sample.string()];
+						  };
+
+						  //  给物件加载 Samples
+						  to.samples > AddRange(GetSampleLayered(SampleIndex, SkinSampleIndex, tp.SampleBank, obj.SoundType, tp.SampleSet) > Select(sample_selector));
+
+						  if (!obj.CustomSampleFilename.empty()) {
+							  to.samples.push_back(SampleCaches[(parent / obj.CustomSampleFilename).string()]);
+						  }
+
+
 						  return to;
 					  }));
 
@@ -185,7 +202,7 @@ public:
 			throw std::invalid_argument("RulesetInputHandler mustn't be nullptr.");
 
 		auto binds = Select(
-			GetKeyBinds(keys), [](const auto& val) -> auto { return (int)val; })
+			GetKeyBinds(4), [](const auto& val) -> auto { return (int)val; })
 						 .ToList<int>();
 		RulesetInputHandler->SetBinds(binds);
 
@@ -207,6 +224,32 @@ public:
 		RulesetInputHandler->SetClockSource(Clock);
 
 		GameStarted = true;
+	}
+	void ProcessAction(int action, bool pressed, double clock) {
+		if (pressed) {
+			auto first_hit = Beatmap > Where([&](TaikoObject& obj) -> bool 
+				{ 
+					return clock >= obj.StartTime && clock <= obj.StartTime + 100; 
+				}
+			) > FirstOrDefault();
+			if (first_hit != 0) {
+				bool isTrigger = false;
+				if ((action == 0 || action == 3) && first_hit->ObjectType == TaikoObject::Kat) {
+					isTrigger = true;
+				}
+				else if ((action == 1 || action == 2) && first_hit->ObjectType == TaikoObject::Don) {
+					isTrigger = true;
+				}
+				if (isTrigger) {
+					auto result = RulesetScoreProcessor->ApplyHit(*first_hit, clock - first_hit->StartTime);
+					first_hit->PlaySample();
+					if (result != HitResult::None) {
+						LastHitResult = result;
+						LastHitResultAnimator.Start(Clock.Elapsed());
+					}
+				}
+			}
+		}
 	}
 	virtual void Update() override {
 		if (GameEnded)
@@ -262,6 +305,13 @@ public:
 				break;
 			auto& e = *evt;
 			RulesetRecord.Events.push_back(e);
+			
+			if (wt_mode || e.Pressed) {
+				ProcessAction(e.Action, e.Pressed, e.Clock);
+			}
+			if (wt_mode && e.Pressed) {
+				KeyHighlight[e.Action].Start(time);
+			}
 		}
 	}
 	double CalcFlashlight(OsuMods mods, double ratio) {

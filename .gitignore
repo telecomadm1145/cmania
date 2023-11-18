@@ -363,3 +363,8 @@ MigrationBackup/
 FodyWeavers.xsd
 PatchableRelease
 enc_temp_folder
+
+#忽略录像和设置文件
+Records/
+Setting.bin
+Songs.bin

@@ -9,6 +9,7 @@
 #include "Game.h"
 #include "String.h"
 #include "OsuBeatmap.h"
+#include <mutex>
 
 class BeatmapManagementService : public GameComponent, public IBeatmapManagement {
 	SongsCache sc;
