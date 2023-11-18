@@ -6,6 +6,7 @@
 #include "BeatmapManagementService.h"
 #include "BackgroundComponent.h"
 #include "ResultScreen.h"
+#include "TaikoRuleset.h"
 
 class GameplayScreen : public Screen {
 	std::unique_ptr<RulesetBase> ruleset;
@@ -30,6 +31,8 @@ public:
 	void LoadForGameplay(OsuMods mod, const std::string& bmp_path, int mode) {
 		if (mode == 0)
 			ruleset = std::unique_ptr<RulesetBase>((RulesetBase*)new StdRuleset());
+		else if (mode == 1)
+			ruleset = std::unique_ptr<RulesetBase>((RulesetBase*)new TaikoRuleset());
 		else if (mode == 3)
 			ruleset = std::unique_ptr<RulesetBase>((RulesetBase*)new ManiaRuleset());
 		else

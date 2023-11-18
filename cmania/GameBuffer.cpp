@@ -138,34 +138,33 @@ void GameBuffer::Output() {
 }
 
 void GameBuffer::DrawCircle(int x, int y, double sz, double width, double whratio, PixelData pd) {
-	double radius = sz / 2 + 2;
-	radius *= whratio;
-	double c = pow(radius, 2);
-	width *= whratio;
-	for (int i = x - radius - width / 2; i <= x + radius + width / 2; i++) {
-		for (int j = y - radius - width / 2; j <= y + radius + width / 2; j++) {
-			auto t = pow(i - x, 2) + pow(j - y, 2) * whratio;
-
-			// Adjust the condition to account for the width
-			if (t >= (c - pow(width, 2)) && t <= (c + pow(width, 2))) {
-				// Calculate the weight based on the distance from the center pixel
-				double distance = sqrt(t) - radius;
-				double weight = 1.0 - distance / (width / 2);
-				weight = std::max(0.0, std::min(1.0, weight)); // Clamp the weight between 0 and 1
-
-				PixelData pd2 = pd;
-				pd2.Foreground = pd.Foreground * weight;
-				pd2.Background = pd.Background * weight;
-
-				SetPixel(x + (i - x) / 2, y + (j - y) / 2, pd2);
+	const auto aa = 4;
+	sz /= 2;
+	whratio -= 0.5;
+	double radius = sz / 2;
+	double sr = Sqr(radius) * aa;
+	int r2 = (int)(sz + 1) * aa;
+	int r3 = (int)((sz + 1) * whratio * aa);
+	PixelData pd2 = pd;
+	pd2.Background = pd2.Background * (1.0 / aa);
+	pd2.Foreground = pd2.Foreground * (1.0 / aa);
+	for (int i = -r2; i <= r2; i++) // y
+	{
+		for (int j = -r3; j <= r3; j++) { // x
+			int ry = y + i / aa;
+			int rx = x + j / aa;
+			double dist = Sqr((double)i / aa) + Sqr((double)j / whratio / aa);
+			if (dist <= sr + width * aa && dist >= sr - width * aa) {
+				SetPixel(rx, ry, pd2);
 			}
 		}
 	}
 }
 
-void GameBuffer::FillCircle(int x, int y, double sz, double whratio, PixelData pd, int aa) {
+void GameBuffer::FillCircle(int x, int y, double sz, double whratio, PixelData pd, int) {
 	sz /= 2;
 	whratio -= 0.5;
+	const int aa = 4;
 	double radius = sz / 2;
 	double sr = Sqr(radius) * aa;
 	int r2 = (int)sz * aa;
@@ -176,10 +175,14 @@ void GameBuffer::FillCircle(int x, int y, double sz, double whratio, PixelData p
 	for (int i = -r2; i <= r2; i++) // y
 	{
 		for (int j = -r3; j <= r3; j++) { // x
+			if (i > -aa && i < 0)
+				continue;
+			if (j > -aa && j < 0)
+				continue;
 			int ry = y + i / aa;
 			int rx = x + j / aa;
 			double dist = Sqr((double)i / aa) + Sqr((double)j / whratio / aa);
-			if (dist + 0.5 <= sr) {
+			if (dist <= sr) {
 				SetPixel(rx, ry, pd2);
 			}
 		}
@@ -309,32 +312,46 @@ void GameBuffer::DrawLineV(int x1, int x2, int y, PixelData pd) {
 		SetPixel(i, y, pd);
 	}
 }
-
 void GameBuffer::DrawLine(int x1, int x2, int y1, int y2, PixelData pd) {
-	if (y1 > y2)
-		std::swap(y1, y2);
-	if (x1 > x2)
-		std::swap(x1, x2);
-	auto dx = x2 - x1;
-	auto dy = y2 - y1;
+	int dx = abs(x2 - x1);
+	int dy = abs(y2 - y1);
 	if (dx == 0) {
 		DrawLineH(x1, y1, y2, pd);
 		return;
 	}
 	if (dy == 0) {
 		DrawLineV(x1, x2, y1, pd);
+		return;
 	}
-	auto k = (double)dy / dx;
-	auto c = y2 - x2 * k;
-	for (int i = y1; i <= y2; i++) {
-		for (int j = x1; j <= x2; j++) {
-			if (std::abs((j * k + c) - i) <= 0.5) {
-				SetPixel(j, i, pd);
-			}
+	int sx = (x1 < x2) ? 1 : -1;
+	int sy = (y1 < y2) ? 1 : -1;
+	int err = dx - dy;
+
+	while (true) {
+
+		// 绘制当前像素
+		SetPixel(x1, y1, pd);
+
+		// 到达终点
+		if (x1 == x2 && y1 == y2) {
+			break;
+		}
+
+		int err2 = 2 * err;
+
+		// 调整 x 方向
+		if (err2 > -dy) {
+			err -= dy;
+			x1 += sx;
+		}
+
+		// 调整 y 方向
+		if (err2 < dx) {
+			err += dx;
+			y1 += sy;
 		}
 	}
 }
-
 void GameBuffer::FillRect(int left, int top, int right, int bottom, PixelData pd) {
 	if (left > right)
 		std::swap(left, right);

@@ -204,10 +204,11 @@ private:
 		PointD loc{};
 		double time = -1e300;
 	};
-	Trail cursortrail[64];
+	constexpr static auto trail_count = 64;
+	Trail cursortrail[trail_count];
 	double lastrec = -1e300;
 	void Render(GameBuffer& buf) override { // 512 , 384 osu pixel
-		const auto rt = 1.8;
+		const auto rt = 2;
 		auto vp = calcViewport(512 * rt, 384, buf.Width - 4, buf.Height - 4);
 		vp.x1 += 2;
 		vp.y1 += 2;
@@ -216,7 +217,7 @@ private:
 		auto fadein = DifficultyFadeIn(preempt);
 		preempt *= 0.8;
 		fadein *= 0.8;
-		auto scale = DifficultyScale(cs) * vp.y2 / 384.0 * 96;
+		auto scale = DifficultyScale(cs) * vp.y2 / 384.0 * 128;
 		auto t = Clock.Elapsed();
 		for (auto& ho : Beatmap) {
 			if (ho.EndTime == 0) {
@@ -281,7 +282,7 @@ private:
 				// buf.DrawCircle(vp.x1 + ho.Location.X / 512.0 * vp.x2, vp.y1 + ho.Location.Y / 384.0 * vp.y2, scale, 1.5, rt + 1, { {}, (Color{ 255, 255, 255, 255 } * alpha), ' ' });
 				// 缩圈
 				auto progress = std::max(1 + (1 - (t - (ho.StartTime - preempt)) / preempt) * 3, 1.0);
-				buf.DrawCircle(vp.x1 + ho.Location.X / 512.0 * vp.x2, vp.y1 + ho.Location.Y / 384.0 * vp.y2, scale * progress, 2, rt, { {}, (Color{ 255, 255, 255, 255 } * alpha), ' ' });
+				buf.DrawCircle(vp.x1 + ho.Location.X / 512.0 * vp.x2, vp.y1 + ho.Location.Y / 384.0 * vp.y2, scale * progress, 0.5, rt, { {}, (Color{ 255, 255, 255, 255 } * alpha), ' ' });
 			}
 		}
 		auto evt = RulesetInputHandler->PollEvent();
@@ -289,17 +290,32 @@ private:
 		if (evt.has_value()) {
 			// Process it...
 		}
-		for (size_t i = 0; i < 64; i++) {
-			buf.SetPixel(cursortrail[i].loc.X, cursortrail[i].loc.Y, { {}, Color{ 160, 85, 153, 255 } * std::clamp(1 - (t - cursortrail[i].time) / 500.0, 0.0, 1.0), ' ' });
+		auto last = cursortrail[0];
+		for (size_t i = 1; i < trail_count; i++) {
+			auto anim = std::clamp(1 - (t - cursortrail[i].time) / 500.0, 0.0, 1.0);
+			if (anim <= 0.01)
+				continue;
+			if ((cursortrail[i].loc - last.loc).SquaredLength() < 4)
+				continue;
+			auto clr = Color{ 160, 255, 255, 255 } * anim;
+			buf.DrawLine(last.loc.X, cursortrail[i].loc.X, last.loc.Y, cursortrail[i].loc.Y, { {}, clr, ' ' });
+			last = cursortrail[i];
 		}
 		if (t > lastrec + 20) {
-			Trail buff[63];
-			std::memcpy(buff, cursortrail, 63 * sizeof(Trail));
-			std::memcpy(cursortrail + 1, buff, 63 * sizeof(Trail));
+			const auto t2 = trail_count - 1;
+			Trail buff[t2];
+			std::memcpy(buff, cursortrail, t2 * sizeof(Trail));
+			std::memcpy(cursortrail + 1, buff, t2 * sizeof(Trail));
 			cursortrail[0] = { { (double)std::get<0>(mpos), (double)std::get<1>(mpos) }, t };
 			lastrec = t;
 		}
-		buf.SetPixel(std::get<0>(mpos), std::get<1>(mpos), { {}, { 255, 85, 153, 255 }, ' ' });
+		if (scale <= 8) {
+			buf.SetPixel(std::get<0>(mpos), std::get<1>(mpos), { {}, { 255, 255, 255, 255 }, ' ' });
+		}
+		else
+		{
+			buf.FillCircle(std::get<0>(mpos), std::get<1>(mpos), scale / 4.0, rt, { {}, { 255, 255, 255, 255 }, ' ' });
+		}
 	}
 	// 通过 Ruleset 继承
 	virtual void Pause() override {
@@ -342,6 +358,8 @@ private:
 
 	// 通过 Ruleset 继承
 	void Update() override {
+		if (!GameStarted)
+			return;
 		if (GameEnded)
 			return;
 		auto time = Clock.Elapsed();

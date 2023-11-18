@@ -98,7 +98,7 @@ public:
 
 
 public:
-	void FillCircle(int x, int y, double sz, double whratio, PixelData pd, int aa = 4);
+	void FillCircle(int x, int y, double sz, double whratio, PixelData pd, int aa = 8);
 	void DrawString(const std::u32string& text, int startX, int startY, Color fg, Color bg);
 	PixelData GetPixel(int x, int y);
 	void FillPolygon(const std::vector<PointI>& points, PixelData pd);
