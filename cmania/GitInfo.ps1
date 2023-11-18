@@ -1,7 +1,7 @@
 # 获取最近的标签
 $latestTag = & git describe --abbrev=0 --tags
 $gitCommitHash = & git rev-parse --short HEAD
-$gitCommitDate = & git log -1 --format=%cd --date=format:"%Y-%m-%d %H:%M:%S"
+$gitCommitDate = & git log -1 --format=%cd --date=format:"%Y-%m-%d"
 
 # 构建宏定义字符串
 $macroDefinition = "#pragma once"
