@@ -23,7 +23,7 @@ class MainMenuScreen : public Screen {
 			return;
 		}
 		buf.DrawString("Cmania " GIT_LATEST_TAG "\n\n按下 Enter 进入选歌界面\n按下 O 键进行设置", 0, 0, {}, {});
-		buf.DrawString("Compiled with MSVC v" QUOTE(_MSC_VER) "(git-" GIT_COMMIT_HASH "@" GIT_COMMIT_DATE ")\nOriginal game by peppy ( https://osu.ppy.sh )\nCopyright 2023 telecomadm1145 ( https://github.com/telecomadm1145/cmania )", 0, buf.Height - 3, {}, {});
+		buf.DrawString("Compiled with MSVC v" QUOTE(_MSC_VER) "(git-" GIT_COMMIT_HASH "@" GIT_COMMIT_DATE ")\nOriginal game by peppy( https://osu.ppy.sh )\nCopyright 2023 telecomadm1145( https://github.com/telecomadm1145/cmania )", 0, buf.Height - 3, {}, {});
 		//buf.DrawString("Loading beatmap cache...", 0, 0, {}, {});
 		//buf.DrawString("正在播放", 0, 0, {}, {});
 	}
