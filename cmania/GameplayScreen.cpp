@@ -139,7 +139,7 @@ public:
 				buf.DrawString("Replaying record of \"" + rec.PlayerName + "\"", 0, 1, { 255, 255, 255, 255 }, {});
 			}
 			{
-				int i = buf.Height / 2 + 9;
+				int i = buf.Height / 2 + (ruleset->GetScoreProcessor()->ResultCounter.size()) * 5 / 4 + 1;
 				for (auto& res : ruleset->GetScoreProcessor()->ResultCounter) {
 					auto name = GetHitResultName(res.first);
 					auto clr = GetHitResultColor(res.first);

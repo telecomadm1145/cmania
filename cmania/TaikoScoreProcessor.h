@@ -28,11 +28,8 @@ public:
 		hit_ranges = GetHitRanges(od);
 	}
 	TaikoScoreProcessor() {
-		ResultCounter[HitResult::Perfect];
 		ResultCounter[HitResult::Great];
 		ResultCounter[HitResult::Good];
-		ResultCounter[HitResult::Ok];
-		ResultCounter[HitResult::Meh];
 		ResultCounter[HitResult::Miss];
 		hit_ranges = GetHitRanges(0);
 	}
