@@ -391,7 +391,7 @@ class SongSelectScreen : public Screen {
 		selected = i;
 		if (i != INT_MAX) {
 			if (selected_entry == &cache && selected_entry_2 == &diff) {
-				parent->Navigate(MakeGameplayScreen(selected_entry_2->path, mods, selected_entry_2->mode ? 1 : 1));
+				parent->Navigate(MakeGameplayScreen(selected_entry_2->path, mods, selected_entry_2->mode));
 				return;
 			}
 			selected_entry = &cache;
