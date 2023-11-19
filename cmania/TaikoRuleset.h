@@ -293,7 +293,7 @@ public:
 				// auto str = std::to_string(err);
 				// DbgOutput(str.c_str());
 				// DbgOutput("\n");
-				if (std::abs(err) > 150) // bgm get too far away from hpet timer
+				if (std::abs(err) > 300) // bgm get too far away from hpet timer
 				{
 					bgm->setCurrent(time / 1000); // seek earlier.
 

@@ -396,7 +396,7 @@ private:
 			}
 			else {
 				auto err = time - bgm->getCurrent() * 1000;
-				if (std::abs(err) > 150) {
+				if (std::abs(err) > 300) {
 					bgm->setCurrent(time / 1000);
 				}
 			}
