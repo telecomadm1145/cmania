@@ -140,7 +140,6 @@ void GameBuffer::Output() {
 void GameBuffer::DrawCircle(int x, int y, double sz, double width, double whratio, PixelData pd) {
 	const auto aa = 4;
 	sz /= 2;
-	whratio -= 0.5;
 	double radius = sz / 2;
 	double sr = Sqr(radius) * aa;
 	int r2 = (int)(sz + 1) * aa;
@@ -163,7 +162,6 @@ void GameBuffer::DrawCircle(int x, int y, double sz, double width, double whrati
 
 void GameBuffer::FillCircle(int x, int y, double sz, double whratio, PixelData pd, int) {
 	sz /= 2;
-	whratio -= 0.5;
 	const int aa = 4;
 	double radius = sz / 2;
 	double sr = Sqr(radius) * aa;

@@ -347,20 +347,29 @@ public:
 	double CalcFlashlight(OsuMods mods, double ratio) {
 		if (ratio > 1 && ratio < 0)
 			return 1;
-		if (HasFlag(mods, OsuMods::Hidden)) {
-			if (ratio < 0.4) {
-				return pow(ratio / 0.4, 2);
+		auto hd = HasFlag(mods, OsuMods::Hidden);
+		auto fo = HasFlag(mods, OsuMods::FadeOut);
+		if (hd && fo)
+		{
+			if (ratio < 0.7) {
+				return pow(ratio / 0.7, 3);
+			}
+			if (ratio > 0.3) {
+				return pow((1 - ratio) / 0.7, 3);
 			}
 		}
-		if (HasFlag(mods, OsuMods::FadeOut)) {
-			if (ratio > 0.6) {
-				return pow((1 - ratio) / 0.4, 2);
+		if (hd) {
+			return pow(ratio, 4);
+		}
+		if (fo) {
+			if (ratio > 0.55) {
+				return pow((1 - ratio) / 0.45, 2);
 			}
 		}
 		return 1;
 	}
 	virtual void Render(GameBuffer& buf) override {
-		const auto rt = 2.0;
+		const auto rt = 1.7;
 		auto e_ms = Clock.Elapsed();
 
 		// now we need to render all objects.
@@ -369,9 +378,8 @@ public:
 
 		auto hitpos = PointI{ (int)(20 * scale) + 5, buf.Height * 3 / 8 };
 		buf.FillRect(0, buf.Height / 4, buf.Width, buf.Height * 2 / 4, { {}, { 255, 40, 40, 40 }, ' ' });
-		buf.DrawLineH(hitpos.X, buf.Height / 4, buf.Height * 2 / 4, { { 255, 255, 255, 255 }, {}, '|' });
 		for (size_t i = 0; i < 4; i++) {
-			buf.FillRect(hitpos.X - ((double)i - 1) * scale * 5 - scale * 10, buf.Height / 4, hitpos.X - (i)*scale * 5 - scale * 10, buf.Height * 2 / 4, { {}, {120,80,80,80}, ' ' });
+			buf.FillRect(hitpos.X - ((double)i - 1) * scale * 5 - scale * 10, buf.Height / 4, hitpos.X - (i)*scale * 5 - scale * 10, buf.Height * 2 / 4, { {}, { 120, 80, 80, 80 }, ' ' });
 			KeyHighlight[i].Update(e_ms, [&](double v) {
 				Color clr{ 220, 20, 212, 255 };
 				if ((i == 1) || (i == 2)) {
@@ -386,25 +394,24 @@ public:
 				continue;
 			auto off = obj.StartTime - e_ms;
 			Color fill = { 220, 20, 212, 255 };
-			unsigned int chr = 'O';
+			Color outter = { 255, 255, 255, 255 };
 			double sz = scale * 6;
 			if (HasFlag(obj.ObjectType, TaikoObject::Kat)) {
 				fill = { 220, 255, 30, 30 };
-				chr = 'X';
 			}
 			if (HasFlag(obj.ObjectType, TaikoObject::SliderTick)) {
 				fill = { 220, 255, 237, 77 };
-				chr = '*';
 			}
 			if (HasFlag(obj.ObjectType, TaikoObject::Large)) {
 				sz = scale * 8;
 			}
-			auto objx = (int)(hitpos.X + off / obj.Velocity / 1000 * (double)buf.Width);
+			auto v = off / obj.Velocity / 1000;
+			auto objx = (int)(hitpos.X + v * (double)buf.Width);
 			if (objx > buf.Width || objx < 0)
 				continue;
+			outter.Alpha = fill.Alpha = (unsigned char)(CalcFlashlight(Mods, 1 - v) * 255) * std::clamp((1 - v) * 3, 0.0, 1.0);
 			buf.FillCircle(objx, hitpos.Y, sz, rt, { {}, fill, ' ' });
-			buf.DrawCircle(objx, hitpos.Y, sz, 0.25, rt, { {}, { 255, 255, 255, 255 }, ' ' });
-			buf.SetPixel(objx, hitpos.Y, { { 255, 0, 0, 0 }, {}, chr });
+			buf.DrawCircle(objx, hitpos.Y, sz, 0.25, rt, { {}, outter, ' ' });
 		}
 
 		LastHitResultAnimator.Update(e_ms, [&](double val) {
@@ -414,7 +421,10 @@ public:
 			auto color = GetHitResultColor(LastHitResult);
 			color.Alpha = (unsigned char)val;
 			buf.DrawString(label, hitpos.X - label.size() / 2, buf.Height / 4 - 2, color, {});
+			color.Alpha = (unsigned char)(pow(val / 255, 3) * 20);
+			buf.FillCircle(hitpos.X, hitpos.Y, scale * 8, rt, { {}, color, ' ' });
 		});
+		buf.DrawLineH(hitpos.X, buf.Height / 4, buf.Height * 2 / 4, { { 255, 255, 255, 255 }, {}, '|' });
 	}
 
 	// Í¨¹ý Ruleset ¼Ì³Ð
@@ -459,21 +469,22 @@ public:
 		for (auto obj : Beatmap) {
 			auto kat = HasFlag(obj.ObjectType, TaikoObject::Kat);
 			auto large = HasFlag(obj.ObjectType, TaikoObject::Large);
-			if (large) {
-				InputEvent ie{};
-				ie.Clock = obj.StartTime;
-				ie.Pressed = true;
-				ie.Action = kat ? (alt ? 1 : 2) : (alt ? 0 : 3);
-				record.Events.push_back(ie);
-				ie.Clock += 50;
-				ie.Pressed = false;
-				record.Events.push_back(ie);
-				alt = !alt;
-			}
 			InputEvent ie{};
 			ie.Clock = obj.StartTime;
 			ie.Pressed = true;
 			ie.Action = kat ? (alt ? 1 : 2) : (alt ? 0 : 3);
+			if (large) {
+				alt = !alt;
+				InputEvent ie2{};
+				ie2.Clock = obj.StartTime;
+				ie2.Pressed = true;
+				ie2.Action = kat ? (alt ? 1 : 2) : (alt ? 0 : 3);
+				record.Events.push_back(ie2);
+				ie2.Clock += 50;
+				ie2.Pressed = false;
+				record.Events.push_back(ie2);
+				alt = !alt;
+			}
 			record.Events.push_back(ie);
 			ie.Clock += 50;
 			ie.Pressed = false;
