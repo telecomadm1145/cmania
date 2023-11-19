@@ -95,19 +95,15 @@ class SettingsScreen : public Screen {
 				game->Settings.Write();
 				return;
 			}
-			if (kea.Key == ConsoleKey::Add || kea.Key == ConsoleKey::Subtract)
-			{
+			if (kea.Key == ConsoleKey::OemPlus || kea.Key == ConsoleKey::OemMinus) {
 				auto movement = 1.0;
-				if (HasFlag(kea.KeyState, ControlKeyState::Capslock))
-				{
+				if (HasFlag(kea.KeyState, ControlKeyState::Capslock)) {
 					movement = 10;
 				}
-				if (HasFlag(kea.KeyState,ControlKeyState::Shift))
-				{
+				if (HasFlag(kea.KeyState, ControlKeyState::Shift)) {
 					movement = 0.1;
 				}
-				if (kea.Key == ConsoleKey::Subtract)
-				{
+				if (kea.Key == ConsoleKey::OemMinus) {
 					movement = -movement;
 				}
 				game->Settings["Offset"].Set(game->Settings["Offset"].Get<double>() + movement);
