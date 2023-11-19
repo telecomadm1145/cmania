@@ -10,6 +10,7 @@ class TaikoScoreProcessor : public ScoreProcessor<TaikoObject> {
 	double reference_rating = 1;
 	double pp_m = 1;
 	double score_m = 1;
+	int bonus_score = 0;
 
 public:
 	virtual void ApplyBeatmap(double ref_rating) override {
@@ -36,6 +37,7 @@ public:
 	// Í¨¹ý ScoreProcessor ¼Ì³Ð
 	virtual HitResult ApplyHit(TaikoObject& to, double err) override {
 		auto large = HasFlag(to.ObjectType, TaikoObject::Large);
+		auto tick = HasFlag(to.ObjectType, TaikoObject::SliderTick);
 		auto is_hold = to.EndTime != 0;
 		if (to.HasHit && !is_hold) {
 			// need more code there.
@@ -53,6 +55,12 @@ public:
 				}
 			});
 		}
+		if (tick) {
+			to.HasHit = true;
+			bonus_score += 300;
+			UpdateScore();
+			return HitResult::None;
+		}
 		if (res > HitResult::None) {
 			if (!is_hold && to.RemainsHits == 0 && large)
 			{
@@ -62,33 +70,32 @@ public:
 			{
 				to.HasHit = true;
 			}
-			Combo++;
 
+			Combo++;
 			if (res == HitResult::Miss)
 				Combo = 0;
-			MaxCombo = std::max(Combo, MaxCombo);
-
-			RawAccuracy += std::min(GetBaseScore(res), GetBaseScore(HitResult::Great));
 			AppliedHit++;
-
-			Accuracy = (double)RawAccuracy / AppliedHit / GetBaseScore(HitResult::Great);
-
-			Rating = reference_rating * std::pow(((double)MaxCombo / BeatmapMaxCombo), 0.3) * pow(Accuracy, 1.3) * pow(pp_m, 1.2) * pow(0.95, ResultCounter[HitResult::Miss]);
-
+			ResultCounter[res]++;
 			RawScore += GetBaseScore(res);
-
+			RawAccuracy += std::min(GetBaseScore(res), GetBaseScore(HitResult::Great));
 			if (res != HitResult::Miss) {
 				RawError += err;
 				Errors.push_back(err);
-				Mean = (double)RawError / Errors.size();
-				Error = variance(Mean, Errors);
 			}
-
-			Score = (((double)RawScore / BeatmapMaxCombo / GetBaseScore(HitResult::Perfect)) * 0.7 + ((double)MaxCombo / BeatmapMaxCombo) * 0.3) * score_m;
-
-			ResultCounter[res]++;
+			UpdateScore();
 		}
 		return res;
+	}
+	void UpdateScore() {
+
+		MaxCombo = std::max(Combo, MaxCombo);
+
+		Accuracy = (double)RawAccuracy / AppliedHit / GetBaseScore(HitResult::Great);
+
+		Rating = reference_rating * std::pow(((double)MaxCombo / BeatmapMaxCombo), 0.3) * pow(Accuracy, 1.3) * pow(pp_m, 1.2) * pow(0.95, ResultCounter[HitResult::Miss]);
+		Mean = (double)RawError / Errors.size();
+		Error = variance(Mean, Errors);
+		Score = (((double)RawScore / BeatmapMaxCombo / GetBaseScore(HitResult::Perfect)) * 0.7 + ((double)MaxCombo / BeatmapMaxCombo) * 0.3) * score_m + bonus_score / 1000000.0;
 	}
 	virtual double GetHealthIncreaseFor(HitResult res) override {
 		return 0.0;
