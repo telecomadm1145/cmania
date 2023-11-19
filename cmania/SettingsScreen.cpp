@@ -95,7 +95,7 @@ class SettingsScreen : public Screen {
 				game->Settings.Write();
 				return;
 			}
-			if (kea.Key == ConsoleKey::Add || kea.Key == ConsoleKey::Subtract)
+			if (kea.UnicodeChar == '+' || kea.UnicodeChar == '-')
 			{
 				auto movement = 1.0;
 				if (HasFlag(kea.KeyState, ControlKeyState::Capslock))
@@ -106,7 +106,7 @@ class SettingsScreen : public Screen {
 				{
 					movement = 0.1;
 				}
-				if (kea.Key == ConsoleKey::Subtract)
+				if (kea.UnicodeChar == '-')
 				{
 					movement = -movement;
 				}
