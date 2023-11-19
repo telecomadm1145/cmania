@@ -34,9 +34,12 @@ public:
 		hit_ranges = GetHitRanges(0);
 	}
 	// Í¨¹ý ScoreProcessor ¼Ì³Ð
-	virtual HitResult ApplyHit(TaikoObject& mo, double err) override {
-		auto is_hold = mo.EndTime != 0;
-		if (mo.HasHit && !is_hold) {
+	virtual HitResult ApplyHit(TaikoObject& to, double err) override {
+		auto large = HasFlag(to.ObjectType, TaikoObject::Large);
+		auto is_hold = to.EndTime != 0;
+		if (to.HasHit && !is_hold) {
+			// need more code there.
+
 			return HitResult::None;
 		}
 		HitResult res = HitResult::None;
@@ -51,7 +54,14 @@ public:
 			});
 		}
 		if (res > HitResult::None) {
-			mo.HasHit = true;
+			if (!is_hold && to.RemainsHits == 0 && large)
+			{
+				to.RemainsHits--;
+			}
+			else
+			{
+				to.HasHit = true;
+			}
 			Combo++;
 
 			if (res == HitResult::Miss)

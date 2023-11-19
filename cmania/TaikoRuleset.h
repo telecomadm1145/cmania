@@ -14,7 +14,9 @@
 #include "OsuSample.h"
 
 class TaikoRuleset : public Ruleset<TaikoObject> {
-	std::vector<Animator<PowerEasingFunction<1.5>>> KeyHighlight;
+	Animator<PowerEasingFunction<1.5>> KeyHighlight[4]{
+		{ 180, 0, 150 }, { 180, 0, 150 }, { 180, 0, 150 }, { 180, 0, 150 }
+	};
 	Animator<PowerEasingFunction<4.0>> LastHitResultAnimator{ 255, 0, 400 };
 	HitResult LastHitResult = HitResult::None;
 	AudioStream bgm;
@@ -35,10 +37,12 @@ class TaikoRuleset : public Ruleset<TaikoObject> {
 	double last_rec = 0;
 	double miss_offset = 200;
 
+	AudioSample KatSample;
+	AudioSample DonSample;
+
 public:
 	TaikoRuleset() {
 		RulesetScoreProcessor = new TaikoScoreProcessor();
-		KeyHighlight.resize(18, { 180, 0, 150 });
 	}
 	~TaikoRuleset() {
 		delete RulesetScoreProcessor;
@@ -94,9 +98,6 @@ public:
 		// 存储需要加载的采样
 		std::set<std::string> Samples;
 
-		Samples > AddRangeSet(orig_bmp.HitObjects > Select([](const auto& ho) -> std::string { return ho.CustomSampleFilename; }) > Where([](const auto& str) -> bool { return !str.empty(); }) > Select([&](const auto& str) -> auto { return (parent / str).string(); })) > AddRangeSet(
-																																																																				  orig_bmp.StoryboardSamples > Select([&](const auto& item) -> auto { return (parent / item.path).string(); }));
-
 		auto SampleIndex = BuildSampleIndex(parent, 1);		   // 构建谱面采样索引(sampleset==1默认)
 		auto SkinSampleIndex = BuildSampleIndex(skin_path, 0); // 构建皮肤采样索引(sampleset==0)
 
@@ -118,79 +119,66 @@ public:
 			}
 		});
 
+		DonSample = SampleCaches[GetSampleLayered(SampleIndex, SkinSampleIndex, SampleBank::Drum, HitSoundType::Normal, 0)[0].string()];
+		KatSample = SampleCaches[GetSampleLayered(SampleIndex, SkinSampleIndex, SampleBank::Drum, HitSoundType::Clap, 0)[0].string()];
 		// 加载物件
-		Beatmap > AddRange(Select(
-					  orig_bmp.HitObjects, [&](const OsuBeatmap::HitObject& obj) -> auto {
-						  TaikoObject to{};
-						  first_obj = std::min(first_obj, obj.StartTime);
-						  end_obj = std::max(end_obj, obj.StartTime);
-						  to.StartTime = obj.StartTime;
-						  auto tp = GetTimingPointTiming(orig_bmp, obj.StartTime);
-						  auto bpm = tp.BPM();
-						  auto blen = 60.0 / bpm;
-						  auto vec = GetTimingPointNonTiming(orig_bmp, obj.StartTime).SpeedMultiplier();
-						  auto odd_s = std::abs(orig_bmp.SliderTickRate - 3) < 0.01;
-						  bool isKat = HasFlag(obj.SoundType, HitSoundType::Whistle) || HasFlag(obj.SoundType, HitSoundType::Clap);
-						  bool isLarge = HasFlag(obj.SoundType, HitSoundType::Finish);
-						  auto scoringdist = BASE_SCORING_DISTANCE * orig_bmp.SliderMultiplier * vec;
-						  auto velocity = scoringdist / tp.BeatLength;
-						  to.Velocity = vec;
-						  if (HasFlag(obj.Type, HitObjectType::Slider)) {
-							  // 我们需要计算 Slider 需要击打几下
-							  /*
-							  摘要自wiki:
+		for (auto& obj : orig_bmp.HitObjects) {
+			TaikoObject to{};
+			first_obj = std::min(first_obj, obj.StartTime);
+			end_obj = std::max(end_obj, obj.StartTime);
+			to.StartTime = obj.StartTime;
+			auto tp = GetTimingPointTiming(orig_bmp, obj.StartTime);
+			auto bpm = tp.BPM();
+			auto blen = 60.0 / bpm;
+			auto vec = GetTimingPointNonTiming(orig_bmp, obj.StartTime).SpeedMultiplier();
+			auto odd_s = std::abs(orig_bmp.SliderTickRate - 3) < 0.01;
+			bool isKat = HasFlag(obj.SoundType, HitSoundType::Whistle) || HasFlag(obj.SoundType, HitSoundType::Clap);
+			bool isLarge = HasFlag(obj.SoundType, HitSoundType::Finish);
+			auto scoringdist = BASE_SCORING_DISTANCE * orig_bmp.SliderMultiplier * vec;
+			auto velocity = scoringdist / tp.BeatLength;
+			to.Velocity = vec;
+			if (HasFlag(obj.Type, HitObjectType::Slider)) {
+				// 我们需要计算 Slider 需要击打几下
+				/*
+				摘要自wiki:
 
-							  对于BPM 在 125 及以下的谱面，会给出 1/8 而非 1/4 黄条。
+				对于BPM 在 125 及以下的谱面，会给出 1/8 而非 1/4 黄条。
 
-							  请注意，音乐中不常使用 1/8 节奏。不建议在 1/8 节奏下放置滑条。
+				请注意，音乐中不常使用 1/8 节奏。不建议在 1/8 节奏下放置滑条。
 
-							  也要注意，如果滑条点倍率为 3，则会给出 1/6 黄条。
-							  */
-							  auto snap = odd_s ? 6 : (bpm <= 125.0 ? 8 : 4);
-							  blen /= snap;
-							  auto duration = obj.Length / velocity;
-							  auto hits = (int)(duration / blen);
-							  to.TotalHits = to.RemainsHits = hits;
-							  to.TickTime = blen;
-							  to.ObjectType = ModifyFlag(to.ObjectType, isKat ? TaikoObject::Kat : TaikoObject::Don);
-							  if (isLarge)
-								  to.ObjectType = ModifyFlag(to.ObjectType, TaikoObject::Large);
-							  to.EndTime = to.StartTime + duration;
-						  }
-						  else if (HasFlag(obj.Type, HitObjectType::Spinner)) {
-							  auto snap = odd_s ? 6 : (bpm <= 125.0 ? 8 : 4);
-							  blen /= snap;
-							  auto duration = obj.Length / velocity;
-							  auto hits = (int)(duration / blen);
-							  to.TotalHits = to.RemainsHits = hits;
-							  to.TickTime = blen;
-							  to.ObjectType = TaikoObject::Spinner;
-							  to.EndTime = to.StartTime + duration;
-						  }
-						  else if (HasFlag(obj.Type, HitObjectType::Circle)) {
-							  to.ObjectType = ModifyFlag(to.ObjectType, isKat ? TaikoObject::Kat : TaikoObject::Don);
-							  if (isLarge)
-								  to.ObjectType = ModifyFlag(to.ObjectType, TaikoObject::Large);
-						  }
-
-
-						  //加载采样
-						  
-						  //  将 fspath 转换为 AudioSample
-						  auto sample_selector = [&](const std::filesystem::path& sample) -> auto {
-							  return SampleCaches[sample.string()];
-						  };
-
-						  //  给物件加载 Samples
-						  to.samples > AddRange(GetSampleLayered(SampleIndex, SkinSampleIndex, tp.SampleBank, obj.SoundType, tp.SampleSet) > Select(sample_selector));
-
-						  if (!obj.CustomSampleFilename.empty()) {
-							  to.samples.push_back(SampleCaches[(parent / obj.CustomSampleFilename).string()]);
-						  }
-
-
-						  return to;
-					  }));
+				也要注意，如果滑条点倍率为 3，则会给出 1/6 黄条。
+				*/
+				auto snap = odd_s ? 6 : (bpm <= 125.0 ? 8 : 4);
+				blen /= snap;
+				auto duration = obj.Length / velocity;
+				for (auto i = obj.StartTime + blen; i < duration; i += blen) {
+					TaikoObject to{};
+					to.StartTime = i;
+					to.ObjectType = TaikoObject::SliderTick;
+					to.Velocity = vec;
+					Beatmap.push_back(to);
+				}
+				continue;
+			}
+			else if (HasFlag(obj.Type, HitObjectType::Spinner)) {
+				auto snap = odd_s ? 6 : (bpm <= 125.0 ? 8 : 4);
+				blen /= snap;
+				auto duration = obj.Length / velocity;
+				auto hits = (int)(duration / blen);
+				to.TotalHits = to.RemainsHits = hits;
+				to.ObjectType = TaikoObject::Spinner;
+				to.EndTime = to.StartTime + duration;
+			}
+			else if (HasFlag(obj.Type, HitObjectType::Circle)) {
+				RulesetScoreProcessor->BeatmapMaxCombo++;
+				to.ObjectType = ModifyFlag(to.ObjectType, isKat ? TaikoObject::Kat : TaikoObject::Don);
+				if (isLarge) {
+					RulesetScoreProcessor->BeatmapMaxCombo++;
+					to.ObjectType = ModifyFlag(to.ObjectType, TaikoObject::Large);
+				}
+			}
+			Beatmap.push_back(to);
+		}
 
 		// 加载bgm
 		{
@@ -226,28 +214,34 @@ public:
 		GameStarted = true;
 	}
 	void ProcessAction(int action, bool pressed, double clock) {
+		auto hit_kat = (action == 1) || (action == 2) || (action == 17);
 		if (pressed) {
-			auto first_hit = Beatmap > Where([&](TaikoObject& obj) -> bool 
-				{ 
-					return clock >= obj.StartTime && clock <= obj.StartTime + 100; 
-				}
-			) > FirstOrDefault();
+			auto rx = HasFlag(Mods, OsuMods::Relax);
+			auto first_hit = Beatmap > Where([&](TaikoObject& obj) -> bool {
+				return !obj.HasHit && (obj.StartTime - clock < miss_offset);
+			}) > FirstOrDefault();
 			if (first_hit != 0) {
-				bool isTrigger = false;
-				if ((action == 0 || action == 3) && first_hit->ObjectType == TaikoObject::Kat) {
-					isTrigger = true;
+				auto kat = HasFlag(first_hit->ObjectType, TaikoObject::Kat);
+				auto large = HasFlag(first_hit->ObjectType, TaikoObject::Large);
+				// miss if a wrong action has been pressed
+				if (kat != hit_kat && !rx) {
+					RulesetScoreProcessor->ApplyHit(*first_hit, 1.0 / 0.0 * 0.0);
+					LastHitResult = HitResult::Miss;
+					LastHitResultAnimator.Start(Clock.Elapsed());
+					return;
 				}
-				else if ((action == 1 || action == 2) && first_hit->ObjectType == TaikoObject::Don) {
-					isTrigger = true;
+				auto result = RulesetScoreProcessor->ApplyHit(*first_hit, clock - first_hit->StartTime);
+				if (result != HitResult::None) {
+					LastHitResult = result;
+					LastHitResultAnimator.Start(Clock.Elapsed());
+					hit_kat = kat;
 				}
-				if (isTrigger) {
-					auto result = RulesetScoreProcessor->ApplyHit(*first_hit, clock - first_hit->StartTime);
-					first_hit->PlaySample();
-					if (result != HitResult::None) {
-						LastHitResult = result;
-						LastHitResultAnimator.Start(Clock.Elapsed());
-					}
-				}
+			}
+			if (hit_kat) {
+				KatSample->generateStream()->play();
+			}
+			else {
+				DonSample->generateStream()->play();
 			}
 		}
 	}
@@ -264,6 +258,14 @@ public:
 
 		if (time > first_obj) {
 			RulesetRecord.RatingGraph[(time - first_obj) / 100] = RulesetScoreProcessor->Rating;
+		}
+
+		if (!wt_mode) {
+			for (int i = 0; i < 4; i++) {
+				if (RulesetInputHandler->GetKeyStatus(i)) {
+					KeyHighlight[i].Start(time);
+				}
+			}
 		}
 
 		if (time < resume_time || !Clock.Running())
@@ -299,17 +301,45 @@ public:
 				}
 			}
 		}
+		Beatmap > ForEach([&](TaikoObject& obj) {
+			// if (obj.EndTime != 0 && !(obj.HasHold || obj.HoldBroken) && !wt_mode) {
+			//	if (time > obj.StartTime + miss_offset) {
+			//		if (RulesetInputHandler->GetKeyStatus(obj.Column)) {
+			//			obj.LastHoldOff = time;
+			//		}
+			//		if (time > obj.EndTime + miss_offset || (obj.LastHoldOff != -1 && time > obj.LastHoldOff + miss_offset)) {
+			//			RulesetScoreProcessor->ApplyHit(obj, 1.0 / 0 * 0);
+			//			LastHitResult = HitResult::Miss;
+			//			LastHitResultAnimator.Start(Clock.Elapsed());
+			//			return;
+			//		}
+			//	}
+			// }
+			auto large = HasFlag(obj.ObjectType, TaikoObject::Large);
+			if (large) {
+				if (obj.RemainsHits == -1 && time > obj.StartTime + miss_offset) {
+					obj.HasHit = true;
+				}
+			}
+			if (!obj.HasHit) {
+				if (time > obj.StartTime + miss_offset) {
+					RulesetScoreProcessor->ApplyHit(obj, 1.0 / 0 * 0);
+					LastHitResult = HitResult::Miss;
+					LastHitResultAnimator.Start(Clock.Elapsed());
+				}
+			}
+		});
 		while (true) {
 			auto evt = RulesetInputHandler->PollEvent();
 			if (!evt.has_value())
 				break;
 			auto& e = *evt;
 			RulesetRecord.Events.push_back(e);
-			
+
 			if (wt_mode || e.Pressed) {
 				ProcessAction(e.Action, e.Pressed, e.Clock);
 			}
-			if (wt_mode && e.Pressed) {
+			if (wt_mode && e.Pressed && e.Action < 4) {
 				KeyHighlight[e.Action].Start(time);
 			}
 		}
@@ -339,27 +369,52 @@ public:
 
 		auto hitpos = PointI{ (int)(20 * scale) + 5, buf.Height * 3 / 8 };
 		buf.FillRect(0, buf.Height / 4, buf.Width, buf.Height * 2 / 4, { {}, { 255, 40, 40, 40 }, ' ' });
-		buf.FillRect(hitpos.X - 2, buf.Height / 4,hitpos.X + 2, buf.Height * 2 / 4, { {}, { 255, 80, 80, 80 }, ' ' });
-		for (auto& obj : Beatmap)
-		{
+		buf.DrawLineH(hitpos.X, buf.Height / 4, buf.Height * 2 / 4, { { 255, 255, 255, 255 }, {}, '|' });
+		for (size_t i = 0; i < 4; i++) {
+			buf.FillRect(hitpos.X - ((double)i - 1) * scale * 5 - scale * 10, buf.Height / 4, hitpos.X - (i)*scale * 5 - scale * 10, buf.Height * 2 / 4, { {}, {120,80,80,80}, ' ' });
+			KeyHighlight[i].Update(e_ms, [&](double v) {
+				Color clr{ 220, 20, 212, 255 };
+				if ((i == 1) || (i == 2)) {
+					clr = { 220, 255, 30, 30 };
+				}
+				clr.Alpha = v;
+				buf.FillRect(hitpos.X - ((double)i - 1) * scale * 5 - scale * 10, buf.Height / 4, hitpos.X - (i)*scale * 5 - scale * 10, buf.Height * 2 / 4, { {}, clr, ' ' });
+			});
+		}
+		for (auto& obj : Beatmap) {
+			if (obj.HasHit)
+				continue;
 			auto off = obj.StartTime - e_ms;
-			Color fill = { 220, 255, 30, 30 };
+			Color fill = { 220, 20, 212, 255 };
 			unsigned int chr = 'O';
 			double sz = scale * 6;
-			if (HasFlag(obj.ObjectType, TaikoObject::Kat))
-			{
-				fill = { 220, 20, 212, 255 };
+			if (HasFlag(obj.ObjectType, TaikoObject::Kat)) {
+				fill = { 220, 255, 30, 30 };
 				chr = 'X';
 			}
-			if (HasFlag(obj.ObjectType, TaikoObject::Large))
-			{
+			if (HasFlag(obj.ObjectType, TaikoObject::SliderTick)) {
+				fill = { 220, 255, 237, 77 };
+				chr = '*';
+			}
+			if (HasFlag(obj.ObjectType, TaikoObject::Large)) {
 				sz = scale * 8;
 			}
 			auto objx = (int)(hitpos.X + off / obj.Velocity / 1000 * (double)buf.Width);
+			if (objx > buf.Width || objx < 0)
+				continue;
 			buf.FillCircle(objx, hitpos.Y, sz, rt, { {}, fill, ' ' });
 			buf.DrawCircle(objx, hitpos.Y, sz, 0.25, rt, { {}, { 255, 255, 255, 255 }, ' ' });
-			buf.SetPixel(objx, hitpos.Y, { {255,0,0,0}, {},chr });
+			buf.SetPixel(objx, hitpos.Y, { { 255, 0, 0, 0 }, {}, chr });
 		}
+
+		LastHitResultAnimator.Update(e_ms, [&](double val) {
+			if (LastHitResult == HitResult::None)
+				return;
+			auto label = GetHitResultName(LastHitResult);
+			auto color = GetHitResultColor(LastHitResult);
+			color.Alpha = (unsigned char)val;
+			buf.DrawString(label, hitpos.X - label.size() / 2, buf.Height / 4 - 2, color, {});
+		});
 	}
 
 	// 通过 Ruleset 继承
@@ -400,6 +455,31 @@ public:
 		Record record{};
 		record.PlayerName = "Autoplay";
 		record.Events.clear();
+		bool alt = false;
+		for (auto obj : Beatmap) {
+			auto kat = HasFlag(obj.ObjectType, TaikoObject::Kat);
+			auto large = HasFlag(obj.ObjectType, TaikoObject::Large);
+			if (large) {
+				InputEvent ie{};
+				ie.Clock = obj.StartTime;
+				ie.Pressed = true;
+				ie.Action = kat ? (alt ? 1 : 2) : (alt ? 0 : 3);
+				record.Events.push_back(ie);
+				ie.Clock += 50;
+				ie.Pressed = false;
+				record.Events.push_back(ie);
+				alt = !alt;
+			}
+			InputEvent ie{};
+			ie.Clock = obj.StartTime;
+			ie.Pressed = true;
+			ie.Action = kat ? (alt ? 1 : 2) : (alt ? 0 : 3);
+			record.Events.push_back(ie);
+			ie.Clock += 50;
+			ie.Pressed = false;
+			record.Events.push_back(ie);
+			alt = !alt;
+		}
 		return record;
 	}
 };

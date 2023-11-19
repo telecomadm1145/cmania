@@ -55,6 +55,8 @@ public:
 		rec_input_handler = std::unique_ptr<RecordInputHandler>(new RecordInputHandler(rec));
 		if (mode == 0)
 			ruleset = std::unique_ptr<RulesetBase>((RulesetBase*)new StdRuleset());
+		else if (mode == 1)
+			ruleset = std::unique_ptr<RulesetBase>((RulesetBase*)new TaikoRuleset());
 		else if (mode == 3)
 			ruleset = std::unique_ptr<RulesetBase>((RulesetBase*)new ManiaRuleset());
 		else
