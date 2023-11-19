@@ -129,7 +129,7 @@ public:
 			to.StartTime = obj.StartTime;
 			auto tp = GetTimingPointTiming(orig_bmp, obj.StartTime);
 			auto bpm = tp.BPM();
-			auto blen = 60.0 / bpm;
+			auto blen = 1000 / (bpm / 60.0);
 			auto vec = GetTimingPointNonTiming(orig_bmp, obj.StartTime).SpeedMultiplier();
 			auto odd_s = std::abs(orig_bmp.SliderTickRate - 3) < 0.01;
 			bool isKat = HasFlag(obj.SoundType, HitSoundType::Whistle) || HasFlag(obj.SoundType, HitSoundType::Clap);
@@ -151,14 +151,15 @@ public:
 				auto snap = odd_s ? 6 : (bpm <= 125.0 ? 8 : 4);
 				blen /= snap;
 				auto duration = obj.Length / velocity;
-				for (auto i = obj.StartTime + blen; i < duration; i += blen) {
+				for (auto i = obj.StartTime + blen; i < obj.StartTime + duration; i += blen) {
 					TaikoObject to{};
 					to.StartTime = i;
 					to.ObjectType = TaikoObject::SliderTick;
 					to.Velocity = vec;
 					Beatmap.push_back(to);
 				}
-				continue;
+				to.EndTime = to.StartTime + duration;
+				to.Velocity = vec;
 			}
 			else if (HasFlag(obj.Type, HitObjectType::Spinner)) {
 				auto snap = odd_s ? 6 : (bpm <= 125.0 ? 8 : 4);
@@ -218,9 +219,11 @@ public:
 		if (pressed) {
 			auto rx = HasFlag(Mods, OsuMods::Relax);
 			auto first_hit = Beatmap > Where([&](TaikoObject& obj) -> bool {
-				return !obj.HasHit && (obj.StartTime - clock < miss_offset);
+				return !obj.HasHit && (obj.StartTime - clock < miss_offset) && !HasFlag(obj.ObjectType, TaikoObject::Barline);
 			}) > FirstOrDefault();
 			if (first_hit != 0) {
+				if (HasFlag(first_hit->ObjectType, TaikoObject::Slider))
+					return;
 				auto kat = HasFlag(first_hit->ObjectType, TaikoObject::Kat);
 				auto large = HasFlag(first_hit->ObjectType, TaikoObject::Large);
 				// miss if a wrong action has been pressed
@@ -315,13 +318,33 @@ public:
 			//		}
 			//	}
 			// }
+			auto tick = HasFlag(obj.ObjectType, TaikoObject::SliderTick);
+			if (tick) {
+				if (time > obj.StartTime + miss_offset && !obj.HasHit) {
+					obj.HasHit = true;
+				}
+			}
+			auto spin = HasFlag(obj.ObjectType, TaikoObject::Spinner);
+			if (spin) {
+				if (obj.RemainsHits <= 0) {
+					obj.HasHit = true;
+				}
+			}
 			auto large = HasFlag(obj.ObjectType, TaikoObject::Large);
 			if (large) {
 				if (obj.RemainsHits == -1 && time > obj.StartTime + miss_offset) {
 					obj.HasHit = true;
 				}
 			}
-			if (!obj.HasHit) {
+			if (HasFlag(obj.ObjectType, TaikoObject::Slider))
+			{
+				if (time > obj.EndTime)
+				{
+					obj.HasHit = true;
+				}
+				return;
+			}
+			if (!obj.HasHit && !HasFlag(obj.ObjectType, TaikoObject::Slider) && !HasFlag(obj.ObjectType, TaikoObject::Barline)) {
 				if (time > obj.StartTime + miss_offset) {
 					RulesetScoreProcessor->ApplyHit(obj, 1.0 / 0 * 0);
 					LastHitResult = HitResult::Miss;
@@ -349,8 +372,7 @@ public:
 			return 1;
 		auto hd = HasFlag(mods, OsuMods::Hidden);
 		auto fo = HasFlag(mods, OsuMods::FadeOut);
-		if (hd && fo)
-		{
+		if (hd && fo) {
 			if (ratio < 0.7) {
 				return pow(ratio / 0.7, 3);
 			}
@@ -380,7 +402,7 @@ public:
 		buf.FillRect(0, buf.Height / 4, buf.Width, buf.Height * 2 / 4, { {}, { 255, 40, 40, 40 }, ' ' });
 		for (size_t i = 0; i < 4; i++) {
 			buf.FillRect(hitpos.X - ((double)i - 1) * scale * 5 - scale * 10, buf.Height / 4, hitpos.X - (i)*scale * 5 - scale * 10, buf.Height * 2 / 4, { {}, { 120, 80, 80, 80 }, ' ' });
-			KeyHighlight[i].Update(e_ms, [&](double v) {
+			KeyHighlight[3-i].Update(e_ms, [&](double v) {
 				Color clr{ 220, 20, 212, 255 };
 				if ((i == 1) || (i == 2)) {
 					clr = { 220, 255, 30, 30 };
@@ -401,6 +423,10 @@ public:
 			}
 			if (HasFlag(obj.ObjectType, TaikoObject::SliderTick)) {
 				fill = { 220, 255, 237, 77 };
+				sz = scale * 3;
+			}
+			if (HasFlag(obj.ObjectType, TaikoObject::Slider)) {
+				fill = { 220, 255, 237, 77 };
 			}
 			if (HasFlag(obj.ObjectType, TaikoObject::Large)) {
 				sz = scale * 8;
@@ -411,7 +437,8 @@ public:
 				continue;
 			outter.Alpha = fill.Alpha = (unsigned char)(CalcFlashlight(Mods, 1 - v) * 255) * std::clamp((1 - v) * 3, 0.0, 1.0);
 			buf.FillCircle(objx, hitpos.Y, sz, rt, { {}, fill, ' ' });
-			buf.DrawCircle(objx, hitpos.Y, sz, 0.25, rt, { {}, outter, ' ' });
+			if (!HasFlag(obj.ObjectType, TaikoObject::SliderTick) && !HasFlag(obj.ObjectType,TaikoObject::Slider))
+				buf.DrawCircle(objx, hitpos.Y, sz, 0.25, rt, { {}, outter, ' ' });
 		}
 
 		LastHitResultAnimator.Update(e_ms, [&](double val) {

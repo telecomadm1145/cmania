@@ -9,6 +9,7 @@ struct TaikoObject : public HitObject {
 		Spinner = 4,// 2λ
 		Barline = 8,
 		SliderTick = 16,
+		Slider = 32,
 	} ObjectType;
 	double EndTime;
 	int RemainsHits;
