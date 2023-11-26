@@ -287,6 +287,7 @@
   <ItemGroup>
     <ClCompile Include="BassAudioManager.cpp" />
     <ClCompile Include="BeatmapManagementService.cpp" />
+    <ClCompile Include="Binary.cpp" />
     <ClCompile Include="BufferController.cpp" />
     <ClCompile Include="cmania.cpp" />
     <ClCompile Include="ConsoleText.cpp" />
@@ -302,6 +303,7 @@
     <ClCompile Include="LogOverlay.cpp" />
     <ClCompile Include="MainMenuScreen.cpp" />
     <ClCompile Include="OsuBeatmap.cpp" />
+    <ClCompile Include="Profile.cpp" />
     <ClCompile Include="ResultScreen.cpp" />
     <ClCompile Include="SettingsScreen.cpp" />
     <ClCompile Include="SongSelectScreen.cpp" />
@@ -355,8 +357,8 @@
     <ClInclude Include="RulesetRenderer.h" />
     <ClInclude Include="ScoreProcessor.h" />
     <ClInclude Include="ScreenController.h" />
+    <ClInclude Include="Profile.h" />
     <ClInclude Include="SettingsScreen.h" />
-    <ClInclude Include="SettingStorage.h" />
     <ClInclude Include="SongSelectScreen.h" />
     <ClInclude Include="SpeedSettingScreen.h" />
     <ClInclude Include="StbImage.h" />
@@ -373,6 +375,7 @@
     <ClInclude Include="TickSource.h" />
     <ClInclude Include="Unicode.h" />
     <ClInclude Include="Win32ConsoleComponent.h" />
+    <ClInclude Include="Binary.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".clang-format" />

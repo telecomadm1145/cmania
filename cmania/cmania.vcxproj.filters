@@ -71,6 +71,10 @@
     <ClCompile Include="LogOverlay.cpp">
       <Filter>Core</Filter>
     </ClCompile>
+    <ClCompile Include="Binary.cpp">
+      <Filter>Core\Data</Filter>
+    </ClCompile>
+    <ClCompile Include="Profile.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ConsoleInput.h">
@@ -155,9 +159,6 @@
       <Filter>Core</Filter>
     </ClInclude>
     <ClInclude Include="Stopwatch.h">
-      <Filter>Core</Filter>
-    </ClInclude>
-    <ClInclude Include="SettingStorage.h">
       <Filter>Core</Filter>
     </ClInclude>
     <ClInclude Include="Unicode.h">
@@ -259,6 +260,12 @@
     <ClInclude Include="LogOverlay.h">
       <Filter>Core</Filter>
     </ClInclude>
+    <ClInclude Include="Binary.h">
+      <Filter>Core\Data</Filter>
+    </ClInclude>
+    <ClInclude Include="Profile.h">
+      <Filter>Core\Data</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Core">
@@ -296,6 +303,9 @@
     </Filter>
     <Filter Include="Game\Gameplay\Taiko">
       <UniqueIdentifier>{74dd2846-d58a-435c-8923-ee2622fcfe10}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Data">
+      <UniqueIdentifier>{09cfff00-161f-46c4-b192-ad37aea6b106}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -356,7 +366,6 @@
     <None Include="Samples\Triangles\soft-sliderslide.wav" />
     <None Include="Samples\Triangles\soft-slidertick.wav" />
     <None Include="Samples\Triangles\soft-sliderwhistle.wav" />
-    <None Include="Samples\*\*" />
     <None Include="Samples\*\*" />
     <None Include="Samples\*\*" />
     <None Include="Samples\*\*" />
