@@ -47,9 +47,6 @@
     <ClCompile Include="GameplayScreen.cpp">
       <Filter>Game</Filter>
     </ClCompile>
-    <ClCompile Include="DifficultyCalculator.cpp">
-      <Filter>Game\Beatmap</Filter>
-    </ClCompile>
     <ClCompile Include="OsuBeatmap.cpp">
       <Filter>Game\Beatmap</Filter>
     </ClCompile>
@@ -70,6 +67,9 @@
     </ClCompile>
     <ClCompile Include="LogOverlay.cpp">
       <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="DifficultyCalculator.cpp">
+      <Filter>Game\Gameplay\Mania</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -104,9 +104,6 @@
       <Filter>Core\System</Filter>
     </ClInclude>
     <ClInclude Include="BeatmapManagementService.h">
-      <Filter>Game\Beatmap</Filter>
-    </ClInclude>
-    <ClInclude Include="DifficultyCalculator.h">
       <Filter>Game\Beatmap</Filter>
     </ClInclude>
     <ClInclude Include="KeepAwake.h">
@@ -259,6 +256,12 @@
     <ClInclude Include="LogOverlay.h">
       <Filter>Core</Filter>
     </ClInclude>
+    <ClInclude Include="DifficultyCalculator.h">
+      <Filter>Game\Gameplay\Mania</Filter>
+    </ClInclude>
+    <ClInclude Include="TaikoDifficultyCalculator.h">
+      <Filter>Game\Gameplay\Taiko</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Core">
@@ -356,7 +359,6 @@
     <None Include="Samples\Triangles\soft-sliderslide.wav" />
     <None Include="Samples\Triangles\soft-slidertick.wav" />
     <None Include="Samples\Triangles\soft-sliderwhistle.wav" />
-    <None Include="Samples\*\*" />
     <None Include="Samples\*\*" />
     <None Include="Samples\*\*" />
     <None Include="Samples\*\*" />

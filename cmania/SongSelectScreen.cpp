@@ -34,8 +34,7 @@ class SongSelectScreen : public Screen {
 	OsuMods mods;
 	using TransOut = Transition<
 		EaseOut<CubicEasingFunction>,
-		DurationRangeLimiter<800.0,3500.0,LinearEasingDurationCalculator<1>>
-	>;
+		DurationRangeLimiter<800.0, 3500.0, LinearEasingDurationCalculator<1>>>;
 	Color difficultyToRGBColor(float difficulty) {
 		std::vector<std::tuple<double, double, Color>> ranges = {
 			{ 0, 1, { 0, 204, 204, 204 } },								   // 灰
@@ -154,7 +153,7 @@ class SongSelectScreen : public Screen {
 				auto seconds = int(entry2->length / 1000) % 60;
 				auto npstext = std::to_string(entry2->nps);
 				npstext.resize(npstext.find('.') + 2);
-				auto info = GetRulesetName(entry2->mode) + "  " + std::to_string(minutes) + ":" + std::to_string(seconds) + "   " + std::to_string(int(entry2->keys)) + "K" + "   OD" + std::to_string(int(entry2->od)) + "  " + npstext + "NPS";
+				auto info = GetRulesetName(entry2->mode) + "  " + std::to_string(minutes) + ":" + std::to_string(seconds) + "  " + npstext + "NPS";
 				buf.DrawString(info, 1, 10, {}, {});
 
 				// records
@@ -488,20 +487,25 @@ class SongSelectScreen : public Screen {
 		matched_caches.clear();
 		std::string str = Utf162Utf8(std::wstring{ search_buf.begin(), search_buf.end() });
 		auto& caches = game->GetFeature<IBeatmapManagement>().GetSongsCache();
-		std::copy_if(caches.begin(), caches.end(), std::back_inserter(matched_caches), [&](const SongsCacheEntry& sce) {
+		for (auto sce : caches) {
 			bool match = search_meta(str, sce.artist, sce.title, sce.artistunicode, sce.titleunicode, sce.tags, sce.source);
 			if (str.empty())
 				match = true;
 			if (!match)
-				return false;
-			bool match_ruleset = false;
-			if (selected_ruleset.empty())
-				return true;
+				continue;
+			std::vector<DifficultyCacheEntry> new_diffs;
+			std::sort(sce.difficulties.begin(), sce.difficulties.end(), [](DifficultyCacheEntry& a, DifficultyCacheEntry& b) {
+				return a.mode < b.mode;
+			});
 			for (auto& diff : sce.difficulties) {
-				match_ruleset = match_ruleset || !(selected_ruleset.find(diff.mode) == selected_ruleset.end());
+				if (selected_ruleset.empty() || (selected_ruleset.find(diff.mode) != selected_ruleset.end())) {
+					new_diffs.push_back(diff);
+				}
 			}
-			return match_ruleset;
-		});
+			sce.difficulties = new_diffs;
+			if (!sce.difficulties.empty())
+				matched_caches.push_back(sce);
+		}
 	}
 	virtual void Key(KeyEventArgs kea) {
 		if (kea.Pressed) {

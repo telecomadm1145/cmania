@@ -30,12 +30,18 @@ public:
 	}
 	TaikoScoreProcessor() {
 		ResultCounter[HitResult::Great];
-		ResultCounter[HitResult::Good];
+		ResultCounter[HitResult::Ok];
 		ResultCounter[HitResult::Miss];
 		hit_ranges = GetHitRanges(0);
 	}
 	// Í¨¹ý ScoreProcessor ¼Ì³Ð
 	virtual HitResult ApplyHit(TaikoObject& to, double err) override {
+		if (HasFlag(to.ObjectType, TaikoObject::Spinner))
+		{
+			bonus_score += 300;
+			UpdateScore();
+			return HitResult::None;
+		}
 		auto large = HasFlag(to.ObjectType, TaikoObject::Large);
 		auto tick = HasFlag(to.ObjectType, TaikoObject::SliderTick);
 		auto is_hold = to.EndTime != 0;
@@ -96,7 +102,7 @@ public:
 		Mean = (double)RawError / Errors.size();
 		Error = variance(Mean, Errors);
 		Score = 
-			(((double)RawScore / BeatmapMaxCombo / GetBaseScore(HitResult::Perfect)) * 0.7 + ((double)MaxCombo / BeatmapMaxCombo) * 0.3) 
+			(((double)RawScore / BeatmapMaxCombo / GetBaseScore(HitResult::Great)) * 0.7 + ((double)MaxCombo / BeatmapMaxCombo) * 0.3) 
 			* score_m 
 			+ bonus_score / 1000000.0;
 	}

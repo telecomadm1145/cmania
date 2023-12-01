@@ -66,6 +66,8 @@ constexpr inline std::string GetModsAbbr(OsuMods mods) {
 	std::string s = "";
 	if (HasFlag(mods, OsuMods::Auto))
 		s += "AT";
+	if (HasFlag(mods, OsuMods::Relax))
+		s += "RX";
 	if (HasFlag(mods, OsuMods::Hardrock))
 		s += "HR";
 	if (HasFlag(mods, OsuMods::Easy))

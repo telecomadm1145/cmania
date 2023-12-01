@@ -11,6 +11,7 @@ struct TaikoObject : public HitObject {
 		SliderTick = 16,
 		Slider = 32,
 	} ObjectType;
+	double TickTime;
 	double EndTime;
 	int RemainsHits;
 	int TotalHits;
