@@ -400,15 +400,16 @@ public:
 
 		auto hitpos = PointI{ (int)(20 * scale) + 5, buf.Height * 3 / 8 };
 		buf.FillRect(0, buf.Height / 4, buf.Width, buf.Height * 2 / 4, { {}, { 255, 40, 40, 40 }, ' ' });
+		auto lightsz = hitpos.X / 5;
 		for (size_t i = 0; i < 4; i++) {
-			buf.FillRect(hitpos.X - ((double)i - 1) * scale * 5 - scale * 10, buf.Height / 4, hitpos.X - (i)*scale * 5 - scale * 10, buf.Height * 2 / 4, { {}, { 120, 80, 80, 80 }, ' ' });
-			KeyHighlight[3-i].Update(e_ms, [&](double v) {
+			buf.FillRect((i)*lightsz, buf.Height / 4, (i+1)*lightsz, buf.Height * 2 / 4, { {}, { 120, 80, 80, 80 }, ' ' });
+			KeyHighlight[i].Update(e_ms, [&](double v) {
 				Color clr{ 220, 20, 212, 255 };
 				if ((i == 1) || (i == 2)) {
 					clr = { 220, 255, 30, 30 };
 				}
 				clr.Alpha = v;
-				buf.FillRect(hitpos.X - ((double)i - 1) * scale * 5 - scale * 10, buf.Height / 4, hitpos.X - (i)*scale * 5 - scale * 10, buf.Height * 2 / 4, { {}, clr, ' ' });
+				buf.FillRect((i)*lightsz, buf.Height / 4, (i + 1) * lightsz, buf.Height * 2 / 4, { {}, clr, ' ' });
 			});
 		}
 		for (auto& obj : Beatmap) {

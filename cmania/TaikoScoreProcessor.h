@@ -95,7 +95,10 @@ public:
 		Rating = reference_rating * std::pow(((double)MaxCombo / BeatmapMaxCombo), 0.3) * pow(Accuracy, 1.3) * pow(pp_m, 1.2) * pow(0.95, ResultCounter[HitResult::Miss]);
 		Mean = (double)RawError / Errors.size();
 		Error = variance(Mean, Errors);
-		Score = (((double)RawScore / BeatmapMaxCombo / GetBaseScore(HitResult::Perfect)) * 0.7 + ((double)MaxCombo / BeatmapMaxCombo) * 0.3) * score_m + bonus_score / 1000000.0;
+		Score = 
+			(((double)RawScore / BeatmapMaxCombo / GetBaseScore(HitResult::Perfect)) * 0.7 + ((double)MaxCombo / BeatmapMaxCombo) * 0.3) 
+			* score_m 
+			+ bonus_score / 1000000.0;
 	}
 	virtual double GetHealthIncreaseFor(HitResult res) override {
 		return 0.0;
