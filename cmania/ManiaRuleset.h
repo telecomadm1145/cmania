@@ -13,6 +13,7 @@
 #include "KeyBinds.h"
 #include "DifficultyCalculator.h"
 #include "OsuSample.h"
+#include "Debug.h"
 
 class ManiaRuleset : public Ruleset<ManiaObject> {
 	std::vector<Animator<PowerEasingFunction<1.5>>> KeyHighlight;
@@ -37,7 +38,6 @@ class ManiaRuleset : public Ruleset<ManiaObject> {
 	double miss_offset = 200;
 
 public:
-
 	ManiaRuleset() {
 		RulesetScoreProcessor = new ManiaScoreProcessor();
 		KeyHighlight.resize(18, { 180, 0, 150 });
@@ -286,15 +286,19 @@ public:
 				}
 			}
 			else {
-				auto err = time - bgm->getCurrent() * 1000;
-				// auto str = std::to_string(err);
-				// DbgOutput(str.c_str());
-				// DbgOutput("\n");
-				if (std::abs(err) > 150) // bgm get too far away from hpet timer
-				{
-					bgm->setCurrent(time / 1000); // seek earlier.
+				auto err = time - bgm->getCurrent() * 1000 + offset;
+				auto str = std::to_string(err);
+				DbgOutput(str.c_str());
+				DbgOutput("\n");
+				if (std::abs(err) > 150) {
+					bgm->setCurrent(time / 1000); // 调整...
 
-					// We doesn't really care about what will happen on a low end machine right?
+					Clock.Stop();
+					while (bgm->getCurrent() < time / 1000 + 0.003) {
+					}
+					Clock.Reset();
+					Clock.Offset(bgm->getCurrent() * 1000 + offset);
+					Clock.Start();
 				}
 			}
 		}
@@ -415,11 +419,11 @@ public:
 	virtual void Render(GameBuffer& buffer) override {
 		auto e_ms = Clock.Elapsed();
 		double key_width = 10;
-		double key_height = int(std::max(buffer.Height / 50.0,0.0));
+		double key_height = int(std::max(buffer.Height / 50.0, 0.0));
 		key_width = int(std::min(std::max(key_width, (double)buffer.Width * 0.3 / keys), (double)buffer.Width / keys * 2 - 3));
 		double centre = (double)buffer.Width / 2;
 		double centre_start = centre - (keys * key_width) / 2;
-		double judge_height = std::max((key_height + 1) * 2,4.0);
+		double judge_height = std::max((key_height + 1) * 2, 4.0);
 		auto j = 0;
 		for (double i = centre_start; i < keys * key_width + centre_start; i += key_width) {
 			int visible = 0;
@@ -510,8 +514,7 @@ public:
 		}
 		bgm->pause(true);
 		Clock.Stop();
-		for (auto& ho : Beatmap)
-		{
+		for (auto& ho : Beatmap) {
 			if (ho.ssample_stream != 0)
 				ho.ssample_stream->stop();
 			if (ho.ssamplew_stream != 0)
