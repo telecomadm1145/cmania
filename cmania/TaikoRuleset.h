@@ -274,7 +274,7 @@ public:
 		if (time < resume_time || !Clock.Running())
 			return;
 
-		if (bgm != 0 && time > -30 && time < bgm->getDuration() * 1000 - 3000) {
+		if (bgm != 0 && time > -std::max(offset * Clock.ClockRate(), 0.0) - 30 && time < bgm->getDuration() * 1000 - 3000) {
 			if (!bgm->isPlaying()) {
 				if (!bgm->isPaused()) // 这里用了一些小窍门让音频和Clock保持同步
 				{
@@ -284,7 +284,7 @@ public:
 					while (bgm->getCurrent() < 0.003) {
 					}
 					Clock.Reset();
-					Clock.Offset(bgm->getCurrent() * 1000 + offset);
+					Clock.Offset(bgm->getCurrent() * 1000 + offset * Clock.ClockRate());
 					Clock.Start();
 				}
 				else {
@@ -292,15 +292,16 @@ public:
 				}
 			}
 			else {
-				auto err = time - bgm->getCurrent() * 1000;
-				// auto str = std::to_string(err);
-				// DbgOutput(str.c_str());
-				// DbgOutput("\n");
-				if (std::abs(err) > 150) // bgm get too far away from hpet timer
-				{
-					bgm->setCurrent(time / 1000); // seek earlier.
+				auto err = time - bgm->getCurrent() * 1000 - offset * Clock.ClockRate();
+				if (std::abs(err) > 150) {
+					bgm->setCurrent(time / 1000); // 调整...
 
-					// We doesn't really care about what will happen on a low end machine right?
+					Clock.Stop();
+					while (bgm->getCurrent() < time / 1000 + 0.003) {
+					}
+					Clock.Reset();
+					Clock.Offset(bgm->getCurrent() * 1000 + offset * Clock.ClockRate());
+					Clock.Start();
 				}
 			}
 		}
