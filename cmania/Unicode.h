@@ -42,7 +42,8 @@ inline void Ucs4Char2Utf8(int codePoint,char* outbuf,int& outlen)
         outlen = 4;
     }
 }
-inline std::u32string Utf82Ucs4(const std::string& utf8String)
+template<class T>
+inline std::u32string Utf82Ucs4(const std::basic_string<T>& utf8String)
 {
     std::u32string ucs4String;
 

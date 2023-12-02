@@ -47,6 +47,7 @@ class LogOverlay : public GameComponent, public ILogger {
 					fore = { 255, 255, 255, 255 };
 					back = { 255, 40, 40, 40 };
 				}
+				if (alpha > 0.2)
 				buf.DrawString(ent.Text, 0, y--, fore * alpha, back * alpha);
 				if (y < 10)
 					break;

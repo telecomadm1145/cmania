@@ -91,6 +91,9 @@ public:
 	void DrawString(const std::string& text, int startX, int startY, Color fg, Color bg) {
 		DrawString(Utf82Ucs4(text), startX, startY, fg, bg);
 	}
+	void DrawString(const std::u8string& text, int startX, int startY, Color fg, Color bg) {
+		DrawString(Utf82Ucs4(text), startX, startY, fg, bg);
+	}
 	void DrawString(const std::wstring& text, int startX, int startY, Color fg, Color bg) {
 		DrawString(Utf162Ucs4(text), startX, startY, fg, bg);
 	}

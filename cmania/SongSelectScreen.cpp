@@ -18,6 +18,7 @@
 #include "GameplayScreen.h"
 #include "SongSelectScreen.h"
 #include "Animator.h"
+#include "OpenFileDialog.h"
 
 class SongSelectScreen : public Screen {
 	BackgroundComponent bg;
@@ -302,6 +303,11 @@ class SongSelectScreen : public Screen {
 	std::vector<wchar_t> input_buf;
 	virtual void Activate(bool y) {
 		if (y) {
+			if (require_songs_path)
+			{
+				parent->Back();
+				return;
+			}
 			mods = game->Settings["Mods"].Get<OsuMods>();
 			if (!ready) {
 				RebuildCache();
@@ -473,12 +479,23 @@ class SongSelectScreen : public Screen {
 	}
 	void RebuildCache() {
 		ready = false;
-		game->GetFeature<IBeatmapManagement>().Refesh([&](bool yes) {
+		game->GetFeature<IBeatmapManagement>().Refesh([this](bool yes) {
 			ready = yes;
 			if (yes) {
 				UpdateSearch();
 			}
-			require_songs_path = !yes;
+			else {
+				require_songs_path = true;
+				parent->Navigate(PickFile(
+					"请选择Songs文件夹...", [this](std::filesystem::path pth) {
+						require_songs_path = false;
+						std::filesystem::remove("Songs.bin");
+						game->Settings["SongsPath"].SetArray(pth.string().c_str(), pth.string().size() + 1);
+						game->Settings.Write();
+					},
+					{},
+					true, std::string(game->Settings["SongsPath"].GetString(), game->Settings["SongsPath"].GetString() + game->Settings["SongsPath"].Size)));
+			}
 		});
 	}
 	void UpdateSearch() {
@@ -508,6 +525,9 @@ class SongSelectScreen : public Screen {
 		}
 	}
 	virtual void Key(KeyEventArgs kea) {
+		if (!ready) {
+			return;
+		}
 		if (kea.Pressed) {
 			{
 				std::lock_guard lock(res_lock);
@@ -576,25 +596,6 @@ class SongSelectScreen : public Screen {
 				if (kea.Key == ConsoleKey::Escape) {
 					parent->Back();
 				}
-				if (!ready && require_songs_path) {
-					if (kea.Key == ConsoleKey::Backspace) {
-						if (input_buf.size() > 0) {
-							input_buf.resize(input_buf.size() - 1);
-						}
-						return;
-					}
-					if (kea.Key == ConsoleKey::Enter) {
-						auto str = Utf162Utf8(std::wstring{ input_buf.begin(), input_buf.end() });
-						game->Settings["SongsPath"].SetArray(str.c_str(), str.size() + 1);
-						game->Settings.Write();
-						RebuildCache();
-						require_songs_path = false;
-					}
-					if (kea.UnicodeChar >= 31) {
-						input_buf.push_back(kea.UnicodeChar);
-					}
-					return;
-				}
 				{
 					if (kea.Key == ConsoleKey::Backspace) {
 						if (search_buf.size() >= 2 && IsMultiUtf16(search_buf[search_buf.size() - 2]) && IsMultiUtf16(search_buf[search_buf.size() - 1])) {
@@ -635,8 +636,6 @@ class SongSelectScreen : public Screen {
 					}
 				}
 			}
-			if (!ready)
-				return;
 			if (kea.Key == ConsoleKey::PageDown) {
 				offset += h_cache;
 			}

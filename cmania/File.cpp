@@ -38,3 +38,15 @@ std::vector<char> ReadAllBytes(const std::string& filePath) {
 
 	return buffer;
 }
+
+std::vector<char> GetAvaliableDrives() {
+	std::vector<char> res{};
+	DWORD drives = GetLogicalDrives();
+	for (char i = 'A'; i <= 'Z'; i++) {
+		if (drives & 1) {
+			res.push_back(i);
+		}
+		drives >>= 1;
+	}
+	return res;
+}

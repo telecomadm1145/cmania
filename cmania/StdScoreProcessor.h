@@ -25,7 +25,7 @@ public:
 	}
 	StdScoreProcessor() {
 		ResultCounter[HitResult::Great];
-		ResultCounter[HitResult::Good];
+		ResultCounter[HitResult::Ok];
 		ResultCounter[HitResult::Meh];
 		ResultCounter[HitResult::Miss];
 		hit_ranges = GetHitRanges(0);
@@ -79,7 +79,7 @@ public:
 				Error = variance(Mean, Errors);
 			}
 
-			Score = (((double)RawScore / BeatmapMaxCombo / GetBaseScore(HitResult::Perfect)) * 0.7 + ((double)MaxCombo / BeatmapMaxCombo) * 0.3) * score_m;
+			Score = (((double)RawScore / BeatmapMaxCombo / GetBaseScore(HitResult::Great)) * 0.7 + ((double)MaxCombo / BeatmapMaxCombo) * 0.3) * score_m;
 
 			ResultCounter[res]++;
 		}

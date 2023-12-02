@@ -3,6 +3,8 @@
 #include "SpeedSettingScreen.h"
 #include <vector>
 #include "SettingsScreen.h"
+#include "OpenFileDialog.h"
+#include <filesystem>
 class SettingsScreen : public Screen {
 	class KeyBindingSetupScreen : public Screen {
 	private:
@@ -111,7 +113,9 @@ class SettingsScreen : public Screen {
 		line.append(std::to_string(game->Settings["Offset"].Get<double>()));
 		line.append("ms(+/-调整,Shift==0.1,大写锁定==10,判定偏移量(不是歌曲偏移量))\n");
 		line.append("速度设置向导(S)\n");
-		line.append("重置Songs路径(R)\n");
+		line.append("重新选择Songs路径并清除缓存(R) (当前:");
+		line.append(std::string(game->Settings["SongsPath"].GetString(), game->Settings["SongsPath"].GetString() + game->Settings["SongsPath"].Size));
+		line.append(")\n");
 		line.append("键位设置(Y)\n");
 		for (size_t i = 0; i < buf.Height; i++) {
 			line.push_back('\n');
@@ -133,6 +137,7 @@ class SettingsScreen : public Screen {
 				scroll--;
 				return;
 			}
+
 			if (kea.Key == ConsoleKey::J) {
 				game->Settings["JumpHelper"].Set(!game->Settings["JumpHelper"].Get<bool>());
 				game->Settings.Write();
@@ -168,8 +173,13 @@ class SettingsScreen : public Screen {
 				return;
 			}
 			if (kea.Key == ConsoleKey::R) {
-				game->Settings["SongsPath"].SetArray("", 0);
-				game->Settings.Write();
+				parent->Navigate(PickFile(
+					"请选择新的Songs文件夹...", [this](std::filesystem::path pth) {
+						std::filesystem::remove("Songs.bin");
+						game->Settings["SongsPath"].SetArray(pth.string().c_str(), pth.string().size() + 1);
+						game->Settings.Write();
+					},{},
+					true, std::string(game->Settings["SongsPath"].GetString(), game->Settings["SongsPath"].GetString() + game->Settings["SongsPath"].Size)));
 				return;
 			}
 			if (kea.Key == ConsoleKey::Y) {
