@@ -98,7 +98,7 @@ public:
 		if (animator.To != value) {
 			animator.From = animator.GetCurrentValue(clock);
 			animator.To = value;
-			animator.Duration = EasingDurationCalculator::Get(animator.To - animator.From);
+			animator.Duration = EasingDurationCalculator::Get(std::abs(animator.To - animator.From));
 			animator.Start(clock);
 		}
 	}

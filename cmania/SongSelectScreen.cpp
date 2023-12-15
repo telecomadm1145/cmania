@@ -66,32 +66,20 @@ class SongSelectScreen : public Screen {
 		h_cache = buf.Height;
 		w_cache = buf.Width;
 		if (!ready) {
-			if (require_songs_path) {
-				buf.DrawString("请拖入Songs文件夹或者手动键入Songs文件夹路径.", 0, 0, {}, {});
-				buf.DrawString(std::wstring{ input_buf.begin(), input_buf.end() }, 0, 1, {}, {});
-				return;
-			}
 			buf.DrawString("Loading...", 0, 0, {}, {});
 			return;
 		}
 		auto& caches = matched_caches;
 
 		bg.Render(buf);
-		int c1 = 45;
-		int c2 = std::min((int)(buf.Width / 2), 10) + c1;
 		int gap = 1;
 		int songheight = 3;
-		int originpointx = c1 + buf.Width;
-		int originpointy = (int)(buf.Height / 2);
-		double startangle = calculateAngle(buf.Width, 0, originpointx, originpointy); // 起始角度
-		double endangle = calculateAngle(buf.Width, buf.Height, originpointx, originpointy);
-		double distance = sqrt(pow(c1, 2) + pow(buf.Height / 2, 2));
-		OffsetTrans.SetValue(HpetClock(), offset);
-		auto realoff = OffsetTrans.GetCurrentValue(HpetClock());
+		auto clk = HpetClock();
+		OffsetTrans.SetValue(clk, offset);
+		auto realoff = OffsetTrans.GetCurrentValue(clk);
 		int index = (int)(realoff / (songheight + gap) + buf.Height / 2);
 		int max = (int)(buf.Height / (songheight + gap) + 10);
 		int min = index - h_cache / 2 - 5 - (selected_entry != 0 ? selected_entry->difficulties.size() : 0);
-
 		if (caches.empty()) {
 			buf.DrawString("空空如也", buf.Width - 30, buf.Height / 2, {}, {});
 		}
@@ -103,21 +91,22 @@ class SongSelectScreen : public Screen {
 				if (i > selected && selected_entry != 0) {
 					basicoff += selected_entry->difficulties.size() * (songheight + gap);
 				}
-				double b = distance * sin(basicoff / buf.Height * (startangle - endangle) - startangle);
-				int b2 = buf.Width + abs(b) - c2;
+				cache.OffsetTrans.SetValue(clk, cache.Offset + 50 - std::abs(basicoff - (buf.Height / 2)) / (buf.Height / 2) * 10);
+				int c2 = cache.OffsetTrans.GetCurrentValue(clk);
+				int b2 = buf.Width - c2;
 				if (i == selected) {
 					if (b2 > w_cache - 40) {
 						b2 = w_cache - 40;
 					}
-					buf.FillRect(b2, basicoff, b2 + c2, basicoff + songheight, { {}, { 100, 255, 255, 255 }, ' ' }); // 高亮
+					buf.FillRect(b2, basicoff, buf.Width, basicoff + songheight, { {}, { 100, 255, 255, 255 }, ' ' }); // 高亮
 					int k = 1;
 					int diffxpos = 3;
 					for (auto& diff : cache.difficulties) {
 						auto diffoff = basicoff + (k * (songheight + gap));
 						if (&diff == selected_entry_2) {
-							buf.FillRect(b2 + diffxpos, diffoff, b2 + c2 + diffxpos, diffoff + songheight, { {}, { 120, 255, 255, 255 }, ' ' });
+							buf.FillRect(b2 + diffxpos, diffoff, buf.Width, diffoff + songheight, { {}, { 120, 255, 255, 255 }, ' ' });
 						}
-						buf.FillRect(b2 + diffxpos, diffoff, b2 + c2 + diffxpos, diffoff + songheight, { {}, { 200, 32, 32, 32 }, ' ' });
+						buf.FillRect(b2 + diffxpos, diffoff, buf.Width, diffoff + songheight, { {}, { 200, 32, 32, 32 }, ' ' });
 						auto rul = GetRulesetName(diff.mode);
 						rul.resize(3, ' ');
 						buf.DrawString(rul, b2 + 1 + diffxpos, diffoff + 1, {}, { 255, 120, 120, 120 });
@@ -125,11 +114,11 @@ class SongSelectScreen : public Screen {
 						k++;
 					}
 				}
-				buf.FillRect(b2, basicoff, b2 + c2, basicoff + songheight, { {}, { 150, 32, 32, 32 }, ' ' });
+				buf.FillRect(b2, basicoff, buf.Width, basicoff + songheight, { {}, { 150, 32, 32, 32 }, ' ' });
 				buf.DrawString(cache.artist + " - " + cache.title, b2 + 1, basicoff + 1, {}, {});
 			}
 		}
-		buf.FillPolygon({ { 0, 2 }, { 50, 2 }, { 40, 12 }, { 0, 12 } }, { {}, { 150, 32, 32, 32 }, ' ' });
+		buf.FillRect(0, 2, 50, 12, { {}, { 150, 32, 32, 32 }, ' ' });
 		auto entry1 = selected_entry;
 		if (entry1 != 0) {
 			auto title = entry1->titleunicode;
@@ -291,20 +280,18 @@ class SongSelectScreen : public Screen {
 	SongsCacheEntry* selected_entry;
 	DifficultyCacheEntry* selected_entry_2;
 	std::vector<Record> records;
-	double calculateAngle(double x1, double y1, double x2, double y2) {
-		double deltaX = x2 - x1;
-		double deltaY = y2 - y1;
-		double angleRad = atan2(deltaY, deltaX);
-		return angleRad;
-	}
-	std::vector<SongsCacheEntry> matched_caches;
+	class SongEntry : public SongsCacheEntry {
+	public:
+		double Offset;
+		TransOut OffsetTrans;
+	};
+	std::vector<SongEntry> matched_caches;
 	bool ready;
 	bool require_songs_path;
 	std::vector<wchar_t> input_buf;
 	virtual void Activate(bool y) {
 		if (y) {
-			if (require_songs_path)
-			{
+			if (require_songs_path) {
 				parent->Back();
 				return;
 			}
@@ -436,11 +423,6 @@ class SongSelectScreen : public Screen {
 				int c2 = std::min((int)(w_cache / 2), 10) + c1;
 				int gap = 1;
 				int songheight = 3;
-				int originpointx = c1 + w_cache;
-				int originpointy = (int)(h_cache / 2);
-				double startangle = calculateAngle(w_cache, 0, originpointx, originpointy); // 起始角度
-				double endangle = calculateAngle(w_cache, h_cache, originpointx, originpointy);
-				double distance = sqrt(pow(c1, 2) + pow(h_cache / 2, 2));
 
 				int index = (int)(offset / (songheight + gap) + h_cache / 2);
 				int max = (int)(h_cache / (songheight + gap) + 10);
@@ -452,8 +434,8 @@ class SongSelectScreen : public Screen {
 					if (i > selected && selected_entry != 0) {
 						basicoff += selected_entry->difficulties.size() * (songheight + gap);
 					}
-					double b = distance * sin(basicoff / h_cache * (startangle - endangle) - startangle);
-					int b2 = w_cache + abs(b) - c2;
+					int c2 = 40;
+					int b2 = w_cache - c2;
 					if (mkea.X >= b2 && mkea.Y >= basicoff && mkea.Y <= basicoff + songheight) {
 						MakeSelected(i, caches[j]);
 						break;
@@ -490,11 +472,10 @@ class SongSelectScreen : public Screen {
 					"请选择Songs文件夹...", [this](std::filesystem::path pth) {
 						require_songs_path = false;
 						std::filesystem::remove("Songs.bin");
-						game->Settings["SongsPath"].SetArray(pth.string().c_str(), pth.string().size() + 1);
+						game->Settings["SongsPath"].SetArray(pth.string().c_str(), pth.string().size());
 						game->Settings.Write();
 					},
-					{},
-					true, std::string(game->Settings["SongsPath"].GetString(), game->Settings["SongsPath"].GetString() + game->Settings["SongsPath"].Size)));
+					{}, true, std::string(game->Settings["SongsPath"].GetString(), game->Settings["SongsPath"].GetString() + game->Settings["SongsPath"].Size)));
 			}
 		});
 	}
@@ -521,7 +502,7 @@ class SongSelectScreen : public Screen {
 			}
 			sce.difficulties = new_diffs;
 			if (!sce.difficulties.empty())
-				matched_caches.push_back(sce);
+				matched_caches.push_back(SongEntry{ sce });
 		}
 	}
 	virtual void Key(KeyEventArgs kea) {
@@ -674,11 +655,6 @@ class SongSelectScreen : public Screen {
 					int c2 = std::min((int)(w_cache / 2), 10) + c1;
 					int gap = 1;
 					int songheight = 3;
-					int originpointx = c1 + w_cache;
-					int originpointy = (int)(h_cache / 2);
-					double startangle = calculateAngle(w_cache, 0, originpointx, originpointy); // 起始角度
-					double endangle = calculateAngle(w_cache, h_cache, originpointx, originpointy);
-					double distance = sqrt(pow(c1, 2) + pow(h_cache / 2, 2));
 
 					int index = (int)(offset / (songheight + gap) + h_cache / 2);
 					int max = (int)(h_cache / (songheight + gap) + 10);
@@ -690,8 +666,8 @@ class SongSelectScreen : public Screen {
 						if (i > selected && selected_entry != 0) {
 							basicoff += selected_entry->difficulties.size() * (songheight + gap);
 						}
-						double b = distance * sin(basicoff / h_cache * (startangle - endangle) - startangle);
-						int b2 = w_cache + abs(b) - c2;
+						int c2 = 40;
+						int b2 = w_cache - c2;
 						if (forced && i == selected) {
 							auto sfi = j + (up_or_down ? 1 : -1);
 							if (sfi >= caches.size())

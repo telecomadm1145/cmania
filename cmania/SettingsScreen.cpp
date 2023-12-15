@@ -176,7 +176,7 @@ class SettingsScreen : public Screen {
 				parent->Navigate(PickFile(
 					"请选择新的Songs文件夹...", [this](std::filesystem::path pth) {
 						std::filesystem::remove("Songs.bin");
-						game->Settings["SongsPath"].SetArray(pth.string().c_str(), pth.string().size() + 1);
+						game->Settings["SongsPath"].SetArray(pth.string().c_str(), pth.string().size());
 						game->Settings.Write();
 					},{},
 					true, std::string(game->Settings["SongsPath"].GetString(), game->Settings["SongsPath"].GetString() + game->Settings["SongsPath"].Size)));

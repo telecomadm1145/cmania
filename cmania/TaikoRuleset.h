@@ -165,6 +165,7 @@ public:
 					to.Velocity = vec;
 					Beatmap.push_back(to);
 				}
+				to.ObjectType = TaikoObject::Slider;
 				to.TickTime = blen;
 				to.EndTime = to.StartTime + duration;
 				to.Velocity = vec;
@@ -234,7 +235,7 @@ public:
 				if (!obj.HasHit && obj.RemainsHits > 0) {
 					return true;
 				}
-				return !obj.HasHit && (obj.StartTime - clock < miss_offset) && !HasFlag(obj.ObjectType, TaikoObject::Barline);
+				return !obj.HasHit && (obj.StartTime - clock < miss_offset) && !HasFlag(obj.ObjectType, TaikoObject::Barline) && !HasFlag(obj.ObjectType, TaikoObject::Slider);
 			}) > FirstOrDefault();
 			if (first_hit != 0) {
 				auto kat = HasFlag(first_hit->ObjectType, TaikoObject::Kat);
@@ -255,14 +256,17 @@ public:
 					SpinnerKatOrDon = kat + 1;
 					goto goff;
 				}
-				if (HasFlag(first_hit->ObjectType, TaikoObject::Slider))
-					return;
+				if (HasFlag(first_hit->ObjectType, TaikoObject::SliderTick)) {
+					if (clock > first_hit->StartTime - 3)
+						RulesetScoreProcessor->ApplyHit(*first_hit, 0);
+					goto goff;
+				}
 				// miss if a wrong action has been pressed
 				if (kat != hit_kat && !rx) {
 					RulesetScoreProcessor->ApplyHit(*first_hit, 1.0 / 0.0 * 0.0);
 					LastHitResult = HitResult::Miss;
 					LastHitResultAnimator.Start(Clock.Elapsed());
-					return;
+					goto goff;
 				}
 				auto result = RulesetScoreProcessor->ApplyHit(*first_hit, clock - first_hit->StartTime);
 				if (result != HitResult::None) {
@@ -365,6 +369,7 @@ public:
 				if (time > obj.StartTime + miss_offset && !obj.HasHit) {
 					obj.HasHit = true;
 				}
+				return;
 			}
 			auto spin = HasFlag(obj.ObjectType, TaikoObject::Spinner);
 			if (spin) {
@@ -484,8 +489,7 @@ public:
 			auto objx = (int)(hitpos.X + v * (double)buf.Width);
 			if (objx > buf.Width || objx < 0)
 				continue;
-			if (HasFlag(obj.ObjectType, TaikoObject::Spinner))
-			{
+			if (HasFlag(obj.ObjectType, TaikoObject::Spinner)) {
 				sz = scale * 8;
 				fill = { 220, 255, 255, 255 };
 				if (objx < hitpos.X)
@@ -587,6 +591,7 @@ public:
 			ie.Clock = obj.StartTime;
 			ie.Pressed = true;
 			ie.Action = kat ? (alt ? 1 : 2) : (alt ? 0 : 3);
+			record.Events.push_back(ie);
 			if (large) {
 				alt = !alt;
 				InputEvent ie2{};
@@ -599,7 +604,6 @@ public:
 				record.Events.push_back(ie2);
 				alt = !alt;
 			}
-			record.Events.push_back(ie);
 			ie.Clock += 50;
 			ie.Pressed = false;
 			record.Events.push_back(ie);

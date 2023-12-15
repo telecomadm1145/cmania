@@ -2,6 +2,8 @@
 #include <fstream>
 #include <vector>
 #include <map>
+#include <type_traits>
+#include <concepts>
 #pragma warning(push)
 #pragma warning(disable : 4267)
 struct BinaryStorageNode {
@@ -105,7 +107,7 @@ public:
 };
 // std::pair<int, int>;
 template <class T>
-concept trivial = std::is_trivial_v<T>;
+concept trivial = std::is_trivial<T>::value;
 template <class T>
 concept trivial_pair = trivial<typename T::first_type> && trivial<typename T::second_type>;
 template <class T>
