@@ -115,3 +115,24 @@ private:
 	Num to{};
 	double start_time = 1.0 / 0.0 * 0.0;
 };
+template <class Num = double>
+class DynamicsTransition {
+public:
+	DynamicsTransition() {}
+
+	Num GetCurrentValue(double clock, Num to) {
+		auto dur = clock - start_time;
+		start_time = clock;
+		if (dur > 200) {
+			return orig = to;
+		}
+		if (dur >= 0) {
+			orig += (to - orig) * dur / 250;
+		}
+		return orig;
+	}
+
+private:
+	Num orig = {};
+	double start_time = 1.0 / 0.0 * 0.0;
+};

@@ -33,9 +33,7 @@ class SongSelectScreen : public Screen {
 	bool ruleset_flyout;
 	std::unordered_set<int> selected_ruleset;
 	OsuMods mods;
-	using TransOut = Transition<
-		EaseOut<CubicEasingFunction>,
-		DurationRangeLimiter<800.0, 3500.0, LinearEasingDurationCalculator<1>>>;
+	using TransOut = DynamicsTransition<double>;
 	Color difficultyToRGBColor(float difficulty) {
 		std::vector<std::tuple<double, double, Color>> ranges = {
 			{ 0, 1, { 0, 204, 204, 204 } },								   // 灰
@@ -61,6 +59,7 @@ class SongSelectScreen : public Screen {
 		return { 255, 0, 0, 0 };
 	}
 	TransOut OffsetTrans{};
+	TransOut Itemstrans[82]{};
 	virtual void Render(GameBuffer& buf) {
 		std::lock_guard lock(res_lock);
 		h_cache = buf.Height;
@@ -75,8 +74,7 @@ class SongSelectScreen : public Screen {
 		int gap = 1;
 		int songheight = 3;
 		auto clk = HpetClock();
-		OffsetTrans.SetValue(clk, offset);
-		auto realoff = OffsetTrans.GetCurrentValue(clk);
+		auto realoff = OffsetTrans.GetCurrentValue(clk, offset);
 		int index = (int)(realoff / (songheight + gap) + buf.Height / 2);
 		int max = (int)(buf.Height / (songheight + gap) + 10);
 		int min = index - h_cache / 2 - 5 - (selected_entry != 0 ? selected_entry->difficulties.size() : 0);
@@ -91,8 +89,7 @@ class SongSelectScreen : public Screen {
 				if (i > selected && selected_entry != 0) {
 					basicoff += selected_entry->difficulties.size() * (songheight + gap);
 				}
-				cache.OffsetTrans.SetValue(clk, cache.Offset + 50 - std::abs(basicoff - (buf.Height / 2)) / (buf.Height / 2) * 10);
-				int c2 = cache.OffsetTrans.GetCurrentValue(clk);
+				int c2 = Itemstrans[(i% 40)+40].GetCurrentValue(clk, 50 - std::abs(basicoff - (buf.Height / 2)) / (buf.Height / 2) * 10);
 				int b2 = buf.Width - c2;
 				if (i == selected) {
 					buf.FillRect(b2, basicoff, buf.Width, basicoff + songheight, { {}, { 100, 255, 255, 255 }, ' ' }); // 高亮
@@ -277,12 +274,7 @@ class SongSelectScreen : public Screen {
 	SongsCacheEntry* selected_entry;
 	DifficultyCacheEntry* selected_entry_2;
 	std::vector<Record> records;
-	class SongEntry : public SongsCacheEntry {
-	public:
-		double Offset;
-		TransOut OffsetTrans;
-	};
-	std::vector<SongEntry> matched_caches;
+	std::vector<SongsCacheEntry> matched_caches;
 	bool ready;
 	bool require_songs_path;
 	std::vector<wchar_t> input_buf;
@@ -499,7 +491,7 @@ class SongSelectScreen : public Screen {
 			}
 			sce.difficulties = new_diffs;
 			if (!sce.difficulties.empty())
-				matched_caches.push_back(SongEntry{ sce });
+				matched_caches.push_back(sce);
 		}
 	}
 	virtual void Key(KeyEventArgs kea) {
