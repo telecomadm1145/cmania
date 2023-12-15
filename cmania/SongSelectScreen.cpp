@@ -95,9 +95,6 @@ class SongSelectScreen : public Screen {
 				int c2 = cache.OffsetTrans.GetCurrentValue(clk);
 				int b2 = buf.Width - c2;
 				if (i == selected) {
-					if (b2 > w_cache - 40) {
-						b2 = w_cache - 40;
-					}
 					buf.FillRect(b2, basicoff, buf.Width, basicoff + songheight, { {}, { 100, 255, 255, 255 }, ' ' }); // 高亮
 					int k = 1;
 					int diffxpos = 3;

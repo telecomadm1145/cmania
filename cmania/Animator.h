@@ -64,7 +64,7 @@ public:
 		: From(From), To(To), Offset(Offset), Duration(Duration), Clockrate(Clockrate) {
 	}
 };
-template<auto K>
+template <auto K>
 class LinearEasingDurationCalculator {
 public:
 	static inline auto Get(auto x) {
@@ -78,32 +78,40 @@ public:
 		return V;
 	}
 };
-template<auto Min,auto Max,class Base>
+template <auto Min, auto Max, class Base>
 class DurationRangeLimiter {
 public:
 	static inline auto Get(auto x) {
-		return std::clamp(Base::Get(x),Min,Max);
+		return std::clamp(Base::Get(x), Min, Max);
 	}
 };
 template <class EasingFunction, class EasingDurationCalculator, class Num = double, Num Inital = Num()>
 class Transition {
-private:
-	Animator<EasingFunction, Num> animator;
-
 public:
 	Transition()
-		: animator(Inital, Inital, 0, 0, 1) {}
+		: from(Inital), to(Inital) {}
 
-	void SetValue(double clock, Num value) {
-		if (animator.To != value) {
-			animator.From = animator.GetCurrentValue(clock);
-			animator.To = value;
-			animator.Duration = EasingDurationCalculator::Get(std::abs(animator.To - animator.From));
-			animator.Start(clock);
+	void SetValue(double clock, Num new_value) {
+		if (to != new_value) {
+			from = GetCurrentValue(clock);
+			to = new_value;
+			start_time = clock;
 		}
 	}
 
 	Num GetCurrentValue(double clock) {
-		return animator.GetCurrentValue(clock);
+		if (clock < start_time) {
+			return from;
+		}
+		double progress = (clock - start_time) / EasingDurationCalculator::Get(std::abs(to - from));
+		if (progress > 1 || isnan(progress)) {
+			return to;
+		}
+		return EasingFunction::Ease(progress) * (to - from) + from;
 	}
+
+private:
+	Num from{};
+	Num to{};
+	double start_time = 1.0 / 0.0 * 0.0;
 };
