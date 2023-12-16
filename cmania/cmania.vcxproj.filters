@@ -71,6 +71,16 @@
     <ClCompile Include="DifficultyCalculator.cpp">
       <Filter>Game\Gameplay\Mania</Filter>
     </ClCompile>
+    <ClCompile Include="OpenFileDialog.cpp" />
+    <ClCompile Include="ManiaRuleset.cpp">
+      <Filter>Game\Gameplay\Mania</Filter>
+    </ClCompile>
+    <ClCompile Include="StdRuleset.cpp">
+      <Filter>Game\Gameplay\Std</Filter>
+    </ClCompile>
+    <ClCompile Include="TaikoRuleset.cpp">
+      <Filter>Game\Gameplay\Taiko</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ConsoleInput.h">
@@ -193,9 +203,6 @@
     <ClInclude Include="ManiaScoreProcessor.h">
       <Filter>Game\Gameplay\Mania</Filter>
     </ClInclude>
-    <ClInclude Include="ManiaRuleset.h">
-      <Filter>Game\Gameplay\Mania</Filter>
-    </ClInclude>
     <ClInclude Include="ManiaObject.h">
       <Filter>Game\Gameplay\Mania</Filter>
     </ClInclude>
@@ -229,9 +236,6 @@
     <ClInclude Include="StdObject.h">
       <Filter>Game\Gameplay\Std</Filter>
     </ClInclude>
-    <ClInclude Include="StdRuleset.h">
-      <Filter>Game\Gameplay\Std</Filter>
-    </ClInclude>
     <ClInclude Include="StdScoreProcessor.h">
       <Filter>Game\Gameplay\Std</Filter>
     </ClInclude>
@@ -247,9 +251,6 @@
     <ClInclude Include="TaikoObject.h">
       <Filter>Game\Gameplay\Taiko</Filter>
     </ClInclude>
-    <ClInclude Include="TaikoRuleset.h">
-      <Filter>Game\Gameplay\Taiko</Filter>
-    </ClInclude>
     <ClInclude Include="TaikoScoreProcessor.h">
       <Filter>Game\Gameplay\Taiko</Filter>
     </ClInclude>
@@ -260,6 +261,16 @@
       <Filter>Game\Gameplay\Mania</Filter>
     </ClInclude>
     <ClInclude Include="TaikoDifficultyCalculator.h">
+      <Filter>Game\Gameplay\Taiko</Filter>
+    </ClInclude>
+    <ClInclude Include="OpenFileDialog.h" />
+    <ClInclude Include="ManiaRuleset.h">
+      <Filter>Game\Gameplay\Mania</Filter>
+    </ClInclude>
+    <ClInclude Include="StdRuleset.h">
+      <Filter>Game\Gameplay\Std</Filter>
+    </ClInclude>
+    <ClInclude Include="TaikoRuleset.h">
       <Filter>Game\Gameplay\Taiko</Filter>
     </ClInclude>
   </ItemGroup>
@@ -359,8 +370,6 @@
     <None Include="Samples\Triangles\soft-sliderslide.wav" />
     <None Include="Samples\Triangles\soft-slidertick.wav" />
     <None Include="Samples\Triangles\soft-sliderwhistle.wav" />
-    <None Include="Samples\*\*" />
-    <None Include="Samples\*\*" />
     <None Include="Samples\*\*" />
     <None Include="Samples\*\*" />
     <None Include="Samples\*\*" />

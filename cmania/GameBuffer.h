@@ -29,6 +29,10 @@ struct Color {
 	double Difference(Color b) {
 		return (std::abs((Red - b.Red) / 255.0) + std::abs((Blue - b.Blue) / 255.0) + std::abs((Green - b.Green) / 255.0)) / 3.0;
 	}
+	double Brightness()
+	{
+		return Red * 0.1 + Green * 0.2 + Blue * 0.7;
+	}
 };
 template <class T>
 Color operator*(T a, Color b) {

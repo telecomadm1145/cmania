@@ -1,11 +1,13 @@
-﻿#include "StdRuleset.h"
-#include "ManiaRuleset.h"
-#include "ScreenController.h"
+﻿#include "ScreenController.h"
 #include "ConsoleInputHandler.h"
 #include "RecordInputHandler.h"
 #include "BeatmapManagementService.h"
 #include "BackgroundComponent.h"
 #include "ResultScreen.h"
+#include "Animator.h"
+
+#include "StdRuleset.h"
+#include "ManiaRuleset.h"
 #include "TaikoRuleset.h"
 
 class GameplayScreen : public Screen {
@@ -30,11 +32,11 @@ public:
 	}
 	void LoadForGameplay(OsuMods mod, const std::string& bmp_path, int mode) {
 		if (mode == 0)
-			ruleset = std::unique_ptr<RulesetBase>((RulesetBase*)new StdRuleset());
+			ruleset = std::unique_ptr<RulesetBase>(MakeStdRuleset());
 		else if (mode == 1)
-			ruleset = std::unique_ptr<RulesetBase>((RulesetBase*)new TaikoRuleset());
+			ruleset = std::unique_ptr<RulesetBase>(MakeTaikoRuleset());
 		else if (mode == 3)
-			ruleset = std::unique_ptr<RulesetBase>((RulesetBase*)new ManiaRuleset());
+			ruleset = std::unique_ptr<RulesetBase>(MakeManiaRuleset());
 		else
 			throw std::exception("no supportion for this mode.");
 		if (!HasFlag(mod, OsuMods::Auto)) {
@@ -54,11 +56,11 @@ public:
 	void LoadForReplay(Record& rec, const std::string& bmp_path, int mode) {
 		rec_input_handler = std::unique_ptr<RecordInputHandler>(new RecordInputHandler(rec));
 		if (mode == 0)
-			ruleset = std::unique_ptr<RulesetBase>((RulesetBase*)new StdRuleset());
+			ruleset = std::unique_ptr<RulesetBase>(MakeStdRuleset());
 		else if (mode == 1)
-			ruleset = std::unique_ptr<RulesetBase>((RulesetBase*)new TaikoRuleset());
+			ruleset = std::unique_ptr<RulesetBase>(MakeTaikoRuleset());
 		else if (mode == 3)
-			ruleset = std::unique_ptr<RulesetBase>((RulesetBase*)new ManiaRuleset());
+			ruleset = std::unique_ptr<RulesetBase>(MakeManiaRuleset());
 		else
 			throw std::exception("no supportion for this mode.");
 		ruleset->RulesetInputHandler = rec_input_handler.get();
