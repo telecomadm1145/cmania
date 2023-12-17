@@ -1,20 +1,18 @@
-﻿#pragma once
+#pragma once
 #include "InputHandler.h"
-#include "Stopwatch.h"
-#include "OsuMods.h"
-#include "Record.h"
 #include "SettingStorage.h"
-#include "GameBuffer.h"
+#include "Record.h"
+#include "OsuMods.h"
 #include "ScoreProcessor.h"
 #include "Beatmap.h"
-#include "RulesetRenderer.h"
-class RulesetBase {
+
+class WorkingBeatmapBase
+{
 public:
 	InputHandler* RulesetInputHandler = 0;
 	Stopwatch Clock;
 	OsuMods Mods = OsuMods::None;
 	bool GameEnded = false;
-	bool GameStarted = false;
 	Record RulesetRecord{};
 	virtual void LoadSettings(BinaryStorage& settings) = 0;
 	virtual void Load(std::filesystem::path beatmap_path) = 0;
@@ -28,12 +26,10 @@ public:
 	virtual double GetDuration() = 0;
 	virtual ScoreProcessorBase* GetScoreProcessor() = 0;
 	virtual std::string GetBgPath() = 0;
-
-public:
-	virtual ~RulesetBase() {}
 };
+
 template <class HitObject>
-class Ruleset : public RulesetBase {
+class WorkingBeatmap : public WorkingBeatmapBase {
 public:
 	ScoreProcessor<HitObject>* RulesetScoreProcessor = 0;
 	Beatmap<HitObject> Beatmap;
