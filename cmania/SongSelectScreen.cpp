@@ -89,7 +89,7 @@ class SongSelectScreen : public Screen {
 				if (i > selected && selected_entry != 0) {
 					basicoff += selected_entry->difficulties.size() * (songheight + gap);
 				}
-				int c2 = Itemstrans[(i% 40)+40].GetCurrentValue(clk, 50 - std::abs(basicoff - (buf.Height / 2)) / (buf.Height / 2) * 10);
+				int c2 = Itemstrans[(i % 40) + 40].GetCurrentValue(clk, 50 - std::abs(basicoff - (buf.Height / 2)) / (buf.Height / 2) * 10);
 				int b2 = buf.Width - c2;
 				if (i == selected) {
 					buf.FillRect(b2, basicoff, buf.Width, basicoff + songheight, { {}, { 100, 255, 255, 255 }, ' ' }); // 高亮
@@ -102,9 +102,8 @@ class SongSelectScreen : public Screen {
 						}
 						buf.FillRect(b2 + diffxpos, diffoff, buf.Width, diffoff + songheight, { {}, { 200, 32, 32, 32 }, ' ' });
 						auto rul = GetRulesetName(diff.mode);
-						rul.resize(3, ' ');
 						buf.DrawString(rul, b2 + 1 + diffxpos, diffoff + 1, {}, { 255, 120, 120, 120 });
-						buf.DrawString(diff.name, b2 + 1 + diffxpos + 4, diffoff + 1, {}, {});
+						buf.DrawString(diff.name, b2 + 1 + diffxpos + rul.size() + 1, diffoff + 1, {}, {});
 						k++;
 					}
 				}
@@ -307,9 +306,11 @@ class SongSelectScreen : public Screen {
 	}
 	virtual void Move(MoveEventArgs mea) {
 		if (!mod_flyout && !ruleset_flyout)
+		{
 			if (last_y >= 0) {
 				offset = last_offset - (mea.Y - last_y) * 2;
 			}
+		}
 	}
 	void PlayPreview() {
 		auto entry = selected_entry_2;
