@@ -29,8 +29,7 @@ struct Color {
 	double Difference(Color b) {
 		return (std::abs((Red - b.Red) / 255.0) + std::abs((Blue - b.Blue) / 255.0) + std::abs((Green - b.Green) / 255.0)) / 3.0;
 	}
-	double Brightness()
-	{
+	double Brightness() {
 		return Red * 0.1 + Green * 0.2 + Blue * 0.7;
 	}
 };
@@ -42,6 +41,18 @@ struct PixelData {
 	Color Foreground;
 	Color Background;
 	unsigned int UcsChar;
+	template <class T>
+	PixelData operator*(T x) {
+		PixelData pd2 = *this;
+		pd2.Foreground = Foreground * x;
+		pd2.Background = Background * x;
+		return pd2; 
+	}
+	template <class T>
+	PixelData& operator^(T x) {
+		UcsChar = x;
+		return *this;
+	}
 };
 class GameBuffer {
 private:
@@ -101,18 +112,17 @@ public:
 	void DrawString(const std::wstring& text, int startX, int startY, Color fg, Color bg) {
 		DrawString(Utf162Ucs4(text), startX, startY, fg, bg);
 	}
-	void DrawCircle(int x, int y, double sz, double width, double whratio, PixelData pd);
+	void DrawCircle(float x, float y, float sz, float width, float whratio, PixelData pd);
 
 
 public:
-	void FillCircle(int x, int y, double sz, double whratio, PixelData pd, int aa = 8);
+	void FillCircle(float x, float y, float sz, float whratio, PixelData pd, int aa = 8);
 	void DrawString(const std::u32string& text, int startX, int startY, Color fg, Color bg);
 	PixelData GetPixel(int x, int y);
 	void FillPolygon(const std::vector<PointI>& points, PixelData pd);
 
 	void SetPixel(int x, int y, PixelData pd);
-	void DrawLineH(int x, int y1, int y2, PixelData pd);
-	void DrawLineV(int x1, int x2, int y, PixelData pd);
-	void DrawLine(int x1, int x2, int y1, int y2, PixelData pd);
-	void FillRect(int left, int top, int right, int bottom, PixelData pd);
+	void DrawLineH(float x, float y1, float y2, PixelData pd);
+	void DrawLineV(float x1, float x2, float y, PixelData pd);
+	void FillRect(float left, float top, float right, float bottom, PixelData pd);
 };

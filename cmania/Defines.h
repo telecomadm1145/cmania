@@ -18,8 +18,8 @@ struct Vector {
 	inline T SetY(T y) {
 		return Y = y;
 	}
-	__declspec(property(get = GetX,put=SetX)) T x;
-	__declspec(property(get = GetY,put=SetY)) T y;
+	__declspec(property(get = GetX, put = SetX)) T x;
+	__declspec(property(get = GetY, put = SetY)) T y;
 #endif
 	auto Length() {
 		return sqrt(X * X + Y * Y);
@@ -153,3 +153,20 @@ inline double variance(double mean, const std::vector<double>& values) {
 
 	return sq_diff_sum / (values.size() - 1);
 }
+template <class T>
+class zero {
+public:
+	static constexpr T val = T();
+};
+template <>
+class zero<double> {
+public:
+	static constexpr double val = 1e-15;
+};
+template <>
+class zero<float> {
+public:
+	static constexpr float val = 1e-9;
+};
+template<class T>
+constexpr T zero_v = zero<T>::val;

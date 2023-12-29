@@ -417,11 +417,11 @@ public:
 	virtual void Render(GameBuffer& buffer) override {
 		auto e_ms = Clock.Elapsed();
 		double key_width = 10;
-		double key_height = int(std::max(buffer.Height / 50.0, 0.0));
+		double key_height = std::clamp(buffer.Height / 50.0, 0.5,2.0);
 		key_width = int(std::min(std::max(key_width, (double)buffer.Width * 0.3 / keys), (double)buffer.Width / keys * 2 - 3));
 		double centre = (double)buffer.Width / 2;
 		double centre_start = centre - (keys * key_width) / 2;
-		double judge_height = std::max((key_height + 1) * 2, 4.0);
+		double judge_height = int(std::max((key_height + 1) * 2, 4.0));
 		auto j = 0;
 		for (double i = centre_start; i < keys * key_width + centre_start; i += key_width) {
 			int visible = 0;
@@ -457,7 +457,7 @@ public:
 						if (obj.HoldBroken) {
 							base.Alpha = base.Alpha * 0.2;
 						}
-						buffer.FillRect(i + 1, a - key_height, i + key_width, endy + key_height, { {}, base, ' ' });
+						buffer.FillRect(int(i + 1), a, int(i + key_width), endy + key_height, { {}, base, ' ' });
 						base.Alpha = (unsigned char)(255 * flashlight_num);
 						if (a >= buffer.Height - judge_height) {
 							base.Alpha = 255;
@@ -465,33 +465,32 @@ public:
 						if (obj.HoldBroken) {
 							base.Alpha = base.Alpha * 0.2;
 						}
-						buffer.FillRect(i + 1, a - key_height, i + key_width, a + key_height, { {}, base, ' ' });
+						buffer.FillRect(int(i + 1), a - key_height, int(i + key_width), a + key_height, { {}, base, ' ' });
 						continue;
 					}
 					base.Alpha = (unsigned char)(255 * flashlight_num);
 					if (!obj.HasHit)
-						buffer.FillRect(i + 1, starty - key_height, i + key_width, starty + key_height, { {}, base, ' ' });
+						buffer.FillRect(int(i + 1), starty - key_height, int(i + key_width), starty + key_height, { {}, base, ' ' });
 					visible++;
 				}
 			}
 
 			// 绘制 Mania 台阶
 			auto clr = Color{ 255, 204, 187, 102 };
-			buffer.DrawLineH(i, 0, buffer.Height, { clr, {}, '|' });
-			buffer.DrawLineH(i + key_width, 0, buffer.Height, { clr, {}, '|' });
-			buffer.FillRect(i + 1, buffer.Height - judge_height + 1, i + key_width, buffer.Height, { {}, { 120, 255, 255, 255 }, ' ' });
+			buffer.FillRect(int(i + 1), buffer.Height - judge_height + 1, int(i + key_width), buffer.Height, { {}, { 120, 255, 255, 255 }, ' ' });
 
 			KeyHighlight[j].Update(e_ms, [&](double light) {
-				buffer.FillRect(i + 1, buffer.Height - judge_height + 1, i + key_width, buffer.Height, { {}, { (unsigned char)light, 255, 255, 255 }, ' ' });
+				buffer.FillRect(int(i + 1), buffer.Height - judge_height + 1, int(i + key_width), buffer.Height, { {}, { (unsigned char)light, 255, 255, 255 }, ' ' });
 				auto ratio = light / 240;
 				auto lightning_height = std::max(15.0, buffer.Height * 0.3);
 				if (ratio > 0 && ratio < 1) {
 					for (int p = 0; p < ratio * lightning_height; p++) {
-						buffer.DrawLineV(i + 1, i + key_width, buffer.Height - judge_height - p, { {}, { (unsigned char)(light * pow((ratio * lightning_height - p) / (ratio * lightning_height), 2)), 255, 255, 255 }, ' ' });
+						buffer.DrawLineV(int(i + 1), int(i + key_width), int(buffer.Height - judge_height - p), { {}, { (unsigned char)(light * pow((ratio * lightning_height - p) / (ratio * lightning_height), 2)), 255, 255, 255 }, ' ' });
 					}
 				}
 			});
-
+			buffer.DrawLineH(i, 0, buffer.Height, { clr, {}, '|' });
+			buffer.DrawLineH(i + key_width, 0, buffer.Height, { clr, {}, '|' });
 			j++;
 		}
 

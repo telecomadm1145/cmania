@@ -138,7 +138,7 @@ void GameBuffer::Output() {
 	write(outbuf, buf_i);
 }
 
-void GameBuffer::DrawCircle(int x, int y, double sz, double width, double whratio, PixelData pd) {
+void GameBuffer::DrawCircle(float x, float y, float sz, float width, float whratio, PixelData pd) {
 	const auto aa = 4;
 	sz /= 2;
 	double radius = sz / 2;
@@ -161,7 +161,7 @@ void GameBuffer::DrawCircle(int x, int y, double sz, double width, double whrati
 	}
 }
 
-void GameBuffer::FillCircle(int x, int y, double sz, double whratio, PixelData pd, int) {
+void GameBuffer::FillCircle(float x, float y, float sz, float whratio, PixelData pd, int) {
 	sz /= 2;
 	const int aa = 4;
 	double radius = sz / 2;
@@ -288,6 +288,69 @@ void GameBuffer::SetPixel(int x, int y, PixelData pd) {
 	}
 }
 
+void GameBuffer::DrawLineH(float x, float y1, float y2, PixelData pd) {
+	if (y1 > y2)
+		std::swap(y1, y2);
+	if (y1 == y2)
+		SetPixel(x, y1, pd);
+	y1 = std::max((float)0.0, y1);
+	y2 = std::min(y2, (float)Height);
+	for (int i = y1; i < y2; i++) {
+		SetPixel(x, i, pd);
+	}
+}
+
+void GameBuffer::DrawLineV(float x1, float x2, float y, PixelData pd) {
+	if (x1 > x2)
+		std::swap(x1, x2);
+	float x1_i = 0.0;
+	float x1_f = std::modf(x1, &x1_i);
+	float x2_i = 0.0;
+	float x2_f = std::modf(x2, &x2_i);
+	float y_i = 0.0;
+	float y_f = std::modf(y, &y_i);
+
+	{
+		float line0_weight = 1 - y_f;
+		if (line0_weight > zero_v<float>) {
+			PixelData pd2 = pd * line0_weight;
+			if (x1_i == x2_i) {
+				float weight = std::abs(x2_f - x1_f);
+				SetPixel(x1_i, y_i, pd2 * weight);
+			}
+			else {
+				float weight = 1 - x1_f;
+				SetPixel(x1_i, y_i, pd2 * weight);
+				float weight2 = x2_f;
+				SetPixel(x2_i, y_i, pd2 * weight2);
+				for (int i = x1_i + 1; i < x2_i; i++) {
+					SetPixel(i, y_i, pd2);
+				}
+			}
+		}
+	}
+
+	{
+		float line1_weight = y_f;
+		PixelData pd2 = pd * line1_weight;
+		if (line1_weight > zero_v<float>) {
+			if (x1_i == x2_i) {
+				float weight = std::abs(x2_f - x1_f);
+				SetPixel(x1_i, y_i + 1, pd2 * weight);
+			}
+			else {
+				float weight = 1 - x1_f;
+				SetPixel(x1_i, y_i + 1, pd2 * weight);
+				float weight2 = x2_f;
+				SetPixel(x2_i, y_i + 1, pd2 * weight2);
+				for (int i = x1_i + 1; i < x2_i; i++) {
+					SetPixel(i, y_i + 1, pd2);
+				}
+			}
+		}
+	}
+}
+/*
 void GameBuffer::DrawLineH(int x, int y1, int y2, PixelData pd) {
 	if (y1 > y2)
 		std::swap(y1, y2);
@@ -311,51 +374,26 @@ void GameBuffer::DrawLineV(int x1, int x2, int y, PixelData pd) {
 		SetPixel(i, y, pd);
 	}
 }
-void GameBuffer::DrawLine(int x1, int x2, int y1, int y2, PixelData pd) {
-	int dx = abs(x2 - x1);
-	int dy = abs(y2 - y1);
-	if (dx == 0) {
-		DrawLineH(x1, y1, y2, pd);
+*/
+void GameBuffer::FillRect(float left, float top, float right, float bottom, PixelData pd) {
+	if (top > bottom)
+		std::swap(top, bottom);
+	float y1_i = 0.0;
+	float y1_f = std::modf(top, &y1_i);
+	float y2_i = 0.0;
+	float y2_f = std::modf(bottom, &y2_i);
+	if (y1_i == y2_i)
+	{
+		float weight = std::abs(y2_f - y1_f);
+		DrawLineV(left, right, y1_i, pd * weight);
 		return;
 	}
-	if (dy == 0) {
-		DrawLineV(x1, x2, y1, pd);
-		return;
-	}
-	int sx = (x1 < x2) ? 1 : -1;
-	int sy = (y1 < y2) ? 1 : -1;
-	int err = dx - dy;
-
-	while (true) {
-
-		// 绘制当前像素
-		SetPixel(x1, y1, pd);
-
-		// 到达终点
-		if (x1 == x2 && y1 == y2) {
-			break;
+	else {
+		DrawLineV(left, right, y1_i, pd * (1 - y1_f));
+		DrawLineV(left, right, y2_i, pd * (y1_f));
+		for (int i = y1_i + 1; i < y2_i; i++) {
+			DrawLineV(left, right, i, pd);
 		}
-
-		int err2 = 2 * err;
-
-		// 调整 x 方向
-		if (err2 > -dy) {
-			err -= dy;
-			x1 += sx;
-		}
-
-		// 调整 y 方向
-		if (err2 < dx) {
-			err += dx;
-			y1 += sy;
-		}
-	}
-}
-void GameBuffer::FillRect(int left, int top, int right, int bottom, PixelData pd) {
-	if (left > right)
-		std::swap(left, right);
-	for (int i = left; i < right; i++) {
-		DrawLineH(i, top, bottom, pd);
 	}
 }
 

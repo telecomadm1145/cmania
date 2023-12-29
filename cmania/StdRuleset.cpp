@@ -292,16 +292,16 @@ private:
 			// Process it...
 		}
 		auto last = cursortrail[0];
-		for (size_t i = 1; i < trail_count; i++) {
-			auto anim = std::clamp(1 - (t - cursortrail[i].time) / 500.0, 0.0, 1.0);
-			if (anim <= 0.01)
-				continue;
-			if ((cursortrail[i].loc - last.loc).SquaredLength() < 4)
-				continue;
-			auto clr = Color{ 160, 255, 255, 255 } * anim;
-			buf.DrawLine(last.loc.X, cursortrail[i].loc.X, last.loc.Y, cursortrail[i].loc.Y, { {}, clr, ' ' });
-			last = cursortrail[i];
-		}
+		//for (size_t i = 1; i < trail_count; i++) {
+		//	auto anim = std::clamp(1 - (t - cursortrail[i].time) / 500.0, 0.0, 1.0);
+		//	if (anim <= 0.01)
+		//		continue;
+		//	if ((cursortrail[i].loc - last.loc).SquaredLength() < 4)
+		//		continue;
+		//	auto clr = Color{ 160, 255, 255, 255 } * anim;
+		//	buf.DrawLine(last.loc.X, cursortrail[i].loc.X, last.loc.Y, cursortrail[i].loc.Y, { {}, clr, ' ' });
+		//	last = cursortrail[i];
+		//}
 		if (t > lastrec + 20) {
 			const auto t2 = trail_count - 1;
 			Trail buff[t2];
