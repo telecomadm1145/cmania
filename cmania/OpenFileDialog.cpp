@@ -68,7 +68,7 @@ public:
 					str += u8"...";
 				}
 				if (&ent == selected_entry) {
-					buf.FillRect(0, i, buf.Width, i, { {}, { 125, 255, 255, 255 }, ' ' });
+					buf.FillRect(0, i, buf.Width, i+1, { {}, { 125, 255, 255, 255 }, ' ' });
 				}
 				buf.DrawString(str, 0, i, fg, {});
 				buf.DrawString(ent.LastModifiedTime, 45, i, { 255, 255, 255, 255 }, {});
@@ -146,6 +146,7 @@ public:
 					ent.RealPath = p;
 					Entries.push_back(ent);
 				}
+				dirty = false;
 				return;
 			}
 #endif
@@ -189,6 +190,7 @@ public:
 						OnCancel();
 					return;
 				}
+				Offset = 0;
 				Path = Path.parent_path();
 				dirty = true;
 				return;
@@ -260,6 +262,7 @@ public:
 						else {
 							if (selected_entry == &ent) {
 								if (ent.IsPath) {
+									Offset = 0;
 									Path = ent.RealPath;
 									dirty = true;
 									selected_entry = 0;

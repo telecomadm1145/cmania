@@ -5,13 +5,10 @@
 #include "BackgroundComponent.h"
 #include "ResultScreen.h"
 #include "Animator.h"
-
-#include "StdRuleset.h"
-#include "ManiaRuleset.h"
-#include "TaikoRuleset.h"
+#include "Gameplay.h"
 
 class GameplayScreen : public Screen {
-	std::unique_ptr<RulesetBase> ruleset;
+	std::unique_ptr<GameplayBase> gameplay;
 	std::string beatmap_path;
 	std::unique_ptr<ConsolePlayerInputHandler> def_input_handler;
 	std::unique_ptr<RecordInputHandler> rec_input_handler;
@@ -31,23 +28,16 @@ public:
 		LoadForGameplay(mod, bmp_path, mode);
 	}
 	void LoadForGameplay(OsuMods mod, const std::string& bmp_path, int mode) {
-		if (mode == 0)
-			ruleset = std::unique_ptr<RulesetBase>(MakeStdRuleset());
-		else if (mode == 1)
-			ruleset = std::unique_ptr<RulesetBase>(MakeTaikoRuleset());
-		else if (mode == 3)
-			ruleset = std::unique_ptr<RulesetBase>(MakeManiaRuleset());
-		else
-			throw std::exception("no supportion for this mode.");
+		
 		if (!HasFlag(mod, OsuMods::Auto)) {
 			def_input_handler = std::unique_ptr<ConsolePlayerInputHandler>(new ConsolePlayerInputHandler());
-			ruleset->RulesetInputHandler = def_input_handler.get();
+			gameplay->GameInputHandler = def_input_handler.get();
 		}
 		else {
 			rec_input_handler = std::unique_ptr<RecordInputHandler>(new RecordInputHandler());
-			ruleset->RulesetInputHandler = rec_input_handler.get();
+			gameplay->GameInputHandler = rec_input_handler.get();
 		}
-		mods = ruleset->Mods = mod;
+		mods = gameplay->Mods = mod;
 		beatmap_path = bmp_path;
 	}
 	GameplayScreen(Record rec, const std::string& bmp_path, int mode) : mode(mode) {
@@ -55,16 +45,9 @@ public:
 	}
 	void LoadForReplay(Record& rec, const std::string& bmp_path, int mode) {
 		rec_input_handler = std::unique_ptr<RecordInputHandler>(new RecordInputHandler(rec));
-		if (mode == 0)
-			ruleset = std::unique_ptr<RulesetBase>(MakeStdRuleset());
-		else if (mode == 1)
-			ruleset = std::unique_ptr<RulesetBase>(MakeTaikoRuleset());
-		else if (mode == 3)
-			ruleset = std::unique_ptr<RulesetBase>(MakeManiaRuleset());
-		else
-			throw std::exception("no supportion for this mode.");
-		ruleset->RulesetInputHandler = rec_input_handler.get();
-		mods = ruleset->Mods = rec.Mods;
+
+		gameplay->GameInputHandler = rec_input_handler.get();
+		mods = gameplay->Mods = rec.Mods;
 		beatmap_path = bmp_path;
 		this->rec = rec;
 	}
@@ -84,25 +67,25 @@ public:
 			buf.DrawString("暂停中，按任意键继续，再按一次Escape返回", 0, 0, {}, {});
 			return;
 		}
-		auto ruleset = &*this->ruleset;
-		if (ruleset != 0) {
-			if (!ruleset->GameStarted) {
+		auto gameplay = &*this->gameplay;
+		if (gameplay != 0) {
+			if (!gameplay->GameStarted) {
 				buf.DrawString("Loading...", 0, 0, {}, {});
 				return;
 			}
-			ruleset->Render(buf);
+			gameplay->Render(buf);
 
 			// We need to render the result of score processor
-			auto scp = ruleset->GetScoreProcessor();
-			auto clk = ruleset->Clock.Elapsed();
+			auto scp = gameplay->GetScoreProcessor();
+			auto clk = gameplay->Clock.Elapsed();
 
 			std::string centre1 = ""; // this is the major counter.
 			buf.DrawLineV(0, buf.Width, 0, { {}, { 60, 255, 255, 255 }, ' ' });
-			buf.DrawLineV(0, (ruleset->GetCurrentTime() / ruleset->GetDuration()) * buf.Width, 0, { {}, { 60, 90, 255, 100 }, ' ' });
-			auto length_text = std::to_string(int(ruleset->GetDuration() / 1000 / 60)) + ":" + std::to_string(std::abs(int(ruleset->GetDuration() / 1000) % 60));
+			buf.DrawLineV(0, (gameplay->GetCurrentTime() / gameplay->GetDuration()) * buf.Width, 0, { {}, { 60, 90, 255, 100 }, ' ' });
+			auto length_text = std::to_string(int(gameplay->GetDuration() / 1000 / 60)) + ":" + std::to_string(std::abs(int(gameplay->GetDuration() / 1000) % 60));
 			buf.DrawString(length_text, buf.Width - length_text.size() - 1, 0, {}, {});
 
-			auto clk_txt = std::to_string(ruleset->Clock.ClockRate());
+			auto clk_txt = std::to_string(gameplay->Clock.ClockRate());
 			clk_txt.resize(4);
 			clk_txt += "x";
 			buf.DrawString(clk_txt, buf.Width - clk_txt.size() - 1, 1, {}, {});
@@ -110,7 +93,7 @@ public:
 			auto mods_txt = GetModsAbbr(mods);
 			buf.DrawString(mods_txt, buf.Width - mods_txt.size() - 1, 2, {}, {});
 
-			auto current_text = std::to_string(int(ruleset->GetCurrentTime() / 1000 / 60)) + ":" + std::to_string(std::abs(int(ruleset->GetCurrentTime() / 1000) % 60));
+			auto current_text = std::to_string(int(gameplay->GetCurrentTime() / 1000 / 60)) + ":" + std::to_string(std::abs(int(gameplay->GetCurrentTime() / 1000) % 60));
 			buf.DrawString(current_text, 0, 0, {}, {});
 			centre1.append(std::to_string(scp->Combo));
 			centre1.push_back('x');
@@ -143,8 +126,8 @@ public:
 				buf.DrawString("Replaying record of \"" + rec.PlayerName + "\"", 0, 1, { 255, 255, 255, 255 }, {});
 			}
 			{
-				int i = buf.Height / 2 + (ruleset->GetScoreProcessor()->ResultCounter.size()) * 5 / 4 + 1;
-				for (auto& res : ruleset->GetScoreProcessor()->ResultCounter) {
+				int i = buf.Height / 2 + (gameplay->GetScoreProcessor()->ResultCounter.size()) * 5 / 4 + 1;
+				for (auto& res : gameplay->GetScoreProcessor()->ResultCounter) {
 					auto name = GetHitResultName(res.first);
 					auto clr = GetHitResultColor(res.first);
 					auto val = std::to_string(res.second);
@@ -168,26 +151,26 @@ public:
 			corner.append(std::to_string((int)scp->Error));
 			corner.append(")");
 			buf.DrawString(corner, 0, buf.Height - 1, { 255, 255, 255, 255 }, {});
-			if (ruleset->GameEnded) {
+			if (gameplay->GameEnded) {
 				buf.DrawString("按Escape键Continue", buf.Width / 2 - 8, buf.Height - 5, { 255, 255, 255, 255 }, {});
 			}
 		}
 	};
 	virtual void Tick(double) {
-		auto ruleset = &*this->ruleset;
-		if (ruleset != 0) {
-			ruleset->Update();
+		auto gameplay = &*this->gameplay;
+		if (gameplay != 0) {
+			gameplay->Update();
 			if (!game_ended) {
-				if (ruleset->GameEnded) {
+				if (gameplay->GameEnded) {
 					if (rec_input_handler == 0 && !rec_saved) {
-						ruleset->GetScoreProcessor()->SaveRecord();
+						gameplay->GetScoreProcessor()->SaveRecord();
 						std::filesystem::create_directory("Records");
 						RecordPath = "Records/CmaniaRecord_" + std::to_string(HpetClock()) + ".bin";
 						std::fstream ofs(RecordPath, std::ios::out | std::ios::binary);
 						if (!ofs.good())
 							__debugbreak();
-						ruleset->RulesetRecord.PlayerName = std::string((char*)game->Settings["Name"].Data, (char*)game->Settings["Name"].Data + game->Settings["Name"].Size);
-						auto rec = ruleset->RulesetRecord;
+						gameplay->GameRecord.PlayerName = std::string((char*)game->Settings["Name"].Data, (char*)game->Settings["Name"].Data + game->Settings["Name"].Size);
+						auto rec = gameplay->GameRecord;
 						Binary::Write(ofs, rec);
 						ofs.close();
 						auto& caches = game->GetFeature<IBeatmapManagement>().GetSongsCache();
@@ -214,31 +197,31 @@ public:
 					return;
 				}
 				if (kea.Key == ConsoleKey::Oem3 && def_input_handler != 0) {
-					ruleset = 0;
+					gameplay = 0;
 					LoadForGameplay(mods, beatmap_path, mode); // 6
 					LoadRuleset();
 					pause = false;
 					return;
 				}
-				ruleset->Resume();
+				gameplay->Clock.Start();
 				pause = false;
 			}
 			return;
 		}
 		if (kea.Pressed && kea.RepeatCount <= 1) {
 			if (kea.Key == ConsoleKey::Escape) {
-				if (ruleset->GameEnded) {
+				if (gameplay->GameEnded) {
 					if (def_input_handler != 0)
-						parent->Navigate(MakeResultScreen(ruleset->RulesetRecord, ruleset->GetBgPath()));
+						parent->Navigate(MakeResultScreen(gameplay->GameRecord, gameplay->GetBgPath()));
 					else
 						parent->Back();
 					return;
 				}
 				pause = true;
-				ruleset->Pause();
+				gameplay->Clock.Stop();
 			}
 			if (kea.Key == ConsoleKey::Spacebar) {
-				ruleset->Skip();
+				gameplay->Skip();
 			}
 		}
 		if (def_input_handler == nullptr)
@@ -255,13 +238,13 @@ public:
 	};
 	virtual void Activate(bool yes) {
 		if (!yes) {
-			ruleset = 0;
+			gameplay = 0;
 		}
 		else {
-			if (ruleset != 0) {
+			if (gameplay != 0) {
 				LoadRuleset();
 				if (!game->Settings["NoBg"].Get<bool>())
-					bg.LoadBackground(ruleset->GetBgPath());
+					bg.LoadBackground(gameplay->GetBgPath());
 			}
 			else {
 				parent->Back();
@@ -269,11 +252,10 @@ public:
 		}
 	}
 	void LoadRuleset() {
-		ruleset->LoadSettings(game->Settings);
-		ruleset->Load(beatmap_path);
+		gameplay->LoadSettings(game->Settings);
 		if (HasFlag(mods, OsuMods::Auto)) {
 			if (rec_input_handler)
-				rec_input_handler->LoadRecord(rec = ruleset->GetAutoplayRecord());
+				rec_input_handler->LoadRecord(rec = gameplay->GetAutoplayRecord());
 		}
 	};
 	virtual void MouseKey(MouseKeyEventArgs mkea){

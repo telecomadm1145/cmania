@@ -1,6 +1,23 @@
 #pragma once
 #include <cmath>
 #include <vector>
+#include <filesystem>
+#include <string>
+#include <set>
+#include <map>
+#include <unordered_map>
+#include <unordered_set>
+#include <optional>
+#include <tuple>
+#include <concepts>
+#include <thread>
+#include <filesystem>
+#include <iosfwd>
+#include <fstream>
+#include <iostream>
+#include <mutex>
+#include "Linq.h"
+
 template <class T>
 struct Vector {
 	T X = T{};
@@ -166,7 +183,11 @@ public:
 template <>
 class zero<float> {
 public:
-	static constexpr float val = 1e-9;
+	static constexpr float val = 1e-9f;
 };
-template<class T>
+template <class T>
 constexpr T zero_v = zero<T>::val;
+
+using Hash = unsigned int;
+using path = std::filesystem::path;
+using string = std::string;

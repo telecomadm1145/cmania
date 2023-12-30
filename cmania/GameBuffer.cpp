@@ -270,7 +270,8 @@ void GameBuffer::FillPolygon(const std::vector<PointI>& points, PixelData pd) {
 }
 
 void GameBuffer::SetPixel(int x, int y, PixelData pd) {
-	if (x < Width && y < Height && y > -1 && x > -1) {
+	if ((x < Width && y < Height && y > -1 && x > -1)&&
+		(x <= b_right && y <= b_bottom && y >= b_top && x>=b_left)) {
 		auto& ref = PixelBuffer[y * Width + x];
 		if (ref.UcsChar == '\b') {
 			for (int i = x; i >= 0; i--) {

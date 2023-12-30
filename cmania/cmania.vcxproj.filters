@@ -2,15 +2,6 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClCompile Include="cmania.cpp" />
-    <ClCompile Include="BufferController.cpp">
-      <Filter>Core</Filter>
-    </ClCompile>
-    <ClCompile Include="FpsOverlay.cpp">
-      <Filter>Core</Filter>
-    </ClCompile>
-    <ClCompile Include="TickSource.cpp">
-      <Filter>Core</Filter>
-    </ClCompile>
     <ClCompile Include="MainMenuScreen.cpp">
       <Filter>Game</Filter>
     </ClCompile>
@@ -38,9 +29,6 @@
     <ClCompile Include="SpeedSettingScreen.cpp">
       <Filter>Game</Filter>
     </ClCompile>
-    <ClCompile Include="KeepAwake.cpp">
-      <Filter>Core</Filter>
-    </ClCompile>
     <ClCompile Include="stb.c">
       <Filter>Include</Filter>
     </ClCompile>
@@ -53,9 +41,6 @@
     <ClCompile Include="KeyBinds.cpp">
       <Filter>Game</Filter>
     </ClCompile>
-    <ClCompile Include="Debug.cpp">
-      <Filter>Core</Filter>
-    </ClCompile>
     <ClCompile Include="ResultScreen.cpp">
       <Filter>Game</Filter>
     </ClCompile>
@@ -65,21 +50,27 @@
     <ClCompile Include="GameBuffer.cpp">
       <Filter>Core\UI</Filter>
     </ClCompile>
-    <ClCompile Include="LogOverlay.cpp">
-      <Filter>Core</Filter>
-    </ClCompile>
-    <ClCompile Include="DifficultyCalculator.cpp">
-      <Filter>Game\Gameplay\Mania</Filter>
-    </ClCompile>
-    <ClCompile Include="OpenFileDialog.cpp" />
     <ClCompile Include="ManiaRuleset.cpp">
       <Filter>Game\Gameplay\Mania</Filter>
     </ClCompile>
-    <ClCompile Include="StdRuleset.cpp">
-      <Filter>Game\Gameplay\Std</Filter>
+    <ClCompile Include="BufferController.cpp">
+      <Filter>Core\Components</Filter>
     </ClCompile>
-    <ClCompile Include="TaikoRuleset.cpp">
-      <Filter>Game\Gameplay\Taiko</Filter>
+    <ClCompile Include="FpsOverlay.cpp">
+      <Filter>Core\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="LogOverlay.cpp">
+      <Filter>Core\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="TickSource.cpp">
+      <Filter>Core\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="KeepAwake.cpp">
+      <Filter>Core\System</Filter>
+    </ClCompile>
+    <ClCompile Include="DifficultyCalculator" />
+    <ClCompile Include="OpenFileDialog.cpp">
+      <Filter>Core\UI</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -116,19 +107,7 @@
     <ClInclude Include="BeatmapManagementService.h">
       <Filter>Game\Beatmap</Filter>
     </ClInclude>
-    <ClInclude Include="KeepAwake.h">
-      <Filter>Core</Filter>
-    </ClInclude>
     <ClInclude Include="File.h">
-      <Filter>Core</Filter>
-    </ClInclude>
-    <ClInclude Include="BufferController.h">
-      <Filter>Core</Filter>
-    </ClInclude>
-    <ClInclude Include="FpsOverlay.h">
-      <Filter>Core</Filter>
-    </ClInclude>
-    <ClInclude Include="TickSource.h">
       <Filter>Core</Filter>
     </ClInclude>
     <ClInclude Include="Win32ConsoleComponent.h">
@@ -146,68 +125,20 @@
     <ClInclude Include="SettingsScreen.h">
       <Filter>Game</Filter>
     </ClInclude>
-    <ClInclude Include="Debug.h">
-      <Filter>Core</Filter>
-    </ClInclude>
     <ClInclude Include="Game.h">
       <Filter>Core</Filter>
     </ClInclude>
     <ClInclude Include="KeyBinds.h">
       <Filter>Core</Filter>
     </ClInclude>
-    <ClInclude Include="ScreenController.h">
-      <Filter>Core</Filter>
-    </ClInclude>
-    <ClInclude Include="String.h">
-      <Filter>Core</Filter>
-    </ClInclude>
     <ClInclude Include="Stopwatch.h">
       <Filter>Core</Filter>
-    </ClInclude>
-    <ClInclude Include="SettingStorage.h">
-      <Filter>Core</Filter>
-    </ClInclude>
-    <ClInclude Include="Unicode.h">
-      <Filter>Core</Filter>
-    </ClInclude>
-    <ClInclude Include="HitObject.h">
-      <Filter>Game\Gameplay</Filter>
-    </ClInclude>
-    <ClInclude Include="Beatmap.h">
-      <Filter>Game\Gameplay</Filter>
-    </ClInclude>
-    <ClInclude Include="InputHandler.h">
-      <Filter>Game\Gameplay</Filter>
-    </ClInclude>
-    <ClInclude Include="InputEvent.h">
-      <Filter>Game\Gameplay</Filter>
-    </ClInclude>
-    <ClInclude Include="Record.h">
-      <Filter>Game\Gameplay</Filter>
-    </ClInclude>
-    <ClInclude Include="OsuStatic.h">
-      <Filter>Game\Gameplay</Filter>
-    </ClInclude>
-    <ClInclude Include="RecordInputHandler.h">
-      <Filter>Game\Gameplay</Filter>
-    </ClInclude>
-    <ClInclude Include="ConsoleInputHandler.h">
-      <Filter>Game\Gameplay</Filter>
-    </ClInclude>
-    <ClInclude Include="ScoreProcessor.h">
-      <Filter>Game\Gameplay</Filter>
-    </ClInclude>
-    <ClInclude Include="Ruleset.h">
-      <Filter>Game\Gameplay</Filter>
     </ClInclude>
     <ClInclude Include="ManiaScoreProcessor.h">
       <Filter>Game\Gameplay\Mania</Filter>
     </ClInclude>
     <ClInclude Include="ManiaObject.h">
       <Filter>Game\Gameplay\Mania</Filter>
-    </ClInclude>
-    <ClInclude Include="RulesetRenderer.h">
-      <Filter>Game\Gameplay</Filter>
     </ClInclude>
     <ClInclude Include="ResultScreen.h">
       <Filter>Game</Filter>
@@ -233,45 +164,74 @@
     <ClInclude Include="Label.h">
       <Filter>Core\UI</Filter>
     </ClInclude>
-    <ClInclude Include="StdObject.h">
-      <Filter>Game\Gameplay\Std</Filter>
-    </ClInclude>
-    <ClInclude Include="StdScoreProcessor.h">
-      <Filter>Game\Gameplay\Std</Filter>
-    </ClInclude>
     <ClInclude Include="Defines.h">
       <Filter>Core</Filter>
-    </ClInclude>
-    <ClInclude Include="Path.h">
-      <Filter>Game\Gameplay\Std</Filter>
     </ClInclude>
     <ClInclude Include="OsuSample.h">
       <Filter>Game\Gameplay\Osu</Filter>
     </ClInclude>
-    <ClInclude Include="TaikoObject.h">
-      <Filter>Game\Gameplay\Taiko</Filter>
+    <ClInclude Include="Beatmap.h">
+      <Filter>Game\Gameplay\Common</Filter>
     </ClInclude>
-    <ClInclude Include="TaikoScoreProcessor.h">
-      <Filter>Game\Gameplay\Taiko</Filter>
+    <ClInclude Include="HitObject.h">
+      <Filter>Game\Gameplay\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="ConsoleInputHandler.h">
+      <Filter>Game\Gameplay\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="InputEvent.h">
+      <Filter>Game\Gameplay\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="InputHandler.h">
+      <Filter>Game\Gameplay\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Record.h">
+      <Filter>Game\Gameplay\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="RecordInputHandler.h">
+      <Filter>Game\Gameplay\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Gameplay.h">
+      <Filter>Game\Gameplay\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="ScoreProcessor.h">
+      <Filter>Game\Gameplay\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="OsuStatic.h">
+      <Filter>Game\Gameplay\Osu</Filter>
+    </ClInclude>
+    <ClInclude Include="Ruleset.h">
+      <Filter>Game\Gameplay\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="BufferController.h">
+      <Filter>Core\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="FpsOverlay.h">
+      <Filter>Core\Components</Filter>
     </ClInclude>
     <ClInclude Include="LogOverlay.h">
+      <Filter>Core\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="TickSource.h">
+      <Filter>Core\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="ScreenController.h">
+      <Filter>Core\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="KeepAwake.h">
+      <Filter>Core\System</Filter>
+    </ClInclude>
+    <ClInclude Include="String.h">
+      <Filter>Core\String</Filter>
+    </ClInclude>
+    <ClInclude Include="Unicode.h">
+      <Filter>Core\String</Filter>
+    </ClInclude>
+    <ClInclude Include="SettingStorage.h">
+      <Filter>Core\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="OpenFileDialog.h">
       <Filter>Core</Filter>
-    </ClInclude>
-    <ClInclude Include="DifficultyCalculator.h">
-      <Filter>Game\Gameplay\Mania</Filter>
-    </ClInclude>
-    <ClInclude Include="TaikoDifficultyCalculator.h">
-      <Filter>Game\Gameplay\Taiko</Filter>
-    </ClInclude>
-    <ClInclude Include="OpenFileDialog.h" />
-    <ClInclude Include="ManiaRuleset.h">
-      <Filter>Game\Gameplay\Mania</Filter>
-    </ClInclude>
-    <ClInclude Include="StdRuleset.h">
-      <Filter>Game\Gameplay\Std</Filter>
-    </ClInclude>
-    <ClInclude Include="TaikoRuleset.h">
-      <Filter>Game\Gameplay\Taiko</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -305,11 +265,14 @@
     <Filter Include="Game\Beatmap">
       <UniqueIdentifier>{1127def3-ecb6-45f6-b421-e238d8d72d08}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Game\Gameplay\Std">
-      <UniqueIdentifier>{d299fe9d-5f73-418f-9826-e7341f051a88}</UniqueIdentifier>
+    <Filter Include="Game\Gameplay\Common">
+      <UniqueIdentifier>{a98e9b5c-9f99-41b7-96f6-ac9e3a0a1e96}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Game\Gameplay\Taiko">
-      <UniqueIdentifier>{74dd2846-d58a-435c-8923-ee2622fcfe10}</UniqueIdentifier>
+    <Filter Include="Core\Components">
+      <UniqueIdentifier>{c535aa23-60b5-45da-8f60-2bee9af3c7a8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\String">
+      <UniqueIdentifier>{45d08206-5964-4f5b-85a5-8143697c2c41}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -370,7 +333,6 @@
     <None Include="Samples\Triangles\soft-sliderslide.wav" />
     <None Include="Samples\Triangles\soft-slidertick.wav" />
     <None Include="Samples\Triangles\soft-sliderwhistle.wav" />
-    <None Include="Samples\*\*" />
     <None Include="Samples\*\*" />
     <None Include="Samples\*\*" />
     <None Include="Samples\*\*" />

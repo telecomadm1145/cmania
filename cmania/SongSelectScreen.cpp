@@ -102,13 +102,13 @@ class SongSelectScreen : public Screen {
 						}
 						buf.FillRect(b2 + diffxpos, diffoff, buf.Width, diffoff + songheight, { {}, { 200, 32, 32, 32 }, ' ' });
 						auto rul = GetRulesetName(diff.mode);
-						buf.DrawString(rul, b2 + 1 + diffxpos, diffoff + 1, {}, { 255, 120, 120, 120 });
-						buf.DrawString(diff.name, b2 + 1 + diffxpos + rul.size() + 1, diffoff + 1, {}, {});
+						buf.DrawString(rul, b2 + 1 + diffxpos, std::round(diffoff) + 1, {}, { 255, 120, 120, 120 });
+						buf.DrawString(diff.name, b2 + 1 + diffxpos + rul.size() + 1, std::round(diffoff) + 1, {}, {});
 						k++;
 					}
 				}
 				buf.FillRect(b2, basicoff, buf.Width, basicoff + songheight, { {}, { 150, 32, 32, 32 }, ' ' });
-				buf.DrawString(cache.artist + " - " + cache.title, b2 + 1, basicoff + 1, {}, {});
+				buf.DrawString(cache.artist + " - " + cache.title, b2 + 1, std::round(basicoff) + 1, {}, {});
 			}
 		}
 		buf.FillRect(0, 2, 50, 12, { {}, { 150, 32, 32, 32 }, ' ' });

@@ -67,6 +67,12 @@ public:
 	}
 
 private:
+	int b_left = 0;
+	int b_right = INT_MAX;
+	int b_top = 0;
+	int b_bottom = INT_MAX;
+
+private:
 	void EnsureCapacity();
 	void _ResizeBuffer();
 	bool dirty_buffer = false;
@@ -114,6 +120,18 @@ public:
 	}
 	void DrawCircle(float x, float y, float sz, float width, float whratio, PixelData pd);
 
+	void SetBounds(int left, int top, int right, int bottom)
+	{
+		b_left = left;
+		b_top = top;
+		b_right = right;
+		b_bottom = bottom;
+	}
+	void ResetBounds()
+	{
+		b_left = b_top = 0;
+		b_right = b_bottom = INT_MAX;
+	}
 
 public:
 	void FillCircle(float x, float y, float sz, float whratio, PixelData pd, int aa = 8);

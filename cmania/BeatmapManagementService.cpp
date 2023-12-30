@@ -4,12 +4,11 @@
 #include <filesystem>
 #include <iosfwd>
 #include <fstream>
-#include "DifficultyCalculator.h"
+#include <mutex>
 #include "BeatmapManagementService.h"
 #include "Game.h"
 #include "String.h"
 #include "OsuBeatmap.h"
-#include <mutex>
 
 class BeatmapManagementService : public GameComponent, public IBeatmapManagement {
 	SongsCache sc;
