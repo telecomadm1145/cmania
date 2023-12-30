@@ -13,8 +13,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "解决方案项", "解决�
 		README.md = README.md
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cmania.linux", "cmania\cmania.linux.vcxproj", "{872892BF-537A-449C-9698-730246FD742B}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|ARM = Debug|ARM
@@ -55,42 +53,6 @@ Global
 		{2C6018E5-C9FA-4DE3-91F9-9DF55D517E23}.Release|x64.Build.0 = Release|x64
 		{2C6018E5-C9FA-4DE3-91F9-9DF55D517E23}.Release|x86.ActiveCfg = Release|Win32
 		{2C6018E5-C9FA-4DE3-91F9-9DF55D517E23}.Release|x86.Build.0 = Release|Win32
-		{872892BF-537A-449C-9698-730246FD742B}.Debug|ARM.ActiveCfg = Debug|ARM
-		{872892BF-537A-449C-9698-730246FD742B}.Debug|ARM.Build.0 = Debug|ARM
-		{872892BF-537A-449C-9698-730246FD742B}.Debug|ARM.Deploy.0 = Debug|ARM
-		{872892BF-537A-449C-9698-730246FD742B}.Debug|ARM64.ActiveCfg = Debug|ARM64
-		{872892BF-537A-449C-9698-730246FD742B}.Debug|ARM64.Build.0 = Debug|ARM64
-		{872892BF-537A-449C-9698-730246FD742B}.Debug|ARM64.Deploy.0 = Debug|ARM64
-		{872892BF-537A-449C-9698-730246FD742B}.Debug|x64.ActiveCfg = Debug|x64
-		{872892BF-537A-449C-9698-730246FD742B}.Debug|x64.Build.0 = Debug|x64
-		{872892BF-537A-449C-9698-730246FD742B}.Debug|x64.Deploy.0 = Debug|x64
-		{872892BF-537A-449C-9698-730246FD742B}.Debug|x86.ActiveCfg = Debug|x86
-		{872892BF-537A-449C-9698-730246FD742B}.Debug|x86.Build.0 = Debug|x86
-		{872892BF-537A-449C-9698-730246FD742B}.Debug|x86.Deploy.0 = Debug|x86
-		{872892BF-537A-449C-9698-730246FD742B}.PatchableRelease|ARM.ActiveCfg = Release|ARM
-		{872892BF-537A-449C-9698-730246FD742B}.PatchableRelease|ARM.Build.0 = Release|ARM
-		{872892BF-537A-449C-9698-730246FD742B}.PatchableRelease|ARM.Deploy.0 = Release|ARM
-		{872892BF-537A-449C-9698-730246FD742B}.PatchableRelease|ARM64.ActiveCfg = Release|ARM64
-		{872892BF-537A-449C-9698-730246FD742B}.PatchableRelease|ARM64.Build.0 = Release|ARM64
-		{872892BF-537A-449C-9698-730246FD742B}.PatchableRelease|ARM64.Deploy.0 = Release|ARM64
-		{872892BF-537A-449C-9698-730246FD742B}.PatchableRelease|x64.ActiveCfg = Release|x64
-		{872892BF-537A-449C-9698-730246FD742B}.PatchableRelease|x64.Build.0 = Release|x64
-		{872892BF-537A-449C-9698-730246FD742B}.PatchableRelease|x64.Deploy.0 = Release|x64
-		{872892BF-537A-449C-9698-730246FD742B}.PatchableRelease|x86.ActiveCfg = Release|x86
-		{872892BF-537A-449C-9698-730246FD742B}.PatchableRelease|x86.Build.0 = Release|x86
-		{872892BF-537A-449C-9698-730246FD742B}.PatchableRelease|x86.Deploy.0 = Release|x86
-		{872892BF-537A-449C-9698-730246FD742B}.Release|ARM.ActiveCfg = Release|ARM
-		{872892BF-537A-449C-9698-730246FD742B}.Release|ARM.Build.0 = Release|ARM
-		{872892BF-537A-449C-9698-730246FD742B}.Release|ARM.Deploy.0 = Release|ARM
-		{872892BF-537A-449C-9698-730246FD742B}.Release|ARM64.ActiveCfg = Release|ARM64
-		{872892BF-537A-449C-9698-730246FD742B}.Release|ARM64.Build.0 = Release|ARM64
-		{872892BF-537A-449C-9698-730246FD742B}.Release|ARM64.Deploy.0 = Release|ARM64
-		{872892BF-537A-449C-9698-730246FD742B}.Release|x64.ActiveCfg = Release|x64
-		{872892BF-537A-449C-9698-730246FD742B}.Release|x64.Build.0 = Release|x64
-		{872892BF-537A-449C-9698-730246FD742B}.Release|x64.Deploy.0 = Release|x64
-		{872892BF-537A-449C-9698-730246FD742B}.Release|x86.ActiveCfg = Release|x86
-		{872892BF-537A-449C-9698-730246FD742B}.Release|x86.Build.0 = Release|x86
-		{872892BF-537A-449C-9698-730246FD742B}.Release|x86.Deploy.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
