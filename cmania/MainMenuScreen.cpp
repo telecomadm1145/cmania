@@ -13,7 +13,7 @@ class MainMenuScreen : public Screen {
 	std::wstring input_buf;
 	virtual void Activate(bool y) override {
 		if (y) {
-			is_name_exists = game->Settings["Name"].GetString() != 0;
+			is_name_exists = !game->Settings["Name"].GetString().empty();
 		}
 	}
 	virtual void Render(GameBuffer& buf) {

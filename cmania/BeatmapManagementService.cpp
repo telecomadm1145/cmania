@@ -16,7 +16,7 @@ class BeatmapManagementService : public GameComponent, public IBeatmapManagement
 		pthis->RealRefresh(callback);
 	}
 	void RealRefresh(std::function<void(bool)> callback) {
-		auto song_path = std::string(parent->Settings["SongsPath"].GetString(), parent->Settings["SongsPath"].GetString() + parent->Settings["SongsPath"].Size);
+		auto song_path = parent->Settings["SongsPath"].GetString();
 		if (!song_path.empty() && std::filesystem::exists(song_path)) {
 			SongsCahceReadyEventArgs screa{};
 			auto songs_path = std::filesystem::path(song_path);

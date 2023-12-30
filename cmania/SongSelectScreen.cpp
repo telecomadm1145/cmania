@@ -465,7 +465,7 @@ class SongSelectScreen : public Screen {
 						game->Settings["SongsPath"].SetArray(pth.string().c_str(), pth.string().size());
 						game->Settings.Write();
 					},
-					{}, true, std::string(game->Settings["SongsPath"].GetString(), game->Settings["SongsPath"].GetString() + game->Settings["SongsPath"].Size)));
+					{}, true, game->Settings["SongsPath"].GetString()));
 			}
 		});
 	}

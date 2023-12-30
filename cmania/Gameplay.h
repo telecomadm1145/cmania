@@ -20,7 +20,6 @@ public:
 	bool GameEnded = false;
 	bool GameStarted = false;
 	Record GameRecord{};
-	virtual void LoadSettings(BinaryStorage& settings) = 0;
 	virtual void Load(::Ruleset* rul,::Beatmap* bmp) = 0;
 	virtual Record GetAutoplayRecord() = 0;
 	virtual void Update() = 0;

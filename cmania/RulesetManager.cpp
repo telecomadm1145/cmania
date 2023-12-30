@@ -13,6 +13,7 @@ public:
 	}
 	void Register(Ruleset* rul) override
 	{
+		rul->Init(parent->Settings);
 		if (rulesets.find(rul->Id()) != rulesets.end())
 		{
 			throw std::exception("Ruleset have registered before");

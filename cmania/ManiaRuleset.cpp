@@ -13,12 +13,13 @@
 #include "Ruleset.h"
 
 class ManiaGameplay : public GameplayBase {
+
+public:
 	std::vector<Animator<PowerEasingFunction<1.5>>> KeyHighlight;
 	Animator<PowerEasingFunction<4.0>> LastHitResultAnimator{ 255, 0, 400 };
 	HitResult LastHitResult = HitResult::None;
 	AudioStream bgm;
 	double scrollspeed = 0;
-	double endtime = 0;
 	std::string skin_path;
 	double offset = 0;
 	double first_obj = 1e300;
@@ -32,36 +33,11 @@ class ManiaGameplay : public GameplayBase {
 	double last_rec = 0;
 	double miss_offset = 200;
 	ManiaScoreProcessor RulesetScoreProcessor{};
-
-public:
 	ManiaGameplay() {
 		KeyHighlight.resize(18, { 180, 0, 150 });
 	}
 	virtual ScoreProcessorBase* GetScoreProcessor() override {
 		return &RulesetScoreProcessor;
-	}
-	virtual void LoadSettings(BinaryStorage& settings) override {
-		scrollspeed = settings["ScrollSpeed"].Get<double>();
-		if (scrollspeed <= 0) {
-			scrollspeed = 500;
-		}
-		offset = settings["Offset"].Get<double>();
-		no_hs = settings["NoBmpHs"].Get<bool>();
-		RulesetScoreProcessor.SetWtMode(wt_mode = settings["WtMode"].Get<bool>());
-		jump_helper = settings["JumpHelper"].Get<bool>();
-		tail_hs = settings["TailHs"].Get<bool>();
-		const char* skinpath = settings["SkinPath"].GetString();
-		if (skinpath == 0 || !std::filesystem::exists(skinpath)) {
-			skinpath = "Samples/Triangles";
-		}
-		skin_path = skinpath;
-		auto& binds = settings["KeyBinds"];
-		if (binds.Size < key_binds.size() * sizeof(ConsoleKey)) {
-			binds.SetArray(key_binds.data(), key_binds.size());
-			settings.Write();
-		}
-		auto dat = binds.GetArray<ConsoleKey>();
-		std::copy(dat, dat + key_binds.size(), key_binds.begin());
 	}
 	virtual void Load(::Ruleset* rul, ::Beatmap* bmp) override {
 		auto am = GetBassAudioManager(); // 获取Bass引擎
@@ -82,10 +58,12 @@ public:
 		if (GameInputHandler == 0)
 			throw std::invalid_argument("RulesetInputHandler mustn't be nullptr.");
 
+		keys = bmp->GetDifficultyValue("Keys");
+
 		auto binds = Select(
 			GetKeyBinds(keys), [](const auto& val) -> auto { return (int)val; })
 						 .ToList<int>();
-		keys = bmp->GetDifficultyValue("Keys");
+
 		GameInputHandler->SetBinds(binds);
 		first_obj = bmp->FirstObject();
 		end_obj = first_obj + bmp->Length();
@@ -416,7 +394,7 @@ public:
 		return end_obj - first_obj;
 	}
 	virtual std::string GetBgPath() override {
-		return Beatmap->BgmPath().string();
+		return Beatmap->BgPath().string();
 	}
 	virtual Record GetAutoplayRecord() override {
 		Record record{};
@@ -500,6 +478,8 @@ public:
 };
 
 class ManiaRuleset : public Ruleset {
+	BinaryStorage* settings;
+
 public:
 	virtual std::string Id() {
 		return "osumania";
@@ -508,7 +488,7 @@ public:
 		return "Mania";
 	}
 	virtual Beatmap* LoadBeatmap(path beatmap_path) {
-		auto obj = new ManiaBeatmap();
+		auto beatmap = new ManiaBeatmap();
 
 		std::ifstream ifs(beatmap_path);
 		if (!ifs.good())
@@ -516,15 +496,115 @@ public:
 
 		OsuBeatmap osub = OsuBeatmap::Parse(ifs);
 
-		obj->orig_bmp = osub;
-		obj->bmp_root = beatmap_path.parent_path();
-		obj->last_obj = 9999999;
-		obj->first_obj = 0;
+		beatmap->orig_bmp = osub;
+		auto parent = beatmap_path.parent_path();
+		beatmap->bmp_root = parent;
+		int keys = (int)osub.CircleSize;
+		std::set<std::string> Samples;
+		Samples >
+			AddRangeSet(osub.HitObjects >
+						Select([](const auto& ho) -> std::string { return ho.CustomSampleFilename; }) >
+						Where([](const auto& str) -> bool { return !str.empty(); }) >
+						Select([&](const auto& str) -> auto { return (parent / str).string(); })) >
+			AddRangeSet(osub.StoryboardSamples > Select([&](const auto& item) -> auto { return (parent / item.path).string(); }));
 
-		return obj;
+		auto SampleIndex = BuildSampleIndex(parent, 1); // 构建谱面采样索引(sampleset==1默认)
+		auto skin_path = (*settings)["SkinPath"].GetString();
+		if (skin_path.empty())
+		{
+			skin_path = "Samples\\Triangles";
+		}
+		(*settings)["SkinPath"].SetArray(skin_path.data(), skin_path.size());
+		auto wt_mode = (*settings)["WtMode"].Get<bool>();
+		auto SkinSampleIndex = BuildSampleIndex(skin_path, 0); // 构建皮肤采样索引(sampleset==0)
+
+		auto selector = [](const AudioSampleMetadata& md) -> auto {
+			return md.filename.string();
+		}; // linq 查询
+
+		Samples > AddRangeSet(Select(SampleIndex, selector))  // 添加谱面采样路径
+			> AddRangeSet(Select(SkinSampleIndex, selector)); // 添加皮肤采样路径
+
+		auto am = GetBassAudioManager();
+
+		std::map<std::string, AudioSample> SampleCaches; // 采样缓存
+
+		Samples > ForEach([&](const std::string& path) {
+			try {
+				auto dat = ReadAllBytes(path);
+				SampleCaches[path] = AudioSample(am->loadSample(dat.data(), dat.size()));
+			}
+			catch (...) {
+			}
+		});
+
+		// 加载物件
+		beatmap->storage > AddRange(Select(
+							   osub.HitObjects, [&](const OsuBeatmap::HitObject& obj) -> auto {
+								   ManiaObject mo{};
+
+								   // 计算物件的列
+								   mo.Column = CalcColumn(obj.X, keys);
+
+								   // 复制起始和终止时间
+								   mo.StartTime = obj.StartTime;
+								   mo.EndTime = obj.EndTime;
+
+								   beatmap->first_obj = std::min(beatmap->first_obj, obj.StartTime);
+								   beatmap->last_obj = std::max(beatmap->last_obj, obj.StartTime);
+								   if (obj.EndTime != 0)
+									   beatmap->last_obj = std::max(beatmap->last_obj, obj.EndTime);
+
+								   // 计算是否为多押
+								   osub.HitObjects > ForEach([&](const auto& obj2) {
+									   if (&obj2 != &obj && (std::abs(obj.StartTime - obj2.StartTime) < 0.5 || (obj2.EndTime != 0 && std::abs(obj.StartTime - obj2.EndTime) < 0.5)))
+										   mo.Multi = true;
+								   });
+
+								   // 获取最近的 TimingPoint
+								   auto& tp = GetTimingPoint(osub, obj.StartTime);
+
+								   // 将 fspath 转换为 AudioSample
+								   auto sample_selector = [&](const std::filesystem::path& sample) -> auto {
+									   return SampleCaches[sample.string()];
+								   };
+
+								   // 给物件加载 Samples
+								   mo.samples > AddRange(GetSampleLayered(SampleIndex, SkinSampleIndex, tp.SampleBank, obj.SoundType, tp.SampleSet) > Select(sample_selector));
+
+								   if (!obj.CustomSampleFilename.empty()) {
+									   mo.samples.push_back(SampleCaches[(parent / obj.CustomSampleFilename).string()]);
+								   }
+
+								   beatmap->maxcombo++;
+
+								   // 判断是否是 Hold
+								   if (obj.EndTime != 0) {
+									   // 加载滑动音效
+									   First(GetSampleLayered(SampleIndex, SkinSampleIndex, tp.SampleBank, HitSoundType::Slide, tp.SampleSet) > Select(sample_selector), mo.ssample);
+
+									   // 加载 Whistle 滑动音效
+									   if (HasFlag(obj.SoundType, HitSoundType::Whistle))
+										   First(GetSampleLayered(SampleIndex, SkinSampleIndex, tp.SampleBank, HitSoundType::SlideWhistle, tp.SampleSet) > Select(sample_selector), mo.ssamplew);
+
+									   if (!wt_mode)
+										   beatmap->maxcombo++;
+								   }
+
+								   return mo;
+							   }));
+
+		return beatmap;
 	}
 	virtual GameplayBase* GenerateGameplay() {
 		auto obj = new ManiaGameplay();
+		auto val = (*settings)["ScrollSpeed"].Get<double>();
+		if (val < 10.0)
+		{
+			val = 500;
+		}
+		obj->scrollspeed = val = std::clamp(val,10.0,100000.0);
+		(*settings)["ScrollSpeed"].Set<double>(val);
 		return obj;
 	}
 	virtual double CalculateDifficulty(Beatmap* bmp, OsuMods mods) {
@@ -533,9 +613,11 @@ public:
 	virtual DifficultyInfo PopulateDifficultyInfo(Beatmap* bmp) {
 		return {};
 	}
+	virtual void Init(BinaryStorage& settings) override {
+		this->settings = &settings;
+	}
 };
 
-Ruleset* MakeManiaRuleset()
-{
+Ruleset* MakeManiaRuleset() {
 	return new ManiaRuleset();
 }

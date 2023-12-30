@@ -19,10 +19,10 @@ struct BinaryStorageItem {
 	BinaryStorageItem(const T& ref) {
 		Set(ref);
 	}
-	char* GetString() {
+	std::string GetString() {
 		if (Size == 0)
-			return (char*)0;
-		return (char*)Data;
+			return {};
+		return { (char*)Data, (char*)Data + Size };
 	}
 	template <typename T>
 	T* GetArray() {

@@ -114,7 +114,7 @@ class SettingsScreen : public Screen {
 		line.append("ms(+/-调整,Shift==0.1,大写锁定==10,判定偏移量(不是歌曲偏移量))\n");
 		line.append("速度设置向导(S)\n");
 		line.append("重新选择Songs路径并清除缓存(R) (当前:");
-		line.append(std::string(game->Settings["SongsPath"].GetString(), game->Settings["SongsPath"].GetString() + game->Settings["SongsPath"].Size));
+		line.append(game->Settings["SongsPath"].GetString());
 		line.append(")\n");
 		line.append("键位设置(Y)\n");
 		for (size_t i = 0; i < buf.Height; i++) {
@@ -179,7 +179,7 @@ class SettingsScreen : public Screen {
 						game->Settings["SongsPath"].SetArray(pth.string().c_str(), pth.string().size());
 						game->Settings.Write();
 					},{},
-					true, std::string(game->Settings["SongsPath"].GetString(), game->Settings["SongsPath"].GetString() + game->Settings["SongsPath"].Size)));
+					true,game->Settings["SongsPath"].GetString()));
 				return;
 			}
 			if (kea.Key == ConsoleKey::Y) {

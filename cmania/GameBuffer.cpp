@@ -379,6 +379,10 @@ void GameBuffer::DrawLineV(int x1, int x2, int y, PixelData pd) {
 void GameBuffer::FillRect(float left, float top, float right, float bottom, PixelData pd) {
 	if (top > bottom)
 		std::swap(top, bottom);
+	left = std::clamp(left,0.0f,(float)Width);
+	right = std::clamp(right, 0.0f, (float)Width);
+	top = std::clamp(top, 0.0f, (float)Height);
+	bottom = std::clamp(bottom, 0.0f, (float)Height);
 	float y1_i = 0.0;
 	float y1_f = std::modf(top, &y1_i);
 	float y2_i = 0.0;

@@ -11,9 +11,9 @@ class DifficultyInfoItem {
 	} Type;
 };
 using DifficultyInfo = std::vector<DifficultyInfoItem>;
-class Ruleset
-{
+class Ruleset {
 public:
+	virtual void Init(BinaryStorage& settings) = 0;
 	virtual std::string Id() = 0;
 	virtual std::string DisplayName() = 0;
 	virtual Beatmap* LoadBeatmap(path beatmap_path) = 0;

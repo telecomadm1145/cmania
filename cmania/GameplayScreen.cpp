@@ -280,7 +280,6 @@ public:
 		}
 	}
 	void LoadRuleset() {
-		gameplay->LoadSettings(game->Settings);
 		if (HasFlag(mods, OsuMods::Auto)) {
 			if (rec_input_handler)
 				rec_input_handler->LoadRecord(rec = gameplay->GetAutoplayRecord());
