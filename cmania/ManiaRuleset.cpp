@@ -63,14 +63,13 @@ public:
 		auto dat = binds.GetArray<ConsoleKey>();
 		std::copy(dat, dat + key_binds.size(), key_binds.begin());
 	}
-	virtual void Load(::Ruleset* rul,::Beatmap* bmp) override {
+	virtual void Load(::Ruleset* rul, ::Beatmap* bmp) override {
 		auto am = GetBassAudioManager(); // 获取Bass引擎
 
-		if (bmp->RulesetId() != "osumania")
-		{
+		if (bmp->RulesetId() != "osumania") {
 			throw std::exception("Provide a osu!mania beatmap to this gameplay.");
 		}
-		
+
 		this->Beatmap = bmp;
 		this->Ruleset = rul;
 
@@ -86,8 +85,10 @@ public:
 		auto binds = Select(
 			GetKeyBinds(keys), [](const auto& val) -> auto { return (int)val; })
 						 .ToList<int>();
+		keys = bmp->GetDifficultyValue("Keys");
 		GameInputHandler->SetBinds(binds);
-
+		first_obj = bmp->FirstObject();
+		end_obj = first_obj + bmp->Length();
 		GameRecord.Mods = Mods;
 		GameRecord.RatingGraph.resize(((end_obj - first_obj) + 11000) / 100);
 
@@ -97,7 +98,10 @@ public:
 		RulesetScoreProcessor.SetDifficulty(od);
 		RulesetScoreProcessor.SetMods(Mods);
 
-		auto diff =Ruleset->CalculateDifficulty(bmp,Mods);
+		RulesetScoreProcessor.BeatmapMaxCombo = bmp->MaxCombo();
+		GameRecord.BeatmapHash = bmp->BeatmapHashcode();
+
+		auto diff = Ruleset->CalculateDifficulty(bmp, Mods);
 		RulesetScoreProcessor.ApplyBeatmap(diff * GetPlaybackRate(Mods));
 
 		miss_offset = GetHitRanges(od)[HitResult::Meh];
@@ -313,7 +317,7 @@ public:
 	virtual void Render(GameBuffer& buffer) override {
 		auto e_ms = Clock.Elapsed();
 		double key_width = 10;
-		double key_height = std::clamp(buffer.Height / 50.0, 0.5,2.0);
+		double key_height = std::clamp(buffer.Height / 50.0, 0.5, 2.0);
 		key_width = int(std::min(std::max(key_width, (double)buffer.Width * 0.3 / keys), (double)buffer.Width / keys * 2 - 3));
 		double centre = (double)buffer.Width / 2;
 		double centre_start = centre - (keys * key_width) / 2;
@@ -483,12 +487,10 @@ public:
 		return bmp_root / orig_bmp.AudioFilename;
 	}
 	virtual double GetDifficultyValue(std::string key) const noexcept {
-		if (key == "OD")
-		{
+		if (key == "OD") {
 			return orig_bmp.OverallDifficulty;
 		}
-		if (key == "Keys")
-		{
+		if (key == "Keys") {
 			return (int)orig_bmp.CircleSize;
 		}
 	}
@@ -508,15 +510,32 @@ public:
 	virtual Beatmap* LoadBeatmap(path beatmap_path) {
 		auto obj = new ManiaBeatmap();
 
+		std::ifstream ifs(beatmap_path);
+		if (!ifs.good())
+			throw std::exception("Failed to open beatmap file.");
+
+		OsuBeatmap osub = OsuBeatmap::Parse(ifs);
+
+		obj->orig_bmp = osub;
+		obj->bmp_root = beatmap_path.parent_path();
+		obj->last_obj = 9999999;
+		obj->first_obj = 0;
+
 		return obj;
 	}
-	virtual GameplayBase* GenerateGameplay(Beatmap* bmp) {
+	virtual GameplayBase* GenerateGameplay() {
 		auto obj = new ManiaGameplay();
-		obj->Load(this, bmp);
 		return obj;
 	}
 	virtual double CalculateDifficulty(Beatmap* bmp, OsuMods mods) {
+		return 1;
 	}
 	virtual DifficultyInfo PopulateDifficultyInfo(Beatmap* bmp) {
+		return {};
 	}
 };
+
+Ruleset* MakeManiaRuleset()
+{
+	return new ManiaRuleset();
+}

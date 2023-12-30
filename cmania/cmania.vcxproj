@@ -303,6 +303,7 @@
     <ClCompile Include="OpenFileDialog.cpp" />
     <ClCompile Include="OsuBeatmap.cpp" />
     <ClCompile Include="ResultScreen.cpp" />
+    <ClCompile Include="RulesetManager.cpp" />
     <ClCompile Include="SettingsScreen.cpp" />
     <ClCompile Include="SongSelectScreen.cpp" />
     <ClCompile Include="SpeedSettingScreen.cpp" />
@@ -340,6 +341,7 @@
     <ClInclude Include="LogOverlay.h" />
     <ClInclude Include="MainMenuScreen.h" />
     <ClInclude Include="ManiaObject.h" />
+    <ClInclude Include="ManiaRuleset.h" />
     <ClInclude Include="ManiaScoreProcessor.h" />
     <ClInclude Include="OpenFileDialog.h" />
     <ClInclude Include="OsuBeatmap.h" />
@@ -351,6 +353,7 @@
     <ClInclude Include="ResultScreen.h" />
     <ClInclude Include="Gameplay.h" />
     <ClInclude Include="Ruleset.h" />
+    <ClInclude Include="RulesetManager.h" />
     <ClInclude Include="ScoreProcessor.h" />
     <ClInclude Include="ScreenController.h" />
     <ClInclude Include="SettingsScreen.h" />

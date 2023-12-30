@@ -13,6 +13,9 @@
 #include "KeepAwake.h"
 #include "BassAudioManager.h"
 #include "LogOverlay.h"
+#include "RulesetManager.h"
+
+#include "ManiaRuleset.h"
 
 // cmania 的入口点
 int main() {
@@ -28,9 +31,12 @@ int main() {
 		.Use(MakeScreenController)
 		.Use(MakeBeatmapManagementService)
 		.Use(MakeLogOverlay)
-		.Use(MakeFpsOverlay); // 注入组件依赖
+		.Use(MakeFpsOverlay)
+		.Use(MakeRulesetManager); // 注入组件依赖
 
 	game.Raise("start"); // 初始化组件
+
+		game.GetFeature<IRulesetManager>().Register(MakeManiaRuleset());
 
 	auto& scr = *MakeMainMenuScreen(); // 构建主屏幕
 	game.Raise("navigate", scr);	   // 导航到主屏幕

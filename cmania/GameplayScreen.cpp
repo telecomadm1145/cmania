@@ -6,9 +6,12 @@
 #include "ResultScreen.h"
 #include "Animator.h"
 #include "Gameplay.h"
+#include "RulesetManager.h"
+#include "LogOverlay.h"
 
 class GameplayScreen : public Screen {
 	std::unique_ptr<GameplayBase> gameplay;
+	std::unique_ptr<Beatmap> beatmap;
 	std::string beatmap_path;
 	std::unique_ptr<ConsolePlayerInputHandler> def_input_handler;
 	std::unique_ptr<RecordInputHandler> rec_input_handler;
@@ -17,18 +20,21 @@ class GameplayScreen : public Screen {
 	bool rec_saved = false;
 	std::string RecordPath;
 	Record rec;
+	Ruleset* ruleset;
 	OsuMods mods;
 	int mode = 0;
 	BackgroundComponent bg;
+	bool is_replay = false;
 
-	using TransOut = Transition<EaseOut<CubicEasingFunction>,ConstantEasingDurationCalculator<500.0>>;
+	using TransOut = Transition<EaseOut<CubicEasingFunction>, ConstantEasingDurationCalculator<500.0>>;
 
 public:
-	GameplayScreen(const std::string& bmp_path, OsuMods mod, int mode) : mode(mode) {
-		LoadForGameplay(mod, bmp_path, mode);
+	GameplayScreen(const std::string& bmp_path, OsuMods mod, int mode) : mode(mode), mods(mod), beatmap_path(bmp_path), is_replay(false) {
 	}
 	void LoadForGameplay(OsuMods mod, const std::string& bmp_path, int mode) {
-		
+		ruleset = &game->GetFeature<IRulesetManager>().GetRuleset("osumania");
+		beatmap.reset(ruleset->LoadBeatmap(bmp_path));
+		gameplay.reset(ruleset->GenerateGameplay());
 		if (!HasFlag(mod, OsuMods::Auto)) {
 			def_input_handler = std::unique_ptr<ConsolePlayerInputHandler>(new ConsolePlayerInputHandler());
 			gameplay->GameInputHandler = def_input_handler.get();
@@ -37,28 +43,30 @@ public:
 			rec_input_handler = std::unique_ptr<RecordInputHandler>(new RecordInputHandler());
 			gameplay->GameInputHandler = rec_input_handler.get();
 		}
-		mods = gameplay->Mods = mod;
-		beatmap_path = bmp_path;
+		gameplay->Mods = mod;
+		gameplay->Load(ruleset, beatmap.get());
 	}
-	GameplayScreen(Record rec, const std::string& bmp_path, int mode) : mode(mode) {
-		LoadForReplay(rec, bmp_path, mode);
+	GameplayScreen(Record rec, const std::string& bmp_path, int mode) : mode(mode), mods(rec.Mods), beatmap_path(bmp_path), is_replay(true), rec(rec) {
 	}
 	void LoadForReplay(Record& rec, const std::string& bmp_path, int mode) {
+		ruleset = &game->GetFeature<IRulesetManager>().GetRuleset("osumania");
+		beatmap.reset(ruleset->LoadBeatmap(bmp_path));
+		gameplay.reset(ruleset->GenerateGameplay());
+
 		rec_input_handler = std::unique_ptr<RecordInputHandler>(new RecordInputHandler(rec));
 
 		gameplay->GameInputHandler = rec_input_handler.get();
-		mods = gameplay->Mods = rec.Mods;
-		beatmap_path = bmp_path;
-		this->rec = rec;
+		gameplay->Mods = rec.Mods;
+		gameplay->Load(ruleset, beatmap.get());
 	}
 
 private:
 	TransOut AccTrans{};
-	TransOut ScoreTrans{  };
+	TransOut ScoreTrans{};
 	TransOut ErrorTrans{};
-	TransOut VarianceTrans{ };
-	TransOut RatingTrans{  };
-	TransOut ComboTrans{  };
+	TransOut VarianceTrans{};
+	TransOut RatingTrans{};
+	TransOut ComboTrans{};
 
 public:
 	virtual void Render(GameBuffer& buf) {
@@ -158,7 +166,7 @@ public:
 	};
 	virtual void Tick(double) {
 		auto gameplay = &*this->gameplay;
-		if (gameplay != 0) {
+		if (gameplay != 0 && gameplay->GameStarted) {
 			gameplay->Update();
 			if (!game_ended) {
 				if (gameplay->GameEnded) {
@@ -231,7 +239,7 @@ public:
 	virtual void Wheel(WheelEventArgs wea){
 
 	};
-	virtual void Move(MoveEventArgs mea){
+	virtual void Move(MoveEventArgs mea) {
 		if (def_input_handler == nullptr)
 			return;
 		def_input_handler->OnMouseMove(mea);
@@ -241,6 +249,26 @@ public:
 			gameplay = 0;
 		}
 		else {
+			try {
+				if (!is_replay) {
+					LoadForGameplay(mods, beatmap_path, mode);
+				}
+				else {
+					LoadForReplay(rec, beatmap_path, mode);
+				}
+			}
+			catch (std::exception& ex)
+			{
+				game->GetFeature<ILogger>().LogError(ex.what());
+				parent->Back();
+				return;
+			}
+			catch (...)
+			{
+				game->GetFeature<ILogger>().LogError("Failed to load ruleset.");
+				parent->Back();
+				return;
+			}
 			if (gameplay != 0) {
 				LoadRuleset();
 				if (!game->Settings["NoBg"].Get<bool>())
@@ -258,7 +286,7 @@ public:
 				rec_input_handler->LoadRecord(rec = gameplay->GetAutoplayRecord());
 		}
 	};
-	virtual void MouseKey(MouseKeyEventArgs mkea){
+	virtual void MouseKey(MouseKeyEventArgs mkea) {
 		if (def_input_handler == nullptr)
 			return;
 		def_input_handler->OnMouseKey(mkea);

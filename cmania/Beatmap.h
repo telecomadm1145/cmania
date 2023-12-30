@@ -27,25 +27,31 @@ public:
 	public:
 		ParentType* bmp;
 		size_t i;
-		iterator* operator++() {
+		iterator& operator++() {
 			i++;
+			return *this;
 		}
-		iterator* operator++(int) {
+		iterator& operator++(int) {
 			i++;
+			return *this;
 		}
-		iterator operator--() {
+		iterator& operator--() {
 			i--;
+			return *this;
 		}
-		iterator operator--(int) {
+		iterator& operator--(int) {
 			i--;
+			return *this;
 		}
 		template <std::integral T>
-		iterator operator+(T j) {
+		iterator& operator+(T j) {
 			i += j;
+			return *this;
 		}
 		template <std::integral T>
-		iterator operator-(T j) {
+		iterator& operator-(T j) {
 			i -= j;
+			return *this;
 		}
 		HitObject& operator*() {
 			return bmp->at(i);
