@@ -1,14 +1,31 @@
 #pragma once
 #include "Gameplay.h"
 class DifficultyInfoItem {
+public:
 	std::string Text;
 	double Value;
 	double MinValue;
 	double MaxValue;
 	enum {
 		ValueBar,
-		Header
+		Header,
+		PlainText,
+		PlainValue,
 	} Type;
+	std::string Text2;
+	static DifficultyInfoItem MakeValueBar(std::string Header,double Value,double MinValue = 0,double MaxValue = 9999)
+	{
+		return { Header, Value, MinValue, MaxValue, ValueBar };
+	}
+	static DifficultyInfoItem MakeValue(std::string Header, double Value) {
+		return { Header, Value, 0, 0, DifficultyInfoItem::PlainValue };
+	}
+	static DifficultyInfoItem MakeHeader(std::string Header) {
+		return { Header, 0, 0, 0, DifficultyInfoItem::Header };
+	}
+	static DifficultyInfoItem MakeText(std::string Header,std::string Text) {
+		return { Header, 0, 0, 0, DifficultyInfoItem::PlainText, Text };
+	}
 };
 using DifficultyInfo = std::vector<DifficultyInfoItem>;
 class Ruleset {

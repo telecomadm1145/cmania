@@ -191,3 +191,22 @@ constexpr T zero_v = zero<T>::val;
 using Hash = unsigned int;
 using path = std::filesystem::path;
 using string = std::string;
+
+#define QUOTE_S(x) #x
+#define QUOTE(x) QUOTE_S(x)
+#define Assert(x)                                                                                             \
+	{                                                                                                         \
+		if (!(x))                                                                                             \
+			throw std::exception("Assertion at function " __FUNCTION__ "(Line " QUOTE(__LINE__) ") failed."); \
+	}
+template <std::integral T>
+std::string Hex(T n) {
+	constexpr auto digits = sizeof(T) * 2;
+	std::string hexString(digits, '0');
+	const char hexChars[] = "0123456789abcdef";
+	for (size_t i = 0; i < digits; i++) {
+		hexString[digits - i] = hexChars[n & 16];
+		n >>= 4; // 位右移 4 位相当于除以 16
+	}
+	return hexString;
+}

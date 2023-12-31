@@ -60,6 +60,9 @@ class SongSelectScreen : public Screen {
 	TransOut OffsetTrans{};
 	TransOut Itemstrans[82]{};
 	double difficulty_val = 0;
+	DifficultyInfo di;
+	int selected_tab = 0;
+
 	virtual void Render(GameBuffer& buf) {
 		std::lock_guard lock(res_lock);
 		h_cache = buf.Height;
@@ -145,12 +148,46 @@ class SongSelectScreen : public Screen {
 					buf.DrawString(diff, 50 - diff.size() - 1, 3, clr2, clr);
 				}
 				// records
-				buf.DrawString("个人最佳: " + (records.size() > 0 ? std::to_string((int)(records[0].Score * 10000000)) : "0"), 1, 14, {}, {});
+				buf.FillRect(0, 14, 8, 15, { {}, { 150, 32, 32, 32 }, ' ' });
+				buf.DrawString("Details", 0, 14, {}, {});
+				buf.FillRect(0, 15, 50, buf.Height - 3, { {}, { 150, 32, 32, 32 }, ' ' });
+				buf.SetBounds(0, 15, 50, buf.Height - 4);
+				int i = 15;
+				for (auto& d : di) {
+					if (d.Type == DifficultyInfoItem::ValueBar) {
+						buf.DrawString(d.Text, 0, i, {}, {});
+						std::string v = std::format("{:.2f}", d.Value);
+						buf.DrawString(v, 50 - v.size() - 1, i, {}, {});
+						buf.DrawLineV(12, 50 - 7 - 2, i, { {}, { 150, 32, 32, 32 }, ' ' });
+						double prog = std::clamp(d.Value / d.MaxValue, 0.0, 1.0);
+						buf.DrawLineV(12, prog * (50 - 7 - 2 - 12) + 12, i, { {}, { 150, 255, 0, 0 }, ' ' });
+						i++;
+					}
+					else if (d.Type == DifficultyInfoItem::Header) {
+						i++;
+						buf.DrawString(d.Text, 0, i, {}, {});
+						i++;
+					}
+					else if (d.Type == DifficultyInfoItem::PlainText) {
+						buf.DrawString(d.Text, 0, i, {}, {});
+						auto v = d.Text2;
+						buf.DrawString(v, 50 - v.size() - 1, i, {}, {});
+						i++;
+					}
+					else if (d.Type == DifficultyInfoItem::PlainValue) {
+						buf.DrawString(d.Text, 0, i, {}, {});
+						auto v = std::format("{:.2f}", d.Value);
+						buf.DrawString(v, 50 - v.size() - 1, i, {}, {});
+						i++;
+					}
+				}
+				buf.ResetBounds();
+				/* buf.DrawString("个人最佳: " + (records.size() > 0 ? std::to_string((int)(records[0].Score * 10000000)) : "0"), 1, 14, {}, {});
 				int i = 16;
 				for (auto& rec : records) {
 					buf.DrawString(std::to_string((int)(rec.Score * 10000000)) + "@" + std::to_string(rec.Accuracy * 100) + "%", 1, i, {}, {});
 					i += 2;
-				}
+				}*/
 			}
 		}
 		else {
@@ -374,10 +411,13 @@ class SongSelectScreen : public Screen {
 	void FocusCurrent() {
 	}
 	void RefreshDifficulty() {
-		auto& ruleset = game->GetFeature<IRulesetManager>().GetRuleset("osumania");
-		auto bmp = ruleset.LoadBeatmap(selected_entry_2->path);
-		difficulty_val = ruleset.CalculateDifficulty(bmp, mods) * GetModScale(mods) * GetPlaybackRate(mods);
-		delete bmp;
+		if (selected_entry_2 != 0) {
+			auto& ruleset = game->GetFeature<IRulesetManager>().GetRuleset("osumania");
+			auto bmp = ruleset.LoadBeatmap(selected_entry_2->path);
+			difficulty_val = ruleset.CalculateDifficulty(bmp, mods) * GetModScale(mods) * GetPlaybackRate(mods);
+			di = ruleset.PopulateDifficultyInfo(bmp);
+			delete bmp;
+		}
 	}
 	void MakeSelected(int i, auto& cache, auto& diff) {
 		selected = i;
@@ -534,6 +574,7 @@ class SongSelectScreen : public Screen {
 				}
 				if (mod_flyout) {
 					if (kea.Key == ConsoleKey::Escape) {
+						RefreshDifficulty();
 						mod_flyout = !mod_flyout;
 					}
 
@@ -572,7 +613,6 @@ class SongSelectScreen : public Screen {
 					if (kea.Key == ConsoleKey::NumPad0) {
 						mods = OsuMods(((unsigned long long)mods) & 0xfffffffffff0ffff);
 					}
-					RefreshDifficulty();
 					game->Settings["Mods"].Set(mods);
 					game->Settings.Write();
 					return;

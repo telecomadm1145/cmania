@@ -78,6 +78,8 @@ public:
 
 		RulesetScoreProcessor.BeatmapMaxCombo = bmp->MaxCombo();
 		GameRecord.BeatmapHash = bmp->BeatmapHashcode();
+		GameRecord.BeatmapTitle = bmp->Title();
+		GameRecord.BeatmapVersion = bmp->Version();
 
 		auto diff = Ruleset->CalculateDifficulty(bmp, Mods);
 		RulesetScoreProcessor.ApplyBeatmap(diff * GetPlaybackRate(Mods));
@@ -437,6 +439,12 @@ public:
 	virtual std::string RulesetId() const noexcept {
 		return "osumania";
 	}
+	virtual std::string Title() const noexcept {
+		return orig_bmp.Title;
+	}
+	virtual std::string Version() const noexcept {
+		return orig_bmp.Version;
+	}
 	virtual Hash BeatmapHashcode() const noexcept {
 		return bmp_hash;
 	}
@@ -471,6 +479,7 @@ public:
 		if (key == "Keys") {
 			return (int)orig_bmp.CircleSize;
 		}
+		return 0;
 	}
 	virtual std::unordered_set<std::string> GetDifficultyValues() const noexcept {
 		return { "OD", "Keys" };
@@ -510,8 +519,7 @@ public:
 
 		auto SampleIndex = BuildSampleIndex(parent, 1); // 构建谱面采样索引(sampleset==1默认)
 		auto skin_path = (*settings)["SkinPath"].GetString();
-		if (skin_path.empty())
-		{
+		if (skin_path.empty()) {
 			skin_path = "Samples\\Triangles";
 		}
 		(*settings)["SkinPath"].SetArray(skin_path.data(), skin_path.size());
@@ -599,11 +607,10 @@ public:
 	virtual GameplayBase* GenerateGameplay() {
 		auto obj = new ManiaGameplay();
 		auto val = (*settings)["ScrollSpeed"].Get<double>();
-		if (val < 10.0)
-		{
+		if (val < 10.0) {
 			val = 500;
 		}
-		obj->scrollspeed = val = std::clamp(val,10.0,100000.0);
+		obj->scrollspeed = val = std::clamp(val, 10.0, 100000.0);
 		(*settings)["ScrollSpeed"].Set<double>(val);
 		return obj;
 	}
@@ -684,7 +691,25 @@ public:
 		return (avgdiff + top20diff) * 20;
 	}
 	virtual DifficultyInfo PopulateDifficultyInfo(Beatmap* bmp) {
-		return {};
+		Assert(bmp->RulesetId() == "osumania");
+		ManiaBeatmap& mb = *(ManiaBeatmap*)bmp;
+		DifficultyInfo di;
+		di.push_back(DifficultyInfoItem::MakeValue("Durtaion(s)", bmp->Length() / 1000));
+		di.push_back(DifficultyInfoItem::MakeText("BeatmapHash", Hex(bmp->BeatmapHashcode())));
+		di.push_back(DifficultyInfoItem::MakeText("MaxCombo", std::to_string(bmp->MaxCombo())));
+		di.push_back(DifficultyInfoItem::MakeText("Objects", std::to_string(bmp->size())));
+		di.push_back(DifficultyInfoItem::MakeHeader("Difficulty values"));
+		di.push_back(DifficultyInfoItem::MakeValueBar("Keys", bmp->GetDifficultyValue("Keys"), 0, 20));
+		di.push_back(DifficultyInfoItem::MakeValueBar("OD", bmp->GetDifficultyValue("OD"), 0, 20));
+		di.push_back(DifficultyInfoItem::MakeValueBar("Star(NM)", CalculateDifficulty(bmp, OsuMods::None), 0, 15));
+		di.push_back(DifficultyInfoItem::MakeHeader("Hitwindow"));
+		static constexpr auto mania_hitres = { HitResult::Perfect, HitResult::Great, HitResult::Good, HitResult::Ok, HitResult::Meh, HitResult::Miss };
+		auto hitranges = GetHitRanges(bmp->GetDifficultyValue("OD"));
+		auto max = 200;
+		for (auto res : mania_hitres) {
+			di.push_back(DifficultyInfoItem::MakeValueBar(GetHitResultName(res), hitranges[res], 0, max + 20));
+		}
+		return di;
 	}
 	virtual void Init(BinaryStorage& settings) override {
 		this->settings = &settings;

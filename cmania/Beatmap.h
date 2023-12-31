@@ -7,6 +7,8 @@ public:
 	virtual ~Beatmap() {
 	}
 	virtual std::string RulesetId() const noexcept = 0;
+	virtual std::string Title() const noexcept = 0;
+	virtual std::string Version() const noexcept = 0;
 	virtual Hash BeatmapHashcode() const noexcept = 0;
 	virtual size_t MaxCombo() const noexcept = 0;
 	virtual double FirstObject() const noexcept = 0;

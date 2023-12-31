@@ -5,9 +5,6 @@
 #include "LogOverlay.h"
 #include "git_info.h"
 
-#define QUOTE_S(x) #x
-#define QUOTE(x) QUOTE_S(x)
-
 class MainMenuScreen : public Screen {
 	bool is_name_exists = false;
 	std::wstring input_buf;
