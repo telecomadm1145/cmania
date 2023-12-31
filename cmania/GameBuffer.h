@@ -24,7 +24,11 @@ struct Color {
 	}
 	template <class T>
 	Color operator*(T x) {
-		return Color{ (unsigned char)(Alpha * x), Red, Green, Blue };
+		return Color{ (unsigned char)(Alpha*x), Red, Green, Blue };
+	}
+	template <class T>
+	Color operator^(T x) {
+		return Color{ Alpha, (unsigned char)(Red * x), (unsigned char)(Green * x), (unsigned char)(Blue * x) };
 	}
 	double Difference(Color b) {
 		return (std::abs((Red - b.Red) / 255.0) + std::abs((Blue - b.Blue) / 255.0) + std::abs((Green - b.Green) / 255.0)) / 3.0;

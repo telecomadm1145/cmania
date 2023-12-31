@@ -19,6 +19,7 @@
 #include "SongSelectScreen.h"
 #include "Animator.h"
 #include "OpenFileDialog.h"
+#include "RulesetManager.h"
 
 class SongSelectScreen : public Screen {
 	BackgroundComponent bg;
@@ -35,31 +36,30 @@ class SongSelectScreen : public Screen {
 	OsuMods mods;
 	using TransOut = DynamicsTransition<double>;
 	Color difficultyToRGBColor(float difficulty) {
-		std::vector<std::tuple<double, double, Color>> ranges = {
-			{ 0, 1, { 0, 204, 204, 204 } },								   // 灰
-			{ 1, 2, { 0, 77, 230, 46 } },								   // 绿
-			{ 2, 3, { 0, 61, 135, 204 } },								   // 蓝
-			{ 3, 4, { 0, 230, 153, 46 } },								   // 橙
-			{ 4, 5, { 0, 230, 55, 46 } },								   // Red
-			{ 5, 6, { 0, 202, 46, 230 } },								   // Purple
-			{ 6, 7, { 0, 108, 0, 127 } },								   // Dark Purple
-			{ 8, std::numeric_limits<double>::infinity(), { 0, 0, 0, 0 } } // 黑
+		static constexpr Color ranges[9] = {
+			{ 0, 120, 120, 120 }, // 灰
+			{ 0, 77, 200, 46 },	  // 绿
+			{ 0, 0, 105, 204 },	  // 蓝
+			{ 0, 230, 153, 46 },  // 橙
+			{ 0, 230, 55, 46 },	  // Red
+			{ 0, 202, 46, 230 },  // Purple
+			{ 0, 108, 0, 127 },	  // Dark Purple
+			{ 0, 0, 0, 0 }		  // 黑
 		};
-
-		// Iterate through the ranges and find the corresponding RGB color
-		for (const auto& r : ranges) {
-			if (std::get<0>(r) <= difficulty && difficulty < std::get<1>(r)) {
-				auto clr = std::get<2>(r);
-				clr.Alpha = 255;
-				return clr;
-			}
-		}
-
-		// If the difficulty does not fall within any range, return black color
-		return { 255, 0, 0, 0 };
+		auto d = std::clamp(difficulty, 0.0f, 7.9f);
+		float intg = 0.0;
+		float frac = std::modf(d, &intg);
+		int intg_1 = (int)intg;
+		auto clr1 = ranges[intg_1];
+		auto clr2 = ranges[intg_1 + 1];
+		frac /= 4;
+		auto clrf = (clr1 ^ (1 - frac)) + (clr2 ^ frac);
+		clrf.Alpha = 255;
+		return clrf;
 	}
 	TransOut OffsetTrans{};
 	TransOut Itemstrans[82]{};
+	double difficulty_val = 0;
 	virtual void Render(GameBuffer& buf) {
 		std::lock_guard lock(res_lock);
 		h_cache = buf.Height;
@@ -138,7 +138,12 @@ class SongSelectScreen : public Screen {
 				npstext.resize(npstext.find('.') + 2);
 				auto info = GetRulesetName(entry2->mode) + "  " + std::to_string(minutes) + ":" + std::to_string(seconds) + "  " + npstext + "NPS";
 				buf.DrawString(info, 1, 10, {}, {});
-
+				if (difficulty_val > 0) {
+					auto diff = std::format("{:.1f}", difficulty_val);
+					auto clr = difficultyToRGBColor(difficulty_val);
+					auto clr2 = Color::Blend(clr, Color{ 200, 255, 255, 255 });
+					buf.DrawString(diff, 50 - diff.size() - 1, 3, clr2, clr);
+				}
 				// records
 				buf.DrawString("个人最佳: " + (records.size() > 0 ? std::to_string((int)(records[0].Score * 10000000)) : "0"), 1, 14, {}, {});
 				int i = 16;
@@ -305,8 +310,7 @@ class SongSelectScreen : public Screen {
 			offset += wea.Delta;
 	}
 	virtual void Move(MoveEventArgs mea) {
-		if (!mod_flyout && !ruleset_flyout)
-		{
+		if (!mod_flyout && !ruleset_flyout) {
 			if (last_y >= 0) {
 				offset = last_offset - (mea.Y - last_y) * 2;
 			}
@@ -369,6 +373,12 @@ class SongSelectScreen : public Screen {
 	}
 	void FocusCurrent() {
 	}
+	void RefreshDifficulty() {
+		auto& ruleset = game->GetFeature<IRulesetManager>().GetRuleset("osumania");
+		auto bmp = ruleset.LoadBeatmap(selected_entry_2->path);
+		difficulty_val = ruleset.CalculateDifficulty(bmp, mods) * GetModScale(mods) * GetPlaybackRate(mods);
+		delete bmp;
+	}
 	void MakeSelected(int i, auto& cache, auto& diff) {
 		selected = i;
 		if (i != INT_MAX) {
@@ -378,6 +388,8 @@ class SongSelectScreen : public Screen {
 			}
 			selected_entry = &cache;
 			selected_entry_2 = &diff;
+			difficulty_val = 0;
+			RefreshDifficulty();
 			RefreshRecords();
 		}
 		LoadBg();
@@ -560,6 +572,7 @@ class SongSelectScreen : public Screen {
 					if (kea.Key == ConsoleKey::NumPad0) {
 						mods = OsuMods(((unsigned long long)mods) & 0xfffffffffff0ffff);
 					}
+					RefreshDifficulty();
 					game->Settings["Mods"].Set(mods);
 					game->Settings.Write();
 					return;
