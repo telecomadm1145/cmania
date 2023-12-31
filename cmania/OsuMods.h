@@ -14,7 +14,7 @@ enum class OsuMods
 	FadeOut = 0b1000000,
 	//JumpHelper= 0b10000000,
 	Auto = 0b100000000,
-	Relax = 0b1000000000, // lim od->-inf gameplayscreen.start()
+	Relax = 0b1000000000,
 	Mirror = 0b10000000000,
 	Random = 0b100000000000,
 	NoJump = 0b1000000000000,

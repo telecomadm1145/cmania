@@ -36,7 +36,7 @@ int main() {
 
 	game.Raise("start"); // 初始化组件
 
-		game.GetFeature<IRulesetManager>().Register(MakeManiaRuleset());
+	game.GetFeature<IRulesetManager>().Register(MakeManiaRuleset());
 
 	auto& scr = *MakeMainMenuScreen(); // 构建主屏幕
 	game.Raise("navigate", scr);	   // 导航到主屏幕
