@@ -11,6 +11,7 @@
 #include "OsuSample.h"
 #include "Gameplay.h"
 #include "Ruleset.h"
+#include "Crc.h"
 
 class ManiaGameplay : public GameplayBase {
 
@@ -504,7 +505,14 @@ public:
 			throw std::exception("Failed to open beatmap file.");
 
 		OsuBeatmap osub = OsuBeatmap::Parse(ifs);
-
+		ifs.close();
+		ifs.open(beatmap_path, std::ios::binary);
+		ifs.seekg(0, std::ios::end);
+		auto sz = ifs.tellg();
+		auto buf = new char[sz];
+		ifs.seekg(0);
+		ifs.get(buf, sz);
+		beatmap->bmp_hash = GetCrc(buf, sz);
 		beatmap->orig_bmp = osub;
 		auto parent = beatmap_path.parent_path();
 		beatmap->bmp_root = parent;

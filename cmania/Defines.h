@@ -205,7 +205,7 @@ std::string Hex(T n) {
 	std::string hexString(digits, '0');
 	const char hexChars[] = "0123456789abcdef";
 	for (size_t i = 0; i < digits; i++) {
-		hexString[digits - i] = hexChars[n & 16];
+		hexString[digits - i -1] = hexChars[n & 0xF];
 		n >>= 4; // 位右移 4 位相当于除以 16
 	}
 	return hexString;

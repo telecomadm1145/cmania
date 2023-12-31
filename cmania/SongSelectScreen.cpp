@@ -137,9 +137,7 @@ class SongSelectScreen : public Screen {
 			if (entry2 != 0) {
 				auto minutes = int(entry2->length / (1000 * 60));
 				auto seconds = int(entry2->length / 1000) % 60;
-				auto npstext = std::to_string(entry2->nps);
-				npstext.resize(npstext.find('.') + 2);
-				auto info = GetRulesetName(entry2->mode) + "  " + std::to_string(minutes) + ":" + std::to_string(seconds) + "  " + npstext + "NPS";
+				auto info = GetRulesetName(entry2->mode) + "  " + std::to_string(minutes) + ":" + std::to_string(seconds);
 				buf.DrawString(info, 1, 10, {}, {});
 				if (difficulty_val > 0) {
 					auto diff = std::format("{:.1f}", difficulty_val);

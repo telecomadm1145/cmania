@@ -290,7 +290,7 @@
     <ClCompile Include="BufferController.cpp" />
     <ClCompile Include="cmania.cpp" />
     <ClCompile Include="ConsoleText.cpp" />
-    <ClCompile Include="DifficultyCalculator" />
+    <ClCompile Include="Crc.cpp" />
     <ClCompile Include="File.cpp" />
     <ClCompile Include="FpsOverlay.cpp" />
     <ClCompile Include="GameBuffer.cpp" />
@@ -304,6 +304,7 @@
     <ClCompile Include="OsuBeatmap.cpp" />
     <ClCompile Include="ResultScreen.cpp" />
     <ClCompile Include="RulesetManager.cpp" />
+    <ClCompile Include="ScoreSubmition.cpp" />
     <ClCompile Include="SettingsScreen.cpp" />
     <ClCompile Include="SongSelectScreen.cpp" />
     <ClCompile Include="SpeedSettingScreen.cpp" />
@@ -317,6 +318,7 @@
     <ClInclude Include="BackgroundComponent.h" />
     <ClInclude Include="Beatmap.h" />
     <ClInclude Include="ConsoleInputHandler.h" />
+    <ClInclude Include="Crc.h" />
     <ClInclude Include="Defines.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="GameBuffer.h" />
