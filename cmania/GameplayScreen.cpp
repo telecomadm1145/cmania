@@ -83,11 +83,10 @@ public:
 			}
 			gameplay->Render(buf);
 
-			// We need to render the result of score processor
 			auto scp = gameplay->GetScoreProcessor();
 			auto clk = gameplay->Clock.Elapsed();
 
-			std::string centre1 = ""; // this is the major counter.
+			std::string centre1 = "";
 			buf.DrawLineV(0, buf.Width, 0, { {}, { 60, 255, 255, 255 }, ' ' });
 			buf.DrawLineV(0, (gameplay->GetCurrentTime() / gameplay->GetDuration()) * buf.Width, 0, { {}, { 60, 90, 255, 100 }, ' ' });
 			auto length_text = std::to_string(int(gameplay->GetDuration() / 1000 / 60)) + ":" + std::to_string(std::abs(int(gameplay->GetDuration() / 1000) % 60));
@@ -173,24 +172,30 @@ public:
 					if (rec_input_handler == 0 && !rec_saved) {
 						gameplay->GetScoreProcessor()->SaveRecord();
 						std::filesystem::create_directory("Records");
-						RecordPath = "Records/CmaniaRecord_" + std::to_string(HpetClock()) + ".bin";
-						std::fstream ofs(RecordPath, std::ios::out | std::ios::binary);
-						if (!ofs.good())
-							__debugbreak();
-						gameplay->GameRecord.PlayerName = std::string((char*)game->Settings["Name"].Data, (char*)game->Settings["Name"].Data + game->Settings["Name"].Size);
-						auto rec = gameplay->GameRecord;
-						Binary::Write(ofs, rec);
-						ofs.close();
-						auto& caches = game->GetFeature<IBeatmapManagement>().GetSongsCache();
-						auto match = std::find_if(caches.begin(), caches.end(), [&](SongsCacheEntry& c) { return c.path == std::filesystem::path(beatmap_path).parent_path(); });
-						if (match != caches.end()) {
-							auto& diffcache = match->difficulties;
-							auto match2 = std::find_if(diffcache.begin(), diffcache.end(), [&](DifficultyCacheEntry& c) { return c.path == std::filesystem::path(beatmap_path); });
-							if (match2 != diffcache.end()) {
-								match2->records.push_back(RecordPath);
-							}
-						}
-						game->GetFeature<IBeatmapManagement>().Save();
+
+						__debugbreak();
+						// TODO: finish new record logic there.
+						
+
+						//RecordPath = "Records/CmaniaRecord_" + std::to_string(HpetClock()) + ".bin";
+						//std::fstream ofs(RecordPath, std::ios::out | std::ios::binary);
+						//if (!ofs.good())
+						//	__debugbreak();
+						//gameplay->GameRecord.PlayerName = std::string((char*)game->Settings["Name"].Data, (char*)game->Settings["Name"].Data + game->Settings["Name"].Size);
+						//auto rec = gameplay->GameRecord;
+						//Binary::Write(ofs, rec);
+						//ofs.close();
+						//auto& caches = game->GetFeature<IBeatmapManagement>().GetSongsCache();
+						//auto match = std::find_if(caches.begin(), caches.end(), [&](SongsCacheEntry& c) { return c.path == std::filesystem::path(beatmap_path).parent_path(); });
+						//if (match != caches.end()) {
+						//	auto& diffcache = match->difficulties;
+						//	auto match2 = std::find_if(diffcache.begin(), diffcache.end(), [&](DifficultyCacheEntry& c) { return c.path == std::filesystem::path(beatmap_path); });
+						//	if (match2 != diffcache.end()) {
+						//		match2->records.push_back(RecordPath);
+						//	}
+						//}
+						//game->GetFeature<IBeatmapManagement>().Save();
+
 						rec_saved = true;
 					}
 				}
@@ -249,6 +254,14 @@ public:
 			gameplay = 0;
 		}
 		else {
+			if (gameplay != 0)
+			{
+				if (gameplay->GameEnded)
+				{
+					parent->Back();
+					return;
+				}
+			}
 			try {
 				if (!is_replay) {
 					LoadForGameplay(mods, beatmap_path, mode);

@@ -34,7 +34,7 @@ class SongSelectScreen : public Screen {
 	bool ruleset_flyout;
 	std::unordered_set<int> selected_ruleset;
 	OsuMods mods;
-	using TransOut = Transition<EaseOut<PowerEasingFunction<3.0>>, DurationRangeLimiter<1000.0, 2000.0, LinearEasingDurationCalculator<10>>>;
+	using TransOut = Transition<EaseOut<PowerEasingFunction<6.0>>, DurationRangeLimiter<1000.0, 2000.0, LinearEasingDurationCalculator<10>>>;
 	Color difficultyToRGBColor(float difficulty) {
 		static constexpr Color ranges[9] = {
 			{ 0, 77, 200, 46 },	 // 灰

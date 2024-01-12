@@ -10,6 +10,9 @@ struct ManiaObject : public HitObject {
 	AudioStream ssample_stream;
 	AudioSample ssamplew;
 	AudioStream ssamplew_stream;
-	double EndTime;
+	double EndTime = 1.0 / 0.0 * 0.0;
 	double LastHoldOff = -1;
+	bool IsHold() {
+		return isnan(EndTime);
+	}
 };

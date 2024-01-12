@@ -563,14 +563,22 @@ public:
 								   // 计算物件的列
 								   mo.Column = CalcColumn(obj.X, keys);
 
+								   auto is_slider = HasFlag(obj.Type, HitObjectType::Slider);
+								   auto is_hold = is_slider || HasFlag(obj.Type, HitObjectType::Hold) || HasFlag(obj.Type, HitObjectType::Spinner);
+
 								   // 复制起始和终止时间
 								   mo.StartTime = obj.StartTime;
-								   mo.EndTime = obj.EndTime;
-
+								   
 								   beatmap->first_obj = std::min(beatmap->first_obj, obj.StartTime);
 								   beatmap->last_obj = std::max(beatmap->last_obj, obj.StartTime);
-								   if (obj.EndTime != 0)
-									   beatmap->last_obj = std::max(beatmap->last_obj, obj.EndTime);
+								   if (is_hold) {
+									   mo.EndTime = obj.EndTime;
+									   if (is_slider)
+									   {
+										   
+									   }
+									   beatmap->last_obj = std::max(beatmap->last_obj, mo.EndTime);
+								   }
 
 								   // 计算是否为多押
 								   osub.HitObjects > ForEach([&](const auto& obj2) {
