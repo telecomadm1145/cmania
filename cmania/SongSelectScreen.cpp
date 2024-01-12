@@ -550,6 +550,14 @@ class SongSelectScreen : public Screen {
 			return;
 		}
 		if (kea.Pressed) {
+			if (kea.Key == ConsoleKey::F10) {
+				preview->stop();
+				return;
+			}
+			if (kea.Key == ConsoleKey::F9) {
+				preview->play();
+				return;
+			}
 			{
 				std::lock_guard lock(res_lock);
 				if (ruleset_flyout) {

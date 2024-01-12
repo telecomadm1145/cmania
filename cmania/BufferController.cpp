@@ -25,9 +25,11 @@ public:
 			buf.InitConsole();
 		}
 		if (strcmp(evt, "tick") == 0) {
-			std::lock_guard lg(mutex);
-			buf.Clear();
-			buf.ResetBounds();
+			{
+				std::lock_guard lg(mutex);
+				buf.Clear();
+				buf.ResetBounds();
+			}
 			parent->Raise("draw", buf);
 			buf.Output();
 		}
