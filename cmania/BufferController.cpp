@@ -31,7 +31,10 @@ public:
 				buf.ResetBounds();
 			}
 			parent->Raise("draw", buf);
-			buf.Output();
+			{
+				std::lock_guard lg(mutex);
+				buf.Output();
+			}
 		}
 		if (strcmp(evt, "resize") == 0) {
 			std::lock_guard lg(mutex);

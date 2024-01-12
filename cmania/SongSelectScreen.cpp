@@ -34,17 +34,17 @@ class SongSelectScreen : public Screen {
 	bool ruleset_flyout;
 	std::unordered_set<int> selected_ruleset;
 	OsuMods mods;
-	using TransOut = Transition<EaseOut<PowerEasingFunction<4.0>>,DurationRangeLimiter<1000.0,2000.0,LinearEasingDurationCalculator<5>>>;
+	using TransOut = Transition<EaseOut<PowerEasingFunction<3.0>>, DurationRangeLimiter<1000.0, 2000.0, LinearEasingDurationCalculator<10>>>;
 	Color difficultyToRGBColor(float difficulty) {
 		static constexpr Color ranges[9] = {
-			{ 0, 120, 120, 120 }, // 灰
-			{ 0, 77, 200, 46 },	  // 绿
-			{ 0, 0, 105, 204 },	  // 蓝
-			{ 0, 230, 153, 46 },  // 橙
-			{ 0, 230, 55, 46 },	  // Red
-			{ 0, 202, 46, 230 },  // Purple
-			{ 0, 108, 0, 127 },	  // Dark Purple
-			{ 0, 0, 0, 0 }		  // 黑
+			{ 0, 77, 200, 46 },	 // 灰
+			{ 0, 77, 200, 46 },	 // 绿
+			{ 0, 0, 105, 204 },	 // 蓝
+			{ 0, 230, 153, 46 }, // 橙
+			{ 0, 230, 55, 46 },	 // Red
+			{ 0, 202, 46, 230 }, // Purple
+			{ 0, 108, 0, 127 },	 // Dark Purple
+			{ 0, 0, 0, 0 }		 // 黑
 		};
 		auto d = std::clamp(difficulty, 0.0f, 7.9f);
 		float intg = 0.0;
@@ -58,7 +58,7 @@ class SongSelectScreen : public Screen {
 		return clrf;
 	}
 	TransOut OffsetTrans{};
-	TransOut Itemstrans[82]{};
+	TransOut Itemstrans[182]{};
 	double difficulty_val = 0;
 	DifficultyInfo di;
 	int selected_tab = 0;
@@ -77,7 +77,7 @@ class SongSelectScreen : public Screen {
 		int gap = 1;
 		int songheight = 3;
 		auto clk = HpetClock();
-		OffsetTrans.SetValue(clk,offset);
+		OffsetTrans.SetValue(clk, offset);
 		auto realoff = OffsetTrans.GetCurrentValue(clk);
 		int index = (int)(realoff / (songheight + gap) + buf.Height / 2);
 		int max = (int)(buf.Height / (songheight + gap) + 10);
@@ -93,9 +93,9 @@ class SongSelectScreen : public Screen {
 				if (i > selected && selected_entry != 0) {
 					basicoff += selected_entry->difficulties.size() * (songheight + gap);
 				}
-				Itemstrans[(i % 40) + 40].SetValue(clk,50 - std::abs(basicoff - (buf.Height / 2)));
-				int c2 = Itemstrans[(i % 40) + 40].GetCurrentValue(clk) / (buf.Height / 2) * 15+10;
-				int b2 = buf.Width - c2;
+				Itemstrans[(i % 70) + 70].SetValue(clk, 50 - std::abs(basicoff - (buf.Height / 2)));
+				int c2 = Itemstrans[(i % 70) + 70].GetCurrentValue(clk) / (buf.Height / 2)*8;
+				int b2 = buf.Width *0.7 -c2;
 				if (i == selected) {
 					buf.FillRect(b2, basicoff, buf.Width, basicoff + songheight, { {}, { 60, 255, 255, 255 }, ' ' }); // 高亮
 					int k = 1;
