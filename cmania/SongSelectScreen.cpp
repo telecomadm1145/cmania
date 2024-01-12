@@ -34,7 +34,7 @@ class SongSelectScreen : public Screen {
 	bool ruleset_flyout;
 	std::unordered_set<int> selected_ruleset;
 	OsuMods mods;
-	using TransOut = DynamicsTransition<double>;
+	using TransOut = Transition<EaseOut<PowerEasingFunction<4.0>>,DurationRangeLimiter<1000.0,2000.0,LinearEasingDurationCalculator<5>>>;
 	Color difficultyToRGBColor(float difficulty) {
 		static constexpr Color ranges[9] = {
 			{ 0, 120, 120, 120 }, // 灰
@@ -77,7 +77,8 @@ class SongSelectScreen : public Screen {
 		int gap = 1;
 		int songheight = 3;
 		auto clk = HpetClock();
-		auto realoff = OffsetTrans.GetCurrentValue(clk, offset);
+		OffsetTrans.SetValue(clk,offset);
+		auto realoff = OffsetTrans.GetCurrentValue(clk);
 		int index = (int)(realoff / (songheight + gap) + buf.Height / 2);
 		int max = (int)(buf.Height / (songheight + gap) + 10);
 		int min = index - h_cache / 2 - 5 - (selected_entry != 0 ? selected_entry->difficulties.size() : 0);
@@ -92,18 +93,19 @@ class SongSelectScreen : public Screen {
 				if (i > selected && selected_entry != 0) {
 					basicoff += selected_entry->difficulties.size() * (songheight + gap);
 				}
-				int c2 = Itemstrans[(i % 40) + 40].GetCurrentValue(clk, 50 - std::abs(basicoff - (buf.Height / 2)) / (buf.Height / 2) * 10);
+				Itemstrans[(i % 40) + 40].SetValue(clk,50 - std::abs(basicoff - (buf.Height / 2)));
+				int c2 = Itemstrans[(i % 40) + 40].GetCurrentValue(clk) / (buf.Height / 2) * 15+10;
 				int b2 = buf.Width - c2;
 				if (i == selected) {
-					buf.FillRect(b2, basicoff, buf.Width, basicoff + songheight, { {}, { 100, 255, 255, 255 }, ' ' }); // 高亮
+					buf.FillRect(b2, basicoff, buf.Width, basicoff + songheight, { {}, { 60, 255, 255, 255 }, ' ' }); // 高亮
 					int k = 1;
 					int diffxpos = 3;
 					for (auto& diff : cache.difficulties) {
 						auto diffoff = basicoff + (k * (songheight + gap));
 						if (&diff == selected_entry_2) {
-							buf.FillRect(b2 + diffxpos, diffoff, buf.Width, diffoff + songheight, { {}, { 120, 255, 255, 255 }, ' ' });
+							buf.FillRect(b2 + diffxpos, diffoff, buf.Width, diffoff + songheight, { {}, { 110, 255, 255, 255 }, ' ' });
 						}
-						buf.FillRect(b2 + diffxpos, diffoff, buf.Width, diffoff + songheight, { {}, { 200, 32, 32, 32 }, ' ' });
+						buf.FillRect(b2 + diffxpos, diffoff, buf.Width, diffoff + songheight, { {}, { 40, 255, 255, 255 }, ' ' });
 						auto rul = GetRulesetName(diff.mode);
 						buf.DrawString(rul, b2 + 1 + diffxpos, std::round(diffoff) + 1, {}, { 255, 120, 120, 120 });
 						buf.DrawString(diff.name, b2 + 1 + diffxpos + rul.size() + 1, std::round(diffoff) + 1, {}, {});
