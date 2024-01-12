@@ -53,6 +53,14 @@ struct BinaryStorageItem {
 		Data = new T[count];
 		memcpy((void*)Data, (const void*)ptr, Size);
 	}
+	void SetString(std::string str) {
+		if (Data != 0) {
+			delete[] Data;
+		}
+		Size = str.size() * sizeof(char);
+		Data = new char[str.size()];
+		memcpy((void*)Data, (const void*)str.data(), Size);
+	}
 };
 /// <summary>
 /// 一个简单的二进制存储类，支持无指针的有复制构造函数的类型

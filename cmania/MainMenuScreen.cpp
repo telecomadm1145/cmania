@@ -36,7 +36,7 @@ class MainMenuScreen : public Screen {
 				if (kea.Key == ConsoleKey::Enter) {
 					auto str = Utf162Utf8(std::wstring{ input_buf.begin(), input_buf.end() });
 					is_name_exists = true;
-					game->Settings["Name"].SetArray(str.c_str(), str.size());
+					game->Settings["Name"].SetString(str);
 					game->Settings.Write();
 				}
 				if (kea.UnicodeChar >= 31) {

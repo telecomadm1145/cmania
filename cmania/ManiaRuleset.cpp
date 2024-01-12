@@ -510,6 +510,7 @@ public:
 		ifs.seekg(0, std::ios::end);
 		auto sz = ifs.tellg();
 		auto buf = new char[sz];
+		memset(buf, 0, sz);
 		ifs.seekg(0);
 		ifs.get(buf, sz);
 		beatmap->bmp_hash = GetCrc(buf, sz);
