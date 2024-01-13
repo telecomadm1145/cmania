@@ -98,7 +98,7 @@ public:
 	void ProcessAction(int action, bool pressed, double clock) {
 		if (!pressed) {
 			auto first_hold = Beatmap->super<ManiaObject>() > Where([&](ManiaObject& obj) -> bool {
-				return obj.Column == action && obj.EndTime != 0 && !(obj.HasHold || obj.HoldBroken) && obj.HasHit;
+				return obj.Column == action && obj.IsHold() && !(obj.HasHold || obj.HoldBroken) && obj.HasHit;
 			}) > FirstOrDefault();
 			if (first_hold != 0) {
 				auto result = RulesetScoreProcessor.ApplyHit(*first_hold, clock - first_hold->EndTime);
@@ -183,7 +183,7 @@ public:
 		}
 
 		Beatmap->super<ManiaObject>() > ForEach([&](ManiaObject& obj) {
-			if (obj.EndTime != 0 && !(obj.HasHold || obj.HoldBroken) && !wt_mode) {
+			if (obj.IsHold() && !(obj.HasHold || obj.HoldBroken) && !wt_mode) {
 				if (time > obj.StartTime + miss_offset) {
 					if (GameInputHandler->GetKeyStatus(obj.Column)) {
 						obj.LastHoldOff = time;
@@ -205,7 +205,7 @@ public:
 			}
 
 			// Handles sliding sample.
-			if (obj.HasHit && obj.EndTime != 0) {
+			if (obj.HasHit && obj.IsHold()) {
 				if (wt_mode) {
 					if (time > obj.StartTime && time < obj.EndTime) {
 						if (obj.ssample != 0 && obj.ssample_stream == 0) {
@@ -309,8 +309,8 @@ public:
 			auto scrollspeed = this->scrollspeed * Clock.ClockRate();
 			for (auto& obj : Beatmap->super<ManiaObject>()) {
 				auto off = obj.StartTime - e_ms;
-				auto off2 = obj.EndTime - e_ms;
-				if (obj.EndTime == 0) {
+				auto off2 = obj.EndTime - e_ms ;
+				if (!obj.IsHold()) {
 					if (off > scrollspeed || off < -scrollspeed / 5)
 						continue;
 				}
@@ -327,7 +327,7 @@ public:
 					auto flashlight_num = CalcFlashlight(Mods, ratio);
 					if (obj.Multi)
 						base = { 0, 204, 187, 102 };
-					if (obj.EndTime != 0 && !obj.HasHold) {
+					if (obj.IsHold() && !obj.HasHold) {
 						auto ratio2 = 1 - (obj.EndTime - e_ms) / scrollspeed;
 						auto endy = ratio2 * (buffer.Height - judge_height);
 						auto a = obj.HasHit && !obj.HoldBroken ? std::min(starty, buffer.Height - judge_height) : starty;
@@ -411,7 +411,7 @@ public:
 			evt.Clock = obj.StartTime;
 			record.Events.push_back(evt);
 
-			if (obj.EndTime != 0) {
+			if (obj.IsHold()) {
 				// Handle holds
 				evt.Pressed = false;
 				evt.Clock = obj.EndTime;
@@ -604,7 +604,7 @@ public:
 								   beatmap->maxcombo++;
 
 								   // 判断是否是 Hold
-								   if (obj.EndTime != 0) {
+								   if (is_hold) {
 									   // 加载滑动音效
 									   First(GetSampleLayered(SampleIndex, SkinSampleIndex, tp.SampleBank, HitSoundType::Slide, tp.SampleSet) > Select(sample_selector), mo.ssample);
 
@@ -646,7 +646,7 @@ public:
 
 			double lastjudge = ho.StartTime;
 			double timeDiff = 0;
-			if (ho.EndTime != 0) {
+			if (ho.IsHold()) {
 				lastjudge = ho.EndTime;
 			}
 			double nearestSameColumnTime = -1;
@@ -678,10 +678,10 @@ public:
 				if (&ho2 == &ho)
 					continue;
 
-				if (std::abs(ho2.StartTime - ho.StartTime) < 0.1 || (ho2.EndTime != 0 && std::abs(ho2.EndTime - ho.StartTime) < 0.1) || (ho2.EndTime != 0 && ho.EndTime != 0 && (std::abs(ho2.EndTime - ho.EndTime) < 0.1 || std::abs(ho2.StartTime - ho.EndTime) < 0.1))) {
+				if (std::abs(ho2.StartTime - ho.StartTime) < 0.1 || (ho2.IsHold() && std::abs(ho2.EndTime - ho.StartTime) < 0.1) || (ho2.EndTime != 0 && ho.EndTime != 0 && (std::abs(ho2.EndTime - ho.EndTime) < 0.1 || std::abs(ho2.StartTime - ho.EndTime) < 0.1))) {
 					multi *= 1.06;
 				}
-				if (ho2.EndTime != 0 && ho.StartTime >= ho2.StartTime && ho.StartTime <= ho2.EndTime) {
+				if (ho2.IsHold() && ho.StartTime >= ho2.StartTime && ho.StartTime <= ho2.EndTime) {
 					multi *= 1.06;
 				}
 				if (std::abs(nearestTime - ho2.StartTime) < 0.1) {

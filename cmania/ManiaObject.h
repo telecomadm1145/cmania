@@ -13,6 +13,6 @@ struct ManiaObject : public HitObject {
 	double EndTime = 1.0 / 0.0 * 0.0;
 	double LastHoldOff = -1;
 	bool IsHold() {
-		return isnan(EndTime);
+		return !isnan(EndTime);
 	}
 };

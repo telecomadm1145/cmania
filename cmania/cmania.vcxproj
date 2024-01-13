@@ -322,6 +322,7 @@
     <ClInclude Include="Defines.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="GameBuffer.h" />
+    <ClInclude Include="git_info.h" />
     <ClInclude Include="HitObject.h" />
     <ClInclude Include="InputEvent.h" />
     <ClInclude Include="InputHandler.h" />
@@ -350,6 +351,7 @@
     <ClInclude Include="OsuMods.h" />
     <ClInclude Include="OsuSample.h" />
     <ClInclude Include="OsuStatic.h" />
+    <ClInclude Include="Path.h" />
     <ClInclude Include="Record.h" />
     <ClInclude Include="RecordInputHandler.h" />
     <ClInclude Include="ResultScreen.h" />
@@ -365,15 +367,22 @@
     <ClInclude Include="StbImage.h" />
     <ClInclude Include="stb_image.h" />
     <ClInclude Include="stb_image_resize.h" />
+    <ClInclude Include="StdObject.h" />
+    <ClInclude Include="StdRuleset.h" />
+    <ClInclude Include="StdScoreProcessor.h" />
     <ClInclude Include="Stopwatch.h" />
     <ClInclude Include="String.h" />
+    <ClInclude Include="TaikoDifficultyCalculator.h" />
+    <ClInclude Include="TaikoObject.h" />
+    <ClInclude Include="TaikoRuleset.h" />
+    <ClInclude Include="TaikoScoreProcessor.h" />
     <ClInclude Include="TickSource.h" />
     <ClInclude Include="Unicode.h" />
     <ClInclude Include="Win32ConsoleComponent.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".clang-format" />
-    <None Include="Test.ruleset" />
+    <None Include="GitInfo.ps1" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

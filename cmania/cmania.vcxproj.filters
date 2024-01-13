@@ -77,6 +77,7 @@
     <ClCompile Include="ScoreSubmition.cpp">
       <Filter>Game</Filter>
     </ClCompile>
+    <ClCompile Include="Crc.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ConsoleInput.h">
@@ -244,6 +245,16 @@
     <ClInclude Include="RulesetManager.h">
       <Filter>Game</Filter>
     </ClInclude>
+    <ClInclude Include="Crc.h" />
+    <ClInclude Include="git_info.h" />
+    <ClInclude Include="Path.h" />
+    <ClInclude Include="StdObject.h" />
+    <ClInclude Include="StdRuleset.h" />
+    <ClInclude Include="StdScoreProcessor.h" />
+    <ClInclude Include="TaikoDifficultyCalculator.h" />
+    <ClInclude Include="TaikoObject.h" />
+    <ClInclude Include="TaikoRuleset.h" />
+    <ClInclude Include="TaikoScoreProcessor.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Core">
@@ -663,7 +674,6 @@
     <None Include="Samples\*\*" />
     <None Include="Samples\*\*" />
     <None Include="Samples\*\*" />
-    <None Include="Samples\*\*" />
     <None Include="Samples\Argon\drum-hitfinish.wav" />
     <None Include="Samples\Argon\drum-hitnormal.wav" />
     <None Include="Samples\Argon\drum-hitwhistle.wav" />
@@ -13491,7 +13501,6 @@
     <None Include="Samples\*\*" />
     <None Include="Samples\*\*" />
     <None Include="Samples\*\*" />
-    <None Include="Test.ruleset" />
     <None Include="Samples\*\*" />
     <None Include="Samples\*\*" />
     <None Include="Samples\*\*" />
@@ -13549,5 +13558,6 @@
     <None Include="Samples\*\*" />
     <None Include="Samples\*\*" />
     <None Include=".clang-format" />
+    <None Include="GitInfo.ps1" />
   </ItemGroup>
 </Project>
