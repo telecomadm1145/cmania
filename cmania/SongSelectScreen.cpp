@@ -58,9 +58,11 @@ class SongSelectScreen : public Screen {
 		return clrf;
 	}
 	TransOut OffsetTrans{};
+	TransOut OffsetTrans2{};
 	TransOut Itemstrans[182]{};
 	double difficulty_val = 0;
 	DifficultyInfo di;
+	int di_size = 0;
 	int selected_tab = 0;
 
 	virtual void Render(GameBuffer& buf) {
@@ -152,7 +154,9 @@ class SongSelectScreen : public Screen {
 				buf.DrawString("Details", 0, 14, {}, {});
 				buf.FillRect(0, 15, 50, buf.Height - 3, { {}, { 150, 32, 32, 32 }, ' ' });
 				buf.SetBounds(0, 15, 50, buf.Height - 4);
-				int i = 15;
+				OffsetTrans2.SetValue(clk, offset2);
+				int z = (int)OffsetTrans2.GetCurrentValue(clk);
+				int i = 15 - z;
 				for (auto& d : di) {
 					if (d.Type == DifficultyInfoItem::ValueBar) {
 						buf.DrawString(d.Text, 0, i, {}, {});
@@ -181,6 +185,7 @@ class SongSelectScreen : public Screen {
 						i++;
 					}
 				}
+				di_size = i - 15 + z;
 				buf.ResetBounds();
 				/* buf.DrawString("个人最佳: " + (records.size() > 0 ? std::to_string((int)(records[0].Score * 10000000)) : "0"), 1, 14, {}, {});
 				int i = 16;
@@ -193,7 +198,9 @@ class SongSelectScreen : public Screen {
 		else {
 			buf.DrawString("No song selected.", 1, 3, {}, {});
 		}
-		buf.DrawString("Esc - 返回 小键盘/鼠标 - 选歌 F1 Rulesets F2 随机 F3 Mods F4 选项 Enter/双击 开始", 0, buf.Height - 1, {}, {});
+		buf.FillRect(0, buf.Height - 2, 35, buf.Height, { {}, { 130, 20, 20, 20 }, ' ' });
+		buf.DrawString(" Esc     F1    F2   F3   F4  Enter", 0, buf.Height - 2, { 255, 0, 105, 204 }, {});
+		buf.DrawString(" 返回  规则集 随机 Mods 选项 进入", 0, buf.Height - 1, {}, {});
 		buf.FillRect(buf.Width - 30, 2, buf.Width - 3, 2, { {}, { 130, 128, 128, 128 }, ' ' });
 		buf.DrawString("搜索:", buf.Width - 30, 2, { 255, 100, 255, 150 }, {});
 		buf.DrawString(std::wstring{ search_buf.begin(), search_buf.end() }, buf.Width - 24, 2, { 255, 100, 255, 150 }, {});
@@ -311,6 +318,9 @@ class SongSelectScreen : public Screen {
 	double random_last_off = 1.0 / 0 * 0;
 	int random_last_i = 0;
 	double offset = 0;
+	double offset2 = 0;
+	double last_offset2 = 0;
+	int ctl_drag = 0;
 	int selected = INT_MAX;
 	SongsCacheEntry* selected_entry;
 	DifficultyCacheEntry* selected_entry_2;
@@ -349,7 +359,13 @@ class SongSelectScreen : public Screen {
 	virtual void Move(MoveEventArgs mea) {
 		if (!mod_flyout && !ruleset_flyout) {
 			if (last_y >= 0) {
-				offset = last_offset - (mea.Y - last_y) * 2;
+				if (ctl_drag) {
+					offset = last_offset - (mea.Y - last_y) * 2;
+				}
+				else
+				{
+					offset2 = last_offset2 - (mea.Y - last_y) * 2;
+				}
 			}
 		}
 	}
@@ -452,48 +468,58 @@ class SongSelectScreen : public Screen {
 			return;
 		}
 		if (mkea.Pressed) {
-			last_x = mkea.X;
-			last_y = mkea.Y;
-			last_offset = offset;
+			if (mkea.X >= w_cache / 2) {
+				last_x = mkea.X;
+				last_y = mkea.Y;
+				last_offset = offset;
+				ctl_drag = 1;
+			}
+			else {
+				last_x = mkea.X;
+				last_y = mkea.Y;
+				last_offset2 = offset2;
+				ctl_drag = 0;
+			}
 		}
 		else {
+			if (ctl_drag == 0) {
+				offset2 = std::clamp(offset2, 0.0, std::max((double)(di_size - h_cache),0.0));
+			}
 			if (mkea.X == last_x && mkea.Y == last_y && !matched_caches.empty()) {
-				auto& caches = matched_caches;
-				if (caches.empty())
-					return;
-				int c1 = 45;
-				int c2 = std::min((int)(w_cache / 2), 10) + c1;
-				int gap = 1;
-				int songheight = 3;
+				if (ctl_drag == 0) {
 
-				int index = (int)(offset / (songheight + gap) + h_cache / 2);
-				int max = (int)(h_cache / (songheight + gap) + 10);
-				int min = index - h_cache / 2 - 5 - (selected_entry != 0 ? selected_entry->difficulties.size() : 0);
-				for (int i = min; i < index + max; i++) {
-					int j = std::abs((int)(i % caches.size()));
-					auto& cache = caches[j];
-					auto basicoff = (i * (songheight + gap) - offset);
-					if (i > selected && selected_entry != 0) {
-						basicoff += selected_entry->difficulties.size() * (songheight + gap);
-					}
-					int c2 = 40;
-					int b2 = w_cache - c2;
-					if (mkea.X >= b2 && mkea.Y >= basicoff && mkea.Y <= basicoff + songheight) {
-						MakeSelected(i, caches[j]);
-						break;
-					}
-					if (i == selected) {
-						if (b2 > w_cache - 40) {
-							b2 = w_cache - 40;
+				}
+				else {
+					auto& caches = matched_caches;
+					if (caches.empty())
+						return;
+					int gap = 1;
+					int songheight = 3;
+
+					int index = (int)(offset / (songheight + gap) + h_cache / 2);
+					int max = (int)(h_cache / (songheight + gap) + 10);
+					int min = index - h_cache / 2 - 5 - (selected_entry != 0 ? selected_entry->difficulties.size() : 0);
+					for (int i = min; i < index + max; i++) {
+						int j = std::abs((int)(i % caches.size()));
+						auto& cache = caches[j];
+						auto basicoff = (i * (songheight + gap) - offset);
+						if (i > selected && selected_entry != 0) {
+							basicoff += selected_entry->difficulties.size() * (songheight + gap);
 						}
-						int k = 1;
-						int diffxpos = 3;
-						for (auto& diff : cache.difficulties) {
-							auto diffoff = basicoff + (k * (songheight + gap));
-							if (mkea.X >= b2 + diffxpos && mkea.Y >= diffoff && mkea.Y <= diffoff + songheight) {
-								MakeSelected(i, cache, diff);
+						if (mkea.Y >= basicoff && mkea.Y <= basicoff + songheight) {
+							MakeSelected(i, caches[j]);
+							break;
+						}
+						if (i == selected) {
+							int k = 1;
+							int diffxpos = 3;
+							for (auto& diff : cache.difficulties) {
+								auto diffoff = basicoff + (k * (songheight + gap));
+								if (mkea.Y >= diffoff && mkea.Y <= diffoff + songheight) {
+									MakeSelected(i, cache, diff);
+								}
+								k++;
 							}
-							k++;
 						}
 					}
 				}

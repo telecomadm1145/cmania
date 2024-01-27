@@ -26,7 +26,6 @@ public:
 	};
 
 	struct IAudioStream : public IChannel {
-		// No additional audio writing required
 	};
 
 	struct ISample {

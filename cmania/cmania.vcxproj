@@ -122,6 +122,36 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <CopyCppRuntimeToOutputDir>true</CopyCppRuntimeToOutputDir>
+    <CopyLocalProjectReference>true</CopyLocalProjectReference>
+    <CopyLocalDebugSymbols>true</CopyLocalDebugSymbols>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='PatchableRelease|Win32'">
+    <CopyCppRuntimeToOutputDir>true</CopyCppRuntimeToOutputDir>
+    <CopyLocalProjectReference>true</CopyLocalProjectReference>
+    <CopyLocalDebugSymbols>true</CopyLocalDebugSymbols>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <CopyCppRuntimeToOutputDir>true</CopyCppRuntimeToOutputDir>
+    <CopyLocalProjectReference>true</CopyLocalProjectReference>
+    <CopyLocalDebugSymbols>true</CopyLocalDebugSymbols>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <CopyCppRuntimeToOutputDir>true</CopyCppRuntimeToOutputDir>
+    <CopyLocalProjectReference>true</CopyLocalProjectReference>
+    <CopyLocalDebugSymbols>true</CopyLocalDebugSymbols>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='PatchableRelease|x64'">
+    <CopyCppRuntimeToOutputDir>true</CopyCppRuntimeToOutputDir>
+    <CopyLocalProjectReference>true</CopyLocalProjectReference>
+    <CopyLocalDebugSymbols>true</CopyLocalDebugSymbols>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <CopyCppRuntimeToOutputDir>true</CopyCppRuntimeToOutputDir>
+    <CopyLocalProjectReference>true</CopyLocalProjectReference>
+    <CopyLocalDebugSymbols>true</CopyLocalDebugSymbols>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
@@ -309,6 +339,8 @@
     <ClCompile Include="SongSelectScreen.cpp" />
     <ClCompile Include="SpeedSettingScreen.cpp" />
     <ClCompile Include="stb.c" />
+    <ClCompile Include="StdRuleset.cpp" />
+    <ClCompile Include="TaikoRuleset.cpp" />
     <ClCompile Include="TickSource.cpp" />
     <ClCompile Include="Win32ConsoleComponent.cpp" />
     <ClCompile Include="ManiaRuleset.cpp" />
@@ -341,6 +373,7 @@
     <ClInclude Include="GameplayScreen.h" />
     <ClInclude Include="Hpet.h" />
     <ClInclude Include="KeepAwake.h" />
+    <ClInclude Include="Localization.h" />
     <ClInclude Include="LogOverlay.h" />
     <ClInclude Include="MainMenuScreen.h" />
     <ClInclude Include="ManiaObject.h" />
