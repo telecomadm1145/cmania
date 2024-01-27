@@ -405,7 +405,6 @@
     <ClInclude Include="StdScoreProcessor.h" />
     <ClInclude Include="Stopwatch.h" />
     <ClInclude Include="String.h" />
-    <ClInclude Include="TaikoDifficultyCalculator.h" />
     <ClInclude Include="TaikoObject.h" />
     <ClInclude Include="TaikoRuleset.h" />
     <ClInclude Include="TaikoScoreProcessor.h" />

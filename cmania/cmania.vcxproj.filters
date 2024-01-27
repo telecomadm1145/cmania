@@ -253,7 +253,6 @@
     <ClInclude Include="StdObject.h" />
     <ClInclude Include="StdRuleset.h" />
     <ClInclude Include="StdScoreProcessor.h" />
-    <ClInclude Include="TaikoDifficultyCalculator.h" />
     <ClInclude Include="TaikoObject.h" />
     <ClInclude Include="TaikoRuleset.h" />
     <ClInclude Include="TaikoScoreProcessor.h" />

@@ -81,7 +81,7 @@ public:
 		return iterator<const Beatmap, HitObject>{ this, size() };
 	}
 	template <class RulesetHitObject>
-	auto super() {
+	auto super(){
 		class SuperClass {
 		public:
 			Beatmap* bmp;
