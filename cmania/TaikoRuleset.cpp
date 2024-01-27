@@ -494,7 +494,7 @@ class TaikoRuleset : public Ruleset {
 	std::string DisplayName() {
 		return "Taiko";
 	}
-	Beatmap* LoadBeatmap(path beatmap_path) {
+	Beatmap* LoadBeatmap(path beatmap_path, bool load_samples) {
 		auto beatmap = new TaikoBeatmap();
 
 		std::ifstream ifs(beatmap_path);
@@ -544,13 +544,19 @@ class TaikoRuleset : public Ruleset {
 		std::map<std::string, AudioSample> SampleCaches; // 采样缓存
 
 		Samples > ForEach([&](const std::string& path) {
-			try {
-				auto dat = ReadAllBytes(path);
-				SampleCaches[path] = AudioSample(am->loadSample(dat.data(), dat.size()));
+			if (load_samples) {
+				try {
+					auto dat = ReadAllBytes(path);
+					SampleCaches[path] = AudioSample(am->loadSample(dat.data(), dat.size()));
+				}
+				catch (...) {
+				}
 			}
-			catch (...) {
+			else {
+				SampleCaches[path];
 			}
 		});
+
 		// 加载物件
 		for (auto& obj : beatmap->orig_bmp.HitObjects) {
 			TaikoObject to{};

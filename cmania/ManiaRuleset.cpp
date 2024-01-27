@@ -330,7 +330,7 @@ public:
 					if (obj.IsHold() && !obj.HasHold) {
 						auto ratio2 = 1 - (obj.EndTime - e_ms) / scrollspeed;
 						auto endy = ratio2 * (buffer.Height - judge_height);
-						auto a = obj.HasHit && !obj.HoldBroken ? std::min(starty, buffer.Height - judge_height) : starty;
+						auto a = obj.HasHit && !obj.HoldBroken ? std::min(starty, buffer.Height - judge_height + key_height) : starty;
 						base.Alpha = 180;
 						if (HasFlag(Mods, OsuMods::FadeOut) || HasFlag(Mods, OsuMods::Hidden)) {
 							base.Alpha = 50;
@@ -497,7 +497,7 @@ public:
 	virtual std::string DisplayName() {
 		return "Mania";
 	}
-	virtual Beatmap* LoadBeatmap(path beatmap_path) {
+	virtual Beatmap* LoadBeatmap(path beatmap_path, bool load_samples) {
 		auto beatmap = new ManiaBeatmap();
 
 		std::ifstream ifs(beatmap_path);
@@ -547,11 +547,17 @@ public:
 		std::map<std::string, AudioSample> SampleCaches; // 采样缓存
 
 		Samples > ForEach([&](const std::string& path) {
-			try {
-				auto dat = ReadAllBytes(path);
-				SampleCaches[path] = AudioSample(am->loadSample(dat.data(), dat.size()));
+			if (load_samples) {
+				try {
+					auto dat = ReadAllBytes(path);
+					SampleCaches[path] = AudioSample(am->loadSample(dat.data(), dat.size()));
+				}
+				catch (...) {
+				}
 			}
-			catch (...) {
+			else
+			{
+				SampleCaches[path];
 			}
 		});
 

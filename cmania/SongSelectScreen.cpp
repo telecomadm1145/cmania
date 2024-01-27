@@ -429,7 +429,7 @@ class SongSelectScreen : public Screen {
 	void RefreshDifficulty() {
 		if (selected_entry_2 != 0) {
 			auto& ruleset = game->GetFeature<IRulesetManager>().GetRuleset("osumania");
-			auto bmp = ruleset.LoadBeatmap(selected_entry_2->path);
+			auto bmp = ruleset.LoadBeatmap(selected_entry_2->path,false);
 			difficulty_val = ruleset.CalculateDifficulty(bmp, mods) * GetModScale(mods) * GetPlaybackRate(mods);
 			di = ruleset.PopulateDifficultyInfo(bmp);
 			delete bmp;
