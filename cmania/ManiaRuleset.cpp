@@ -40,6 +40,18 @@ public:
 	virtual ScoreProcessorBase* GetScoreProcessor() override {
 		return &RulesetScoreProcessor;
 	}
+	virtual void Pause() override {
+		for (auto& light : KeyHighlight) {
+			light.Reset();
+		}
+		bgm->pause(true);
+		Clock.Stop();
+	}
+	virtual void Resume() override {
+		resume_time = Clock.Elapsed();
+		Clock.Offset(-3000);
+		Clock.Start();
+	}
 	virtual void Load(::Ruleset* rul, ::Beatmap* bmp) override {
 		auto am = GetBassAudioManager(); // 获取Bass引擎
 
@@ -147,40 +159,38 @@ public:
 			GameRecord.RatingGraph[(time - first_obj) / 100] = RulesetScoreProcessor.Rating;
 		}
 
-		if (time < resume_time || !Clock.Running())
-			return;
-
-		if (bgm != 0 && time > -std::max(offset * Clock.ClockRate(), 0.0) - 30 && time < bgm->getDuration() * 1000 - 3000) {
-			if (!bgm->isPlaying()) {
-				if (!bgm->isPaused()) // 这里用了一些小窍门让音频和Clock保持同步
-				{
-					Clock.Stop();
-					bgm->setPlaybackRate(Clock.ClockRate());
-					bgm->play();
-					while (bgm->getCurrent() < 0.003) {
+		if (!(time < resume_time || !Clock.Running()))
+			if (bgm != 0 && time > -std::max(offset * Clock.ClockRate(), 0.0) - 30 && time < bgm->getDuration() * 1000 - 3000) {
+				if (!bgm->isPlaying()) {
+					if (!bgm->isPaused()) // 这里用了一些小窍门让音频和Clock保持同步
+					{
+						Clock.Stop();
+						bgm->setPlaybackRate(Clock.ClockRate());
+						bgm->play();
+						while (bgm->getCurrent() < 0.003) {
+						}
+						Clock.Reset();
+						Clock.Offset(bgm->getCurrent() * 1000 + offset * Clock.ClockRate());
+						Clock.Start();
 					}
-					Clock.Reset();
-					Clock.Offset(bgm->getCurrent() * 1000 + offset * Clock.ClockRate());
-					Clock.Start();
+					else {
+						bgm->pause(false);
+					}
 				}
 				else {
-					bgm->pause(false);
-				}
-			}
-			else {
-				auto err = time - bgm->getCurrent() * 1000 - offset * Clock.ClockRate();
-				if (std::abs(err) > 150) {
-					bgm->setCurrent(time / 1000); // 调整...
+					auto err = time - bgm->getCurrent() * 1000 - offset * Clock.ClockRate();
+					if (std::abs(err) > 150) {
+						bgm->setCurrent(time / 1000); // 调整...
 
-					Clock.Stop();
-					while (bgm->getCurrent() < time / 1000 + 0.003) {
+						Clock.Stop();
+						while (bgm->getCurrent() < time / 1000 + 0.003) {
+						}
+						Clock.Reset();
+						Clock.Offset(bgm->getCurrent() * 1000 + offset * Clock.ClockRate());
+						Clock.Start();
 					}
-					Clock.Reset();
-					Clock.Offset(bgm->getCurrent() * 1000 + offset * Clock.ClockRate());
-					Clock.Start();
 				}
 			}
-		}
 
 		Beatmap->super<ManiaObject>() > ForEach([&](ManiaObject& obj) {
 			if (obj.IsHold() && !(obj.HasHold || obj.HoldBroken) && !wt_mode) {
@@ -207,7 +217,7 @@ public:
 			// Handles sliding sample.
 			if (obj.HasHit && obj.IsHold()) {
 				if (wt_mode) {
-					if (time > obj.StartTime && time < obj.EndTime) {
+					if (Clock.Running() && time > obj.StartTime && time < obj.EndTime) {
 						if (obj.ssample != 0 && obj.ssample_stream == 0) {
 							obj.ssample_stream = AudioStream(obj.ssample->generateStream());
 							obj.ssample_stream->play();
@@ -223,7 +233,7 @@ public:
 							obj.ssamplew_stream->play();
 						}
 					}
-					if (time > obj.EndTime) {
+					if (!Clock.Running() || time > obj.EndTime) {
 						if (obj.ssample_stream) {
 							obj.ssample_stream->stop();
 							obj.ssample_stream = 0;
@@ -235,7 +245,7 @@ public:
 					}
 				}
 				else {
-					if (!(obj.HasHold || obj.HoldBroken)) {
+					if (!(obj.HasHold || obj.HoldBroken) && Clock.Running()) {
 						if (GameInputHandler->GetKeyStatus(obj.Column)) // Pressed
 						{
 							if (obj.ssample != 0 && obj.ssample_stream == 0) {
@@ -309,7 +319,7 @@ public:
 			auto scrollspeed = this->scrollspeed * Clock.ClockRate();
 			for (auto& obj : Beatmap->super<ManiaObject>()) {
 				auto off = obj.StartTime - e_ms;
-				auto off2 = obj.EndTime - e_ms ;
+				auto off2 = obj.EndTime - e_ms;
 				if (!obj.IsHold()) {
 					if (off > scrollspeed || off < -scrollspeed / 5)
 						continue;
@@ -434,7 +444,7 @@ public:
 	std::vector<ManiaObject> storage;
 	path bmp_root;
 	Hash bmp_hash;
-	double first_obj;
+	double first_obj = 1e300;
 	double last_obj;
 	size_t maxcombo;
 	virtual std::string RulesetId() const noexcept {
@@ -555,8 +565,7 @@ public:
 				catch (...) {
 				}
 			}
-			else
-			{
+			else {
 				SampleCaches[path];
 			}
 		});
@@ -574,14 +583,12 @@ public:
 
 								   // 复制起始和终止时间
 								   mo.StartTime = obj.StartTime;
-								   
+
 								   beatmap->first_obj = std::min(beatmap->first_obj, obj.StartTime);
 								   beatmap->last_obj = std::max(beatmap->last_obj, obj.StartTime);
 								   if (is_hold) {
 									   mo.EndTime = obj.EndTime;
-									   if (is_slider)
-									   {
-										   
+									   if (is_slider) {
 									   }
 									   beatmap->last_obj = std::max(beatmap->last_obj, mo.EndTime);
 								   }

@@ -25,10 +25,15 @@ public:
 	virtual void Update() = 0;
 	virtual void Render(GameBuffer&) = 0;
 	virtual void Skip() = 0;
+	virtual void Resume() = 0;
+	virtual void Pause() = 0;
 	virtual double GetCurrentTime() = 0;
 	virtual double GetDuration() = 0;
 	virtual ScoreProcessorBase* GetScoreProcessor() = 0;
 	virtual std::string GetBgPath() = 0;
+	virtual void RenderDebug(GameBuffer&) {
+
+	}
 
 public:
 	virtual ~GameplayBase() {}

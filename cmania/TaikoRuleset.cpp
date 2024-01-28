@@ -43,6 +43,9 @@ class TaikoGameplay : public GameplayBase {
 	Transition<CubicEasingFunction, ConstantEasingDurationCalculator<50>> SpinnerHitTrans{};
 
 public:
+	virtual void RenderDebug(GameBuffer& buf) {
+		buf.FillRect(0, 0, 50, 50, { {}, {100,20,20,20},' '});
+	}
 	virtual void Load(::Ruleset* rul, ::Beatmap* bmp) override {
 		auto am = GetBassAudioManager(); // 获取Bass引擎
 
@@ -305,7 +308,7 @@ public:
 		return 1;
 	}
 	virtual void Render(GameBuffer& buf) override {
-		const auto rt = 1.7;
+		const auto rt = 1.75;
 		auto e_ms = Clock.Elapsed();
 
 		// now we need to render all objects.
@@ -316,14 +319,14 @@ public:
 		buf.FillRect(0, buf.Height / 4, buf.Width, buf.Height * 2 / 4, { {}, { 255, 40, 40, 40 }, ' ' });
 		auto lightsz = hitpos.X / 5;
 		for (size_t i = 0; i < 4; i++) {
-			buf.FillRect((i)*lightsz + 1, buf.Height / 4, (i + 1) * lightsz + 1, buf.Height * 2 / 4, { {}, { 120, 80, 80, 80 }, ' ' });
+			buf.FillRect((i)*lightsz + 2, buf.Height / 4, (i + 1) * lightsz + 2, buf.Height * 2 / 4, { {}, { 120, 80, 80, 80 }, ' ' });
 			KeyHighlight[i].Update(e_ms, [&](double v) {
 				Color clr{ 220, 20, 212, 255 };
 				if ((i == 1) || (i == 2)) {
 					clr = { 220, 255, 30, 30 };
 				}
 				clr.Alpha = v;
-				buf.FillRect((i)*lightsz + 1, buf.Height / 4, (i + 1) * lightsz + 1, buf.Height * 2 / 4, { {}, clr, ' ' });
+				buf.FillRect((i)*lightsz + 2, buf.Height / 4, (i + 1) * lightsz + 2, buf.Height * 2 / 4, { {}, clr, ' ' });
 			});
 		}
 		for (auto& obj : Beatmap->super<TaikoObject>()) {
@@ -347,7 +350,7 @@ public:
 				sz = scale * 8;
 			}
 			auto v = off / obj.Velocity / 1000;
-			auto objx = (int)(hitpos.X + v * (double)buf.Width);
+			auto objx = hitpos.X + v * (double)buf.Width;
 			if (objx > buf.Width || objx < 0)
 				continue;
 			if (HasFlag(obj.ObjectType, TaikoObject::Spinner)) {
@@ -385,18 +388,18 @@ public:
 	}
 
 	// 通过 Ruleset 继承
-	// virtual void Pause() override {
-	//	for (auto& light : KeyHighlight) {
-	//		light.Reset();
-	//	}
-	//	bgm->pause(true);
-	//	Clock.Stop();
-	//}
-	// virtual void Resume() override {
-	//	resume_time = Clock.Elapsed();
-	//	Clock.Offset(-3000);
-	//	Clock.Start();
-	//}
+	virtual void Pause() override {
+		for (auto& light : KeyHighlight) {
+			light.Reset();
+		}
+		bgm->pause(true);
+		Clock.Stop();
+	}
+	virtual void Resume() override {
+		resume_time = Clock.Elapsed();
+		Clock.Offset(-3000);
+		Clock.Start();
+	}
 	virtual void Skip() override {
 		if (first_obj - 3000 > 1000 && Clock.Elapsed() < first_obj - 3000) {
 			Clock.Reset();
@@ -482,7 +485,7 @@ public:
 	std::vector<TaikoObject> storage;
 	path bmp_root;
 	Hash bmp_hash;
-	double first_obj;
+	double first_obj = 1e300;
 	double last_obj;
 	size_t maxcombo;
 	virtual std::string RulesetId() const noexcept {

@@ -22,7 +22,7 @@
 #include "RulesetManager.h"
 
 class SongSelectScreen : public Screen {
-	BackgroundComponent bg;
+	BackgroundComponent bg{0.65};
 	std::string bgloc;
 	int h_cache = 0;
 	int w_cache = 0;
@@ -105,10 +105,10 @@ class SongSelectScreen : public Screen {
 					int diffxpos = 3;
 					for (auto& diff : cache.difficulties) {
 						auto diffoff = basicoff + (k * (songheight + gap));
+						buf.FillRect(b2 + diffxpos, diffoff, buf.Width, diffoff + songheight, { {}, { 100, 32, 32, 32 }, ' ' });
 						if (&diff == selected_entry_2) {
-							buf.FillRect(b2 + diffxpos, diffoff, buf.Width, diffoff + songheight, { {}, { 110, 255, 255, 255 }, ' ' });
+							buf.FillRect(b2 + diffxpos, diffoff, buf.Width, diffoff + songheight, { {}, { 40, 255, 255, 255 }, ' ' });
 						}
-						buf.FillRect(b2 + diffxpos, diffoff, buf.Width, diffoff + songheight, { {}, { 40, 255, 255, 255 }, ' ' });
 						auto rul = GetRulesetName(diff.mode);
 						buf.DrawString(rul, b2 + 1 + diffxpos, std::round(diffoff) + 1, {}, { 255, 120, 120, 120 });
 						buf.DrawString(diff.name, b2 + 1 + diffxpos + rul.size() + 1, std::round(diffoff) + 1, {}, {});
@@ -144,12 +144,6 @@ class SongSelectScreen : public Screen {
 				auto seconds = int(entry2->length / 1000) % 60;
 				auto info = GetRulesetName(entry2->mode) + "  " + std::to_string(minutes) + ":" + std::to_string(seconds);
 				buf.DrawString(info, 1, 10, {}, {});
-				if (difficulty_val > 0) {
-					auto diff = std::format("{:.1f}", difficulty_val);
-					auto clr = difficultyToRGBColor(difficulty_val);
-					auto clr2 = Color::Blend(clr, Color{ 200, 255, 255, 255 });
-					buf.DrawString(diff, 50 - diff.size() - 1, 3, clr2, clr);
-				}
 				// records
 				buf.FillRect(0, 14, 8, 15, { {}, { 150, 32, 32, 32 }, ' ' });
 				buf.DrawString("Details", 0, 14, {}, {});
@@ -158,6 +152,12 @@ class SongSelectScreen : public Screen {
 					buf.DrawString("Loading...", 0, 15, {}, {});
 				}
 				else {
+					if (difficulty_val > 0) {
+						auto diff = std::format("{:.1f}", difficulty_val);
+						auto clr = difficultyToRGBColor(difficulty_val);
+						auto clr2 = Color::Blend(clr, Color{ 200, 255, 255, 255 });
+						buf.DrawString(diff, 50 - diff.size() - 1, 3, clr2, clr);
+					}
 					buf.SetBounds(0, 15, 50, buf.Height - 4);
 					OffsetTrans2.SetValue(clk, offset2);
 					int z = (int)OffsetTrans2.GetCurrentValue(clk);

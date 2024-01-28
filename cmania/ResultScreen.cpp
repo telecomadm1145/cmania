@@ -4,7 +4,7 @@
 
 class ResultScreen : public Screen {
 private:
-	BackgroundComponent bg;
+	BackgroundComponent bg{0.2};
 	Record rec;
 
 public:

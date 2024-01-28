@@ -316,6 +316,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="BassAudioManager.cpp" />
+    <ClCompile Include="BeatmapDownloadingScreen.cpp" />
+    <ClCompile Include="BeatmapDownloadingService.cpp" />
     <ClCompile Include="BeatmapManagementService.cpp" />
     <ClCompile Include="BufferController.cpp" />
     <ClCompile Include="cmania.cpp" />
@@ -349,6 +351,7 @@
     <ClInclude Include="Animator.h" />
     <ClInclude Include="BackgroundComponent.h" />
     <ClInclude Include="Beatmap.h" />
+    <ClInclude Include="BeatmapDownloadingService.h" />
     <ClInclude Include="ConsoleInputHandler.h" />
     <ClInclude Include="Crc.h" />
     <ClInclude Include="Defines.h" />

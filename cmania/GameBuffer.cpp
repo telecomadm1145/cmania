@@ -153,11 +153,11 @@ void GameBuffer::DrawCircle(float x, float y, float sz, float width, float whrat
 	for (int i = -r2; i <= r2; i++) // y
 	{
 		for (int j = -r3; j <= r3; j++) { // x
-			int ry = y + i / aa;
-			int rx = x + j / aa;
+			float ry = y + i / aa;
+			float rx = x + j / aa;
 			double dist = Sqr((double)i / aa) + Sqr((double)j / whratio / aa);
 			if (dist <= sr + width * aa && dist >= sr - width * aa) {
-				SetPixel(rx, ry, pd2);
+				SetPixelF(rx, ry, pd2);
 			}
 		}
 	}
@@ -180,11 +180,11 @@ void GameBuffer::FillCircle(float x, float y, float sz, float whratio, PixelData
 				continue;
 			if (j > -aa && j < 0)
 				continue;
-			int ry = y + i / aa;
-			int rx = x + j / aa;
+			float ry = y + i / aa;
+			float rx = x + j / aa;
 			double dist = Sqr((double)i / aa) + Sqr((double)j / whratio / aa);
 			if (dist <= sr) {
-				SetPixel(rx, ry, pd2);
+				SetPixelF(rx, ry, pd2);
 			}
 		}
 	}
@@ -207,7 +207,7 @@ void GameBuffer::DrawString(const std::u32string& text, int startX, int startY, 
 				continue;
 			}
 			int charWidth = Measure(c);
-			if (x + charWidth <= Width) {
+			if (x + charWidth <= b_right) {
 				// Set the pixel at the current position
 				SetPixel(x, y, PixelData{ fg, bg, c });
 				if (charWidth > 1)
@@ -272,8 +272,8 @@ void GameBuffer::FillPolygon(const std::vector<PointI>& points, PixelData pd) {
 }
 
 void GameBuffer::SetPixel(int x, int y, PixelData pd) {
-	if ((x < Width && y < Height && y > -1 && x > -1)&&
-		(x <= b_right && y <= b_bottom && y >= b_top && x>=b_left)) {
+	if ((x < Width && y < Height && y > -1 && x > -1) &&
+		(x <= b_right && y <= b_bottom && y >= b_top && x >= b_left)) {
 		auto& ref = PixelBuffer[y * Width + x];
 		if (ref.UcsChar == '\b') {
 			for (int i = x; i >= 0; i--) {
@@ -289,6 +289,21 @@ void GameBuffer::SetPixel(int x, int y, PixelData pd) {
 		ref.Background = Color::Blend(ref.Background, pd.Background);
 		ref.Foreground = Color::Blend(ref.Foreground, pd.Foreground);
 	}
+}
+
+void GameBuffer::SetPixelF(float x, float y, PixelData pd) {
+	float x_i = 0.0;
+	float x_f = std::modf(x, &x_i);
+	float y_i = 0.0;
+	float y_f = std::modf(y, &y_i);
+	// Ratio
+
+	// (1-x_f)*(1-y_f)	x_f*(1-y_f)
+	// (1-x_f)*y_f		x_f*y_f
+	SetPixel(x_i, y_i, pd * ((1 - x_f) * (1 - y_f)));
+	SetPixel(x_i + 1, y_i, pd * (x_f * (1 - y_f)));
+	SetPixel(x_i, y_i + 1, pd * ((1 - x_f) * y_f));
+	SetPixel(x_i + 1, y_i + 1, pd * (x_f * y_f));
 }
 
 void GameBuffer::DrawLineH(float x, float y1, float y2, PixelData pd) {
@@ -381,7 +396,7 @@ void GameBuffer::DrawLineV(int x1, int x2, int y, PixelData pd) {
 void GameBuffer::FillRect(float left, float top, float right, float bottom, PixelData pd) {
 	if (top > bottom)
 		std::swap(top, bottom);
-	left = std::clamp(left,0.0f,(float)Width);
+	left = std::clamp(left, 0.0f, (float)Width);
 	right = std::clamp(right, 0.0f, (float)Width);
 	top = std::clamp(top, 0.0f, (float)Height);
 	bottom = std::clamp(bottom, 0.0f, (float)Height);
@@ -389,8 +404,7 @@ void GameBuffer::FillRect(float left, float top, float right, float bottom, Pixe
 	float y1_f = std::modf(top, &y1_i);
 	float y2_i = 0.0;
 	float y2_f = std::modf(bottom, &y2_i);
-	if (y1_i == y2_i)
-	{
+	if (y1_i == y2_i) {
 		float weight = std::abs(y2_f - y1_f);
 		DrawLineV(left, right, y1_i, pd * weight);
 		return;

@@ -20,7 +20,6 @@ public:
 	virtual path BgmPath() const noexcept = 0;
 	virtual double GetDifficultyValue(std::string key) const noexcept = 0;
 	virtual std::unordered_set<std::string> GetDifficultyValues() const noexcept = 0;
-
 	HitObject& operator[](size_t i) const {
 		return at(i);
 	}

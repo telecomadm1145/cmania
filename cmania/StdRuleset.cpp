@@ -405,6 +405,6 @@
 //	}
 //};
 //
-//RulesetBase* MakeStdRuleset() {
+//Ruleset* MakeStdRuleset() {
 //	return new StdRuleset();
 //}

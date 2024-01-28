@@ -23,7 +23,7 @@ class GameplayScreen : public Screen {
 	Ruleset* ruleset;
 	OsuMods mods;
 	int mode = 0;
-	BackgroundComponent bg;
+	BackgroundComponent bg{ 0.2 };
 	bool is_replay = false;
 
 	using TransOut = Transition<EaseOut<CubicEasingFunction>, ConstantEasingDurationCalculator<500.0>>;
@@ -214,7 +214,7 @@ public:
 					pause = false;
 					return;
 				}
-				gameplay->Clock.Start();
+				gameplay->Resume();
 				pause = false;
 			}
 			return;
@@ -228,8 +228,8 @@ public:
 						parent->Back();
 					return;
 				}
-				pause = true;
-				gameplay->Clock.Stop();
+				pause = 2;
+				gameplay->Pause();
 			}
 			if (kea.Key == ConsoleKey::Spacebar) {
 				gameplay->Skip();
