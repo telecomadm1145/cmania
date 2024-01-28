@@ -41,11 +41,61 @@ class TaikoGameplay : public GameplayBase {
 	int SpinnerKatOrDon = 0;
 	TaikoScoreProcessor ScoreProcessor;
 	Transition<CubicEasingFunction, ConstantEasingDurationCalculator<50>> SpinnerHitTrans{};
-	virtual void Load(::Ruleset* rul, ::Beatmap* bmp) {
-		Beatmap = bmp;
-	}
 
 public:
+	virtual void Load(::Ruleset* rul, ::Beatmap* bmp) override {
+		auto am = GetBassAudioManager(); // 获取Bass引擎
+
+		if (bmp->RulesetId() != "osutaiko") {
+			throw std::exception("Provide a osu!taiko beatmap to this gameplay.");
+		}
+
+		this->Beatmap = bmp;
+		this->Ruleset = rul;
+
+		// 加载bgm
+		{
+			auto dat = ReadAllBytes(bmp->BgmPath().string());
+			bgm = AudioStream(am->load(dat.data(), dat.size()));
+		}
+
+		if (GameInputHandler == 0)
+			throw std::invalid_argument("RulesetInputHandler mustn't be nullptr.");
+
+		auto binds = Select(
+			GetKeyBinds(4), [](const auto& val) -> auto { return (int)val; })
+						 .ToList<int>();
+
+		GameInputHandler->SetBinds(binds);
+		first_obj = bmp->FirstObject();
+		end_obj = first_obj + bmp->Length();
+		GameRecord.Mods = Mods;
+		GameRecord.RatingGraph.resize(((end_obj - first_obj) + 11000) / 100);
+
+		auto od = Beatmap->GetDifficultyValue("OD");
+
+		ScoreProcessor.RulesetRecord = &GameRecord;
+		ScoreProcessor.SetDifficulty(od);
+		ScoreProcessor.SetMods(Mods);
+
+		ScoreProcessor.BeatmapMaxCombo = bmp->MaxCombo();
+		GameRecord.BeatmapHash = bmp->BeatmapHashcode();
+		GameRecord.BeatmapTitle = bmp->Title();
+		GameRecord.BeatmapVersion = bmp->Version();
+
+		auto diff = Ruleset->CalculateDifficulty(bmp, Mods);
+		ScoreProcessor.ApplyBeatmap(diff * GetPlaybackRate(Mods));
+
+		miss_offset = GetHitRanges(od)[HitResult::Meh];
+
+		Clock.SetRate(GetPlaybackRate(Mods));
+		Clock.Offset(std::min(first_obj - 5000, -3000.0)); // 让玩家有时间准备击打
+		Clock.Start();									   // 开始Hpet计时器
+
+		GameInputHandler->SetClockSource(Clock);
+
+		GameStarted = true;
+	}
 	void ProcessAction(int action, bool pressed, double clock) {
 		auto hit_kat = (action == 1) || (action == 2) || (action == 17);
 		if (pressed) {
@@ -109,6 +159,14 @@ public:
 			return;
 		auto time = Clock.Elapsed();
 
+		if (!wt_mode) {
+			for (int i = 0; i < 4; i++) {
+				if (GameInputHandler->GetKeyStatus(i)) {
+					KeyHighlight[i].Start(time);
+				}
+			}
+		}
+
 		if (bgm != 0 && (time > bgm->getDuration() * 1000 + 3000 || time > end_obj + 3000)) {
 			GameEnded = true;
 			Clock.Stop();
@@ -117,14 +175,6 @@ public:
 
 		if (time > first_obj) {
 			GameRecord.RatingGraph[(time - first_obj) / 100] = ScoreProcessor.Rating;
-		}
-
-		if (!wt_mode) {
-			for (int i = 0; i < 4; i++) {
-				if (GameInputHandler->GetKeyStatus(i)) {
-					KeyHighlight[i].Start(time);
-				}
-			}
 		}
 
 		if (time < resume_time || !Clock.Running())
@@ -364,7 +414,7 @@ public:
 
 	// 通过 Ruleset 继承
 	virtual std::string GetBgPath() override {
-		return (parent_path / orig_bmp.Background).string();
+		return Beatmap->BgPath().string();
 	}
 
 	// 通过 Ruleset 继承
@@ -663,7 +713,36 @@ class TaikoRuleset : public Ruleset {
 		return (std::accumulate(diffs.begin(), diffs.end(), 0.0) / diffs.size()) * 100;
 	}
 	DifficultyInfo PopulateDifficultyInfo(Beatmap* bmp) {
-		return {};
+		Assert(bmp->RulesetId() == "osutaiko");
+		TaikoBeatmap& mb = *(TaikoBeatmap*)bmp;
+		DifficultyInfo di;
+		di.push_back(DifficultyInfoItem::MakeHeader("Metadata"));
+		di.push_back(DifficultyInfoItem::MakeHeader("Title:"));
+		di.push_back(DifficultyInfoItem::MakeHeader2(mb.orig_bmp.Title));
+		di.push_back(DifficultyInfoItem::MakeHeader2(mb.orig_bmp.TitleUnicode));
+		di.push_back(DifficultyInfoItem::MakeHeader("Artist:"));
+		di.push_back(DifficultyInfoItem::MakeHeader2(mb.orig_bmp.Artist));
+		di.push_back(DifficultyInfoItem::MakeHeader2(mb.orig_bmp.ArtistUnicode));
+		di.push_back(DifficultyInfoItem::MakeHeader("Beatmap Version:"));
+		di.push_back(DifficultyInfoItem::MakeHeader2(mb.orig_bmp.Version));
+		di.push_back(DifficultyInfoItem::MakeHeader("Mapper:"));
+		di.push_back(DifficultyInfoItem::MakeHeader2(mb.orig_bmp.Creator));
+		di.push_back(DifficultyInfoItem::MakeHeader("Basic"));
+		di.push_back(DifficultyInfoItem::MakeValue("Durtaion(s)", bmp->Length() / 1000));
+		di.push_back(DifficultyInfoItem::MakeText("BeatmapHash", Hex(bmp->BeatmapHashcode())));
+		di.push_back(DifficultyInfoItem::MakeText("MaxCombo", std::to_string(bmp->MaxCombo())));
+		di.push_back(DifficultyInfoItem::MakeText("Objects", std::to_string(bmp->size())));
+		di.push_back(DifficultyInfoItem::MakeHeader("Difficulty values"));
+		di.push_back(DifficultyInfoItem::MakeValueBar("OD", bmp->GetDifficultyValue("OD"), 0, 20));
+		di.push_back(DifficultyInfoItem::MakeValueBar("Star(NM)", CalculateDifficulty(bmp, OsuMods::None), 0, 15));
+		di.push_back(DifficultyInfoItem::MakeHeader("Hitwindow"));
+		static constexpr auto mania_hitres = { HitResult::Great, HitResult::Ok, HitResult::Miss };
+		auto hitranges = GetHitRanges(bmp->GetDifficultyValue("OD"));
+		auto max = 200;
+		for (auto res : mania_hitres) {
+			di.push_back(DifficultyInfoItem::MakeValueBar(GetHitResultName(res), hitranges[res], 0, max + 20));
+		}
+		return di;
 	}
 };
 Ruleset* MakeTaikoRuleset() {

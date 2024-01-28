@@ -24,6 +24,8 @@ inline auto Sqr(auto x) {
 	return x * x;
 }
 void GameBuffer::EnsureCapacity() {
+	Width = o_w;
+	Height = o_h;
 	auto target = Width * Height;
 	if (PixelBuffer.size() < target) {
 		PixelBuffer.resize(target);
@@ -39,8 +41,8 @@ void GameBuffer::CheckBuffer() {
 	}
 }
 void GameBuffer::ResizeBuffer(int width, int height) {
-	Width = width;
-	Height = height;
+	o_w = width;
+	o_h = height;
 	dirty_buffer = true;
 }
 void GameBuffer::HideCursor() {

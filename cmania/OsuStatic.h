@@ -161,6 +161,20 @@ constexpr inline std::string GetRulesetName(int id) {
 		return "Unknown";
 	}
 }
+constexpr inline std::string GetRulesetId(int id) {
+	switch (id) {
+	case 0:
+		return "osustd";
+	case 1:
+		return "osutaiko";
+	case 2:
+		return "osucatch";
+	case 3:
+		return "osumania";
+	default:
+		return "unk";
+	}
+}
 constexpr inline Color GetHitResultColor(HitResult res) {
 	switch (res) {
 	case HitResult::Miss:

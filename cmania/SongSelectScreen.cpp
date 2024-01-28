@@ -62,6 +62,7 @@ class SongSelectScreen : public Screen {
 	TransOut Itemstrans[182]{};
 	double difficulty_val = 0;
 	DifficultyInfo di;
+	int di_loading = 0;
 	int di_size = 0;
 	int selected_tab = 0;
 
@@ -96,8 +97,8 @@ class SongSelectScreen : public Screen {
 					basicoff += selected_entry->difficulties.size() * (songheight + gap);
 				}
 				Itemstrans[(i % 70) + 70].SetValue(clk, 50 - std::abs(basicoff - (buf.Height / 2)));
-				int c2 = Itemstrans[(i % 70) + 70].GetCurrentValue(clk) / (buf.Height / 2)*8;
-				int b2 = buf.Width *0.7 -c2;
+				int c2 = Itemstrans[(i % 70) + 70].GetCurrentValue(clk) / (buf.Height / 2) * 8;
+				int b2 = buf.Width * 0.7 - c2;
 				if (i == selected) {
 					buf.FillRect(b2, basicoff, buf.Width, basicoff + songheight, { {}, { 60, 255, 255, 255 }, ' ' }); // 高亮
 					int k = 1;
@@ -153,40 +154,49 @@ class SongSelectScreen : public Screen {
 				buf.FillRect(0, 14, 8, 15, { {}, { 150, 32, 32, 32 }, ' ' });
 				buf.DrawString("Details", 0, 14, {}, {});
 				buf.FillRect(0, 15, 50, buf.Height - 3, { {}, { 150, 32, 32, 32 }, ' ' });
-				buf.SetBounds(0, 15, 50, buf.Height - 4);
-				OffsetTrans2.SetValue(clk, offset2);
-				int z = (int)OffsetTrans2.GetCurrentValue(clk);
-				int i = 15 - z;
-				for (auto& d : di) {
-					if (d.Type == DifficultyInfoItem::ValueBar) {
-						buf.DrawString(d.Text, 0, i, {}, {});
-						std::string v = std::format("{:.2f}", d.Value);
-						buf.DrawString(v, 50 - v.size() - 1, i, {}, {});
-						buf.DrawLineV(12, 50 - 7 - 2, i, { {}, { 150, 32, 32, 32 }, ' ' });
-						double prog = std::clamp(d.Value / d.MaxValue, 0.0, 1.0);
-						buf.DrawLineV(12, prog * (50 - 7 - 2 - 12) + 12, i, { {}, { 150, 255, 0, 0 }, ' ' });
-						i++;
-					}
-					else if (d.Type == DifficultyInfoItem::Header) {
-						i++;
-						buf.DrawString(d.Text, 0, i, {}, {});
-						i++;
-					}
-					else if (d.Type == DifficultyInfoItem::PlainText) {
-						buf.DrawString(d.Text, 0, i, {}, {});
-						auto v = d.Text2;
-						buf.DrawString(v, 50 - v.size() - 1, i, {}, {});
-						i++;
-					}
-					else if (d.Type == DifficultyInfoItem::PlainValue) {
-						buf.DrawString(d.Text, 0, i, {}, {});
-						auto v = std::format("{:.2f}", d.Value);
-						buf.DrawString(v, 50 - v.size() - 1, i, {}, {});
-						i++;
-					}
+				if (di_loading) {
+					buf.DrawString("Loading...", 0, 15, {}, {});
 				}
-				di_size = i - 15 + z;
-				buf.ResetBounds();
+				else {
+					buf.SetBounds(0, 15, 50, buf.Height - 4);
+					OffsetTrans2.SetValue(clk, offset2);
+					int z = (int)OffsetTrans2.GetCurrentValue(clk);
+					int i = 15 - z;
+					for (auto& d : di) {
+						if (d.Type == DifficultyInfoItem::ValueBar) {
+							buf.DrawString(d.Text, 0, i, {}, {});
+							std::string v = std::format("{:.2f}", d.Value);
+							buf.DrawString(v, 50 - v.size() - 1, i, {}, {});
+							buf.DrawLineV(12, 50 - 7 - 2, i, { {}, { 150, 32, 32, 32 }, ' ' });
+							double prog = std::clamp(d.Value / d.MaxValue, 0.0, 1.0);
+							buf.DrawLineV(12, prog * (50 - 7 - 2 - 12) + 12, i, { {}, { 150, 255, 0, 0 }, ' ' });
+							i++;
+						}
+						else if (d.Type == DifficultyInfoItem::Header) {
+							i++;
+							buf.DrawString(d.Text, 0, i, {}, {});
+							i++;
+						}
+						else if (d.Type == DifficultyInfoItem::Header2) {
+							buf.DrawString(d.Text, 0, i, {}, {});
+							i++;
+						}
+						else if (d.Type == DifficultyInfoItem::PlainText) {
+							buf.DrawString(d.Text, 0, i, {}, {});
+							auto v = d.Text2;
+							buf.DrawString(v, 50 - v.size() - 1, i, {}, {});
+							i++;
+						}
+						else if (d.Type == DifficultyInfoItem::PlainValue) {
+							buf.DrawString(d.Text, 0, i, {}, {});
+							auto v = std::format("{:.2f}", d.Value);
+							buf.DrawString(v, 50 - v.size() - 1, i, {}, {});
+							i++;
+						}
+					}
+					di_size = i - 15 + z;
+					buf.ResetBounds();
+				}
 				/* buf.DrawString("个人最佳: " + (records.size() > 0 ? std::to_string((int)(records[0].Score * 10000000)) : "0"), 1, 14, {}, {});
 				int i = 16;
 				for (auto& rec : records) {
@@ -198,9 +208,9 @@ class SongSelectScreen : public Screen {
 		else {
 			buf.DrawString("No song selected.", 1, 3, {}, {});
 		}
-		buf.FillRect(0, buf.Height - 2, 35, buf.Height, { {}, { 130, 20, 20, 20 }, ' ' });
-		buf.DrawString(" Esc     F1    F2   F3   F4  Enter", 0, buf.Height - 2, { 255, 0, 105, 204 }, {});
-		buf.DrawString(" 返回  规则集 随机 Mods 选项 进入", 0, buf.Height - 1, {}, {});
+		buf.FillRect(0, buf.Height - 2, 50, buf.Height, { {}, { 130, 20, 20, 20 }, ' ' });
+		buf.DrawString(" Esc      F1       F2      F3      F4      Enter", 0, buf.Height - 2, { 255, 0, 105, 204 }, {});
+		buf.DrawString(" 返回  Rulesets  Random   Mods   Options   进入", 0, buf.Height - 1, {}, {});
 		buf.FillRect(buf.Width - 30, 2, buf.Width - 3, 2, { {}, { 130, 128, 128, 128 }, ' ' });
 		buf.DrawString("搜索:", buf.Width - 30, 2, { 255, 100, 255, 150 }, {});
 		buf.DrawString(std::wstring{ search_buf.begin(), search_buf.end() }, buf.Width - 24, 2, { 255, 100, 255, 150 }, {});
@@ -328,7 +338,34 @@ class SongSelectScreen : public Screen {
 	std::vector<SongsCacheEntry> matched_caches;
 	bool ready;
 	bool require_songs_path;
+	~SongSelectScreen()
+	{
+		thd_alive = false;
+		background_info_worker.join();
+	}
+	bool thd_alive = true;
+	std::thread background_info_worker = std::thread([&]() {
+		auto old_en = selected_entry_2;
+		while (thd_alive) {
+			if (selected_entry_2 != old_en) {
+				if (selected_entry_2 != 0) {
+					di_loading = 1;
+					old_en = selected_entry_2;
+					auto ruleset = &game->GetFeature<IRulesetManager>().GetRuleset(GetRulesetId(old_en->mode));
+					auto bmp = ruleset->LoadBeatmap(old_en->path, false);
+					difficulty_val = ruleset->CalculateDifficulty(bmp, mods) * GetModScale(mods) * GetPlaybackRate(mods);
+					di = ruleset->PopulateDifficultyInfo(bmp);
+					delete bmp;
+					di_loading = 0;
+				}
+				else
+					old_en = 0;
+			}
+			std::this_thread::sleep_for(std::chrono::milliseconds(10));
+		}
+	});
 	std::vector<wchar_t> input_buf;
+	Ruleset* ruleset = 0;
 	virtual void Activate(bool y) {
 		if (y) {
 			if (require_songs_path) {
@@ -362,8 +399,7 @@ class SongSelectScreen : public Screen {
 				if (ctl_drag) {
 					offset = last_offset - (mea.Y - last_y) * 2;
 				}
-				else
-				{
+				else {
 					offset2 = last_offset2 - (mea.Y - last_y) * 2;
 				}
 			}
@@ -426,26 +462,17 @@ class SongSelectScreen : public Screen {
 	}
 	void FocusCurrent() {
 	}
-	void RefreshDifficulty() {
-		if (selected_entry_2 != 0) {
-			auto& ruleset = game->GetFeature<IRulesetManager>().GetRuleset("osumania");
-			auto bmp = ruleset.LoadBeatmap(selected_entry_2->path,false);
-			difficulty_val = ruleset.CalculateDifficulty(bmp, mods) * GetModScale(mods) * GetPlaybackRate(mods);
-			di = ruleset.PopulateDifficultyInfo(bmp);
-			delete bmp;
-		}
-	}
 	void MakeSelected(int i, auto& cache, auto& diff) {
 		selected = i;
 		if (i != INT_MAX) {
+			ruleset = &game->GetFeature<IRulesetManager>().GetRuleset(GetRulesetId(diff.mode));
 			if (selected_entry == &cache && selected_entry_2 == &diff) {
-				parent->Navigate(MakeGameplayScreen(selected_entry_2->path, mods, selected_entry_2->mode));
+				parent->Navigate(MakeGameplayScreen(ruleset, selected_entry_2->path, mods, selected_entry_2->mode));
 				return;
 			}
 			selected_entry = &cache;
 			selected_entry_2 = &diff;
 			difficulty_val = 0;
-			RefreshDifficulty();
 			RefreshRecords();
 		}
 		LoadBg();
@@ -483,11 +510,10 @@ class SongSelectScreen : public Screen {
 		}
 		else {
 			if (ctl_drag == 0) {
-				offset2 = std::clamp(offset2, 0.0, std::max((double)(di_size - h_cache),0.0));
+				offset2 = std::clamp(offset2, 0.0, std::max((double)(di_size - h_cache + 20), 0.0));
 			}
 			if (mkea.X == last_x && mkea.Y == last_y && !matched_caches.empty()) {
 				if (ctl_drag == 0) {
-
 				}
 				else {
 					auto& caches = matched_caches;
@@ -608,7 +634,6 @@ class SongSelectScreen : public Screen {
 				}
 				if (mod_flyout) {
 					if (kea.Key == ConsoleKey::Escape) {
-						RefreshDifficulty();
 						mod_flyout = !mod_flyout;
 					}
 
@@ -684,13 +709,13 @@ class SongSelectScreen : public Screen {
 						if (kea.CtrlDown()) {
 							mods = ModifyFlag(mods, OsuMods::Auto);
 						}
-						parent->Navigate(MakeGameplayScreen(selected_entry_2->path, mods, selected_entry_2->mode));
+						parent->Navigate(MakeGameplayScreen(ruleset, selected_entry_2->path, mods, selected_entry_2->mode));
 					}
 				}
 				if (kea.Key == ConsoleKey::Insert) {
 					if (selected_entry_2 != 0 && selected != INT_MAX) {
 						if (records.size() > 0)
-							parent->Navigate(MakeGameplayScreen(records[0], selected_entry_2->path, selected_entry_2->mode));
+							parent->Navigate(MakeGameplayScreen(ruleset, records[0], selected_entry_2->path, selected_entry_2->mode));
 					}
 				}
 			}

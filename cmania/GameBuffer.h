@@ -61,6 +61,8 @@ struct PixelData {
 class GameBuffer {
 private:
 	std::vector<PixelData> PixelBuffer;
+	int o_w;
+	int o_h;
 
 public:
 	int Width;

@@ -11,6 +11,7 @@ public:
 		Header,
 		PlainText,
 		PlainValue,
+		Header2,
 	} Type;
 	std::string Text2;
 	static DifficultyInfoItem MakeValueBar(std::string Header,double Value,double MinValue = 0,double MaxValue = 9999)
@@ -22,6 +23,9 @@ public:
 	}
 	static DifficultyInfoItem MakeHeader(std::string Header) {
 		return { Header, 0, 0, 0, DifficultyInfoItem::Header };
+	}
+	static DifficultyInfoItem MakeHeader2(std::string Header) {
+		return { Header, 0, 0, 0, DifficultyInfoItem::Header2 };
 	}
 	static DifficultyInfoItem MakeText(std::string Header,std::string Text) {
 		return { Header, 0, 0, 0, DifficultyInfoItem::PlainText, Text };

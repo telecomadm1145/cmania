@@ -16,6 +16,7 @@
 #include "RulesetManager.h"
 
 #include "ManiaRuleset.h"
+#include "TaikoRuleset.h"
 
 // cmania 的入口点
 int main() {
@@ -37,6 +38,7 @@ int main() {
 	game.Raise("start"); // 初始化组件
 
 	game.GetFeature<IRulesetManager>().Register(MakeManiaRuleset());
+	game.GetFeature<IRulesetManager>().Register(MakeTaikoRuleset());
 
 	auto& scr = *MakeMainMenuScreen(); // 构建主屏幕
 	game.Raise("navigate", scr);	   // 导航到主屏幕

@@ -717,6 +717,18 @@ public:
 		Assert(bmp->RulesetId() == "osumania");
 		ManiaBeatmap& mb = *(ManiaBeatmap*)bmp;
 		DifficultyInfo di;
+		di.push_back(DifficultyInfoItem::MakeHeader("Metadata"));
+		di.push_back(DifficultyInfoItem::MakeHeader("Title:"));
+		di.push_back(DifficultyInfoItem::MakeHeader2(mb.orig_bmp.Title));
+		di.push_back(DifficultyInfoItem::MakeHeader2(mb.orig_bmp.TitleUnicode));
+		di.push_back(DifficultyInfoItem::MakeHeader("Artist:"));
+		di.push_back(DifficultyInfoItem::MakeHeader2(mb.orig_bmp.Artist));
+		di.push_back(DifficultyInfoItem::MakeHeader2(mb.orig_bmp.ArtistUnicode));
+		di.push_back(DifficultyInfoItem::MakeHeader("Beatmap Version:"));
+		di.push_back(DifficultyInfoItem::MakeHeader2(mb.orig_bmp.Version));
+		di.push_back(DifficultyInfoItem::MakeHeader("Mapper:"));
+		di.push_back(DifficultyInfoItem::MakeHeader2(mb.orig_bmp.Creator));
+		di.push_back(DifficultyInfoItem::MakeHeader("Basic"));
 		di.push_back(DifficultyInfoItem::MakeValue("Durtaion(s)", bmp->Length() / 1000));
 		di.push_back(DifficultyInfoItem::MakeText("BeatmapHash", Hex(bmp->BeatmapHashcode())));
 		di.push_back(DifficultyInfoItem::MakeText("MaxCombo", std::to_string(bmp->MaxCombo())));

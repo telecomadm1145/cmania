@@ -29,10 +29,9 @@ class GameplayScreen : public Screen {
 	using TransOut = Transition<EaseOut<CubicEasingFunction>, ConstantEasingDurationCalculator<500.0>>;
 
 public:
-	GameplayScreen(const std::string& bmp_path, OsuMods mod, int mode) : mode(mode), mods(mod), beatmap_path(bmp_path), is_replay(false) {
+	GameplayScreen(Ruleset* rul,const std::string& bmp_path, OsuMods mod, int mode) :ruleset(rul), mode(mode), mods(mod), beatmap_path(bmp_path), is_replay(false) {
 	}
 	void LoadForGameplay(OsuMods mod, const std::string& bmp_path, int mode) {
-		ruleset = &game->GetFeature<IRulesetManager>().GetRuleset("osumania");
 		beatmap.reset(ruleset->LoadBeatmap(bmp_path));
 		gameplay.reset(ruleset->GenerateGameplay());
 		if (!HasFlag(mod, OsuMods::Auto)) {
@@ -46,10 +45,9 @@ public:
 		gameplay->Mods = mod;
 		gameplay->Load(ruleset, beatmap.get());
 	}
-	GameplayScreen(Record rec, const std::string& bmp_path, int mode) : mode(mode), mods(rec.Mods), beatmap_path(bmp_path), is_replay(true), rec(rec) {
+	GameplayScreen(Ruleset* rul, Record rec, const std::string& bmp_path, int mode) : ruleset(rul), mode(mode), mods(rec.Mods), beatmap_path(bmp_path), is_replay(true), rec(rec) {
 	}
 	void LoadForReplay(Record& rec, const std::string& bmp_path, int mode) {
-		ruleset = &game->GetFeature<IRulesetManager>().GetRuleset("osumania");
 		beatmap.reset(ruleset->LoadBeatmap(bmp_path));
 		gameplay.reset(ruleset->GenerateGameplay());
 
@@ -305,10 +303,10 @@ public:
 	};
 };
 
-Screen* MakeGameplayScreen(const std::string& bmp_path, OsuMods mod, int mode) {
-	return new GameplayScreen(bmp_path, mod, mode);
+Screen* MakeGameplayScreen(Ruleset* rul,const std::string& bmp_path, OsuMods mod, int mode) {
+	return new GameplayScreen(rul,bmp_path, mod, mode);
 }
 
-Screen* MakeGameplayScreen(Record rec, const std::string& bmp_path, int mode) {
-	return new GameplayScreen(rec, bmp_path, mode);
+Screen* MakeGameplayScreen(Ruleset* rul,Record rec, const std::string& bmp_path, int mode) {
+	return new GameplayScreen(rul,rec, bmp_path, mode);
 }
