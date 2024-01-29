@@ -5,6 +5,7 @@
 class BackgroundComponent {
 	Image rbg;
 	Image bg;
+	double op = 1;
 
 public:
 	void LoadBackground(std::filesystem::path path) {
@@ -20,6 +21,9 @@ public:
 		bg = Image(str);
 		rbg = Image{};
 	}
+	BackgroundComponent(double v) {
+		op = v;
+	}
 	void Render(GameBuffer& buffer) {
 		if (bg.Scan0() != 0) {
 			if (rbg.Scan0() == 0 || rbg.Height() != buffer.Height || rbg.Width() != buffer.Width) {
@@ -30,9 +34,8 @@ public:
 			Color clr;
 			for (size_t i = 0; i < rbg.Width() * rbg.Height() * 3; i += 3) {
 				auto scan0 = rbg.Scan0();
-				Color clr2{ 255, (unsigned char)(scan0[i + 0] / 5), (unsigned char)(scan0[i + 1] / 5), (unsigned char)(scan0[i + 2] / 5) };
-				if (clr.Difference(clr2) > 0.01)
-				{
+				Color clr2{ 255, (unsigned char)(scan0[i + 0] * op), (unsigned char)(scan0[i + 1] * op), (unsigned char)(scan0[i + 2] * op) };
+				if (clr.Difference(clr2) > 0.01) {
 					clr = clr2;
 				}
 				buffer.SetPixel(x, y, { {}, clr, ' ' });

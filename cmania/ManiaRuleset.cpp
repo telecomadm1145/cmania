@@ -40,6 +40,18 @@ public:
 	virtual ScoreProcessorBase* GetScoreProcessor() override {
 		return &RulesetScoreProcessor;
 	}
+	virtual void Pause() override {
+		for (auto& light : KeyHighlight) {
+			light.Reset();
+		}
+		bgm->pause(true);
+		Clock.Stop();
+	}
+	virtual void Resume() override {
+		resume_time = Clock.Elapsed();
+		Clock.Offset(-3000);
+		Clock.Start();
+	}
 	virtual void Load(::Ruleset* rul, ::Beatmap* bmp) override {
 		auto am = GetBassAudioManager(); // 获取Bass引擎
 
@@ -98,7 +110,7 @@ public:
 	void ProcessAction(int action, bool pressed, double clock) {
 		if (!pressed) {
 			auto first_hold = Beatmap->super<ManiaObject>() > Where([&](ManiaObject& obj) -> bool {
-				return obj.Column == action && obj.EndTime != 0 && !(obj.HasHold || obj.HoldBroken) && obj.HasHit;
+				return obj.Column == action && obj.IsHold() && !(obj.HasHold || obj.HoldBroken) && obj.HasHit;
 			}) > FirstOrDefault();
 			if (first_hold != 0) {
 				auto result = RulesetScoreProcessor.ApplyHit(*first_hold, clock - first_hold->EndTime);
@@ -147,43 +159,41 @@ public:
 			GameRecord.RatingGraph[(time - first_obj) / 100] = RulesetScoreProcessor.Rating;
 		}
 
-		if (time < resume_time || !Clock.Running())
-			return;
-
-		if (bgm != 0 && time > -std::max(offset * Clock.ClockRate(), 0.0) - 30 && time < bgm->getDuration() * 1000 - 3000) {
-			if (!bgm->isPlaying()) {
-				if (!bgm->isPaused()) // 这里用了一些小窍门让音频和Clock保持同步
-				{
-					Clock.Stop();
-					bgm->setPlaybackRate(Clock.ClockRate());
-					bgm->play();
-					while (bgm->getCurrent() < 0.003) {
+		if (!(time < resume_time || !Clock.Running()))
+			if (bgm != 0 && time > -std::max(offset * Clock.ClockRate(), 0.0) - 30 && time < bgm->getDuration() * 1000 - 3000) {
+				if (!bgm->isPlaying()) {
+					if (!bgm->isPaused()) // 这里用了一些小窍门让音频和Clock保持同步
+					{
+						Clock.Stop();
+						bgm->setPlaybackRate(Clock.ClockRate());
+						bgm->play();
+						while (bgm->getCurrent() < 0.003) {
+						}
+						Clock.Reset();
+						Clock.Offset(bgm->getCurrent() * 1000 + offset * Clock.ClockRate());
+						Clock.Start();
 					}
-					Clock.Reset();
-					Clock.Offset(bgm->getCurrent() * 1000 + offset * Clock.ClockRate());
-					Clock.Start();
+					else {
+						bgm->pause(false);
+					}
 				}
 				else {
-					bgm->pause(false);
-				}
-			}
-			else {
-				auto err = time - bgm->getCurrent() * 1000 - offset * Clock.ClockRate();
-				if (std::abs(err) > 150) {
-					bgm->setCurrent(time / 1000); // 调整...
+					auto err = time - bgm->getCurrent() * 1000 - offset * Clock.ClockRate();
+					if (std::abs(err) > 150) {
+						bgm->setCurrent(time / 1000); // 调整...
 
-					Clock.Stop();
-					while (bgm->getCurrent() < time / 1000 + 0.003) {
+						Clock.Stop();
+						while (bgm->getCurrent() < time / 1000 + 0.003) {
+						}
+						Clock.Reset();
+						Clock.Offset(bgm->getCurrent() * 1000 + offset * Clock.ClockRate());
+						Clock.Start();
 					}
-					Clock.Reset();
-					Clock.Offset(bgm->getCurrent() * 1000 + offset * Clock.ClockRate());
-					Clock.Start();
 				}
 			}
-		}
 
 		Beatmap->super<ManiaObject>() > ForEach([&](ManiaObject& obj) {
-			if (obj.EndTime != 0 && !(obj.HasHold || obj.HoldBroken) && !wt_mode) {
+			if (obj.IsHold() && !(obj.HasHold || obj.HoldBroken) && !wt_mode) {
 				if (time > obj.StartTime + miss_offset) {
 					if (GameInputHandler->GetKeyStatus(obj.Column)) {
 						obj.LastHoldOff = time;
@@ -205,9 +215,9 @@ public:
 			}
 
 			// Handles sliding sample.
-			if (obj.HasHit && obj.EndTime != 0) {
+			if (obj.HasHit && obj.IsHold()) {
 				if (wt_mode) {
-					if (time > obj.StartTime && time < obj.EndTime) {
+					if (Clock.Running() && time > obj.StartTime && time < obj.EndTime) {
 						if (obj.ssample != 0 && obj.ssample_stream == 0) {
 							obj.ssample_stream = AudioStream(obj.ssample->generateStream());
 							obj.ssample_stream->play();
@@ -223,7 +233,7 @@ public:
 							obj.ssamplew_stream->play();
 						}
 					}
-					if (time > obj.EndTime) {
+					if (!Clock.Running() || time > obj.EndTime) {
 						if (obj.ssample_stream) {
 							obj.ssample_stream->stop();
 							obj.ssample_stream = 0;
@@ -235,7 +245,7 @@ public:
 					}
 				}
 				else {
-					if (!(obj.HasHold || obj.HoldBroken)) {
+					if (!(obj.HasHold || obj.HoldBroken) && Clock.Running()) {
 						if (GameInputHandler->GetKeyStatus(obj.Column)) // Pressed
 						{
 							if (obj.ssample != 0 && obj.ssample_stream == 0) {
@@ -310,7 +320,7 @@ public:
 			for (auto& obj : Beatmap->super<ManiaObject>()) {
 				auto off = obj.StartTime - e_ms;
 				auto off2 = obj.EndTime - e_ms;
-				if (obj.EndTime == 0) {
+				if (!obj.IsHold()) {
 					if (off > scrollspeed || off < -scrollspeed / 5)
 						continue;
 				}
@@ -327,10 +337,10 @@ public:
 					auto flashlight_num = CalcFlashlight(Mods, ratio);
 					if (obj.Multi)
 						base = { 0, 204, 187, 102 };
-					if (obj.EndTime != 0 && !obj.HasHold) {
+					if (obj.IsHold() && !obj.HasHold) {
 						auto ratio2 = 1 - (obj.EndTime - e_ms) / scrollspeed;
 						auto endy = ratio2 * (buffer.Height - judge_height);
-						auto a = obj.HasHit && !obj.HoldBroken ? std::min(starty, buffer.Height - judge_height) : starty;
+						auto a = obj.HasHit && !obj.HoldBroken ? std::min(starty, buffer.Height - judge_height + key_height) : starty;
 						base.Alpha = 180;
 						if (HasFlag(Mods, OsuMods::FadeOut) || HasFlag(Mods, OsuMods::Hidden)) {
 							base.Alpha = 50;
@@ -411,7 +421,7 @@ public:
 			evt.Clock = obj.StartTime;
 			record.Events.push_back(evt);
 
-			if (obj.EndTime != 0) {
+			if (obj.IsHold()) {
 				// Handle holds
 				evt.Pressed = false;
 				evt.Clock = obj.EndTime;
@@ -434,7 +444,7 @@ public:
 	std::vector<ManiaObject> storage;
 	path bmp_root;
 	Hash bmp_hash;
-	double first_obj;
+	double first_obj = 1e300;
 	double last_obj;
 	size_t maxcombo;
 	virtual std::string RulesetId() const noexcept {
@@ -497,7 +507,7 @@ public:
 	virtual std::string DisplayName() {
 		return "Mania";
 	}
-	virtual Beatmap* LoadBeatmap(path beatmap_path) {
+	virtual Beatmap* LoadBeatmap(path beatmap_path, bool load_samples) {
 		auto beatmap = new ManiaBeatmap();
 
 		std::ifstream ifs(beatmap_path);
@@ -547,11 +557,16 @@ public:
 		std::map<std::string, AudioSample> SampleCaches; // 采样缓存
 
 		Samples > ForEach([&](const std::string& path) {
-			try {
-				auto dat = ReadAllBytes(path);
-				SampleCaches[path] = AudioSample(am->loadSample(dat.data(), dat.size()));
+			if (load_samples) {
+				try {
+					auto dat = ReadAllBytes(path);
+					SampleCaches[path] = AudioSample(am->loadSample(dat.data(), dat.size()));
+				}
+				catch (...) {
+				}
 			}
-			catch (...) {
+			else {
+				SampleCaches[path];
 			}
 		});
 
@@ -563,14 +578,20 @@ public:
 								   // 计算物件的列
 								   mo.Column = CalcColumn(obj.X, keys);
 
+								   auto is_slider = HasFlag(obj.Type, HitObjectType::Slider);
+								   auto is_hold = is_slider || HasFlag(obj.Type, HitObjectType::Hold) || HasFlag(obj.Type, HitObjectType::Spinner);
+
 								   // 复制起始和终止时间
 								   mo.StartTime = obj.StartTime;
-								   mo.EndTime = obj.EndTime;
 
 								   beatmap->first_obj = std::min(beatmap->first_obj, obj.StartTime);
 								   beatmap->last_obj = std::max(beatmap->last_obj, obj.StartTime);
-								   if (obj.EndTime != 0)
-									   beatmap->last_obj = std::max(beatmap->last_obj, obj.EndTime);
+								   if (is_hold) {
+									   mo.EndTime = obj.EndTime;
+									   if (is_slider) {
+									   }
+									   beatmap->last_obj = std::max(beatmap->last_obj, mo.EndTime);
+								   }
 
 								   // 计算是否为多押
 								   osub.HitObjects > ForEach([&](const auto& obj2) {
@@ -596,7 +617,7 @@ public:
 								   beatmap->maxcombo++;
 
 								   // 判断是否是 Hold
-								   if (obj.EndTime != 0) {
+								   if (is_hold) {
 									   // 加载滑动音效
 									   First(GetSampleLayered(SampleIndex, SkinSampleIndex, tp.SampleBank, HitSoundType::Slide, tp.SampleSet) > Select(sample_selector), mo.ssample);
 
@@ -638,7 +659,7 @@ public:
 
 			double lastjudge = ho.StartTime;
 			double timeDiff = 0;
-			if (ho.EndTime != 0) {
+			if (ho.IsHold()) {
 				lastjudge = ho.EndTime;
 			}
 			double nearestSameColumnTime = -1;
@@ -670,10 +691,10 @@ public:
 				if (&ho2 == &ho)
 					continue;
 
-				if (std::abs(ho2.StartTime - ho.StartTime) < 0.1 || (ho2.EndTime != 0 && std::abs(ho2.EndTime - ho.StartTime) < 0.1) || (ho2.EndTime != 0 && ho.EndTime != 0 && (std::abs(ho2.EndTime - ho.EndTime) < 0.1 || std::abs(ho2.StartTime - ho.EndTime) < 0.1))) {
+				if (std::abs(ho2.StartTime - ho.StartTime) < 0.1 || (ho2.IsHold() && std::abs(ho2.EndTime - ho.StartTime) < 0.1) || (ho2.EndTime != 0 && ho.EndTime != 0 && (std::abs(ho2.EndTime - ho.EndTime) < 0.1 || std::abs(ho2.StartTime - ho.EndTime) < 0.1))) {
 					multi *= 1.06;
 				}
-				if (ho2.EndTime != 0 && ho.StartTime >= ho2.StartTime && ho.StartTime <= ho2.EndTime) {
+				if (ho2.IsHold() && ho.StartTime >= ho2.StartTime && ho.StartTime <= ho2.EndTime) {
 					multi *= 1.06;
 				}
 				if (std::abs(nearestTime - ho2.StartTime) < 0.1) {
@@ -703,6 +724,18 @@ public:
 		Assert(bmp->RulesetId() == "osumania");
 		ManiaBeatmap& mb = *(ManiaBeatmap*)bmp;
 		DifficultyInfo di;
+		di.push_back(DifficultyInfoItem::MakeHeader("Metadata"));
+		di.push_back(DifficultyInfoItem::MakeHeader("Title:"));
+		di.push_back(DifficultyInfoItem::MakeHeader2(mb.orig_bmp.Title));
+		di.push_back(DifficultyInfoItem::MakeHeader2(mb.orig_bmp.TitleUnicode));
+		di.push_back(DifficultyInfoItem::MakeHeader("Artist:"));
+		di.push_back(DifficultyInfoItem::MakeHeader2(mb.orig_bmp.Artist));
+		di.push_back(DifficultyInfoItem::MakeHeader2(mb.orig_bmp.ArtistUnicode));
+		di.push_back(DifficultyInfoItem::MakeHeader("Beatmap Version:"));
+		di.push_back(DifficultyInfoItem::MakeHeader2(mb.orig_bmp.Version));
+		di.push_back(DifficultyInfoItem::MakeHeader("Mapper:"));
+		di.push_back(DifficultyInfoItem::MakeHeader2(mb.orig_bmp.Creator));
+		di.push_back(DifficultyInfoItem::MakeHeader("Basic"));
 		di.push_back(DifficultyInfoItem::MakeValue("Durtaion(s)", bmp->Length() / 1000));
 		di.push_back(DifficultyInfoItem::MakeText("BeatmapHash", Hex(bmp->BeatmapHashcode())));
 		di.push_back(DifficultyInfoItem::MakeText("MaxCombo", std::to_string(bmp->MaxCombo())));

@@ -77,6 +77,21 @@
     <ClCompile Include="ScoreSubmition.cpp">
       <Filter>Game</Filter>
     </ClCompile>
+    <ClCompile Include="TaikoRuleset.cpp">
+      <Filter>Game\Gameplay\Taiko</Filter>
+    </ClCompile>
+    <ClCompile Include="Crc.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="StdRuleset.cpp">
+      <Filter>Game\Gameplay\Std</Filter>
+    </ClCompile>
+    <ClCompile Include="BeatmapDownloadingScreen.cpp">
+      <Filter>Game\Online</Filter>
+    </ClCompile>
+    <ClCompile Include="BeatmapDownloadingService.cpp">
+      <Filter>Game\Online</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ConsoleInput.h">
@@ -244,6 +259,35 @@
     <ClInclude Include="RulesetManager.h">
       <Filter>Game</Filter>
     </ClInclude>
+    <ClInclude Include="git_info.h" />
+    <ClInclude Include="Path.h" />
+    <ClInclude Include="Localization.h">
+      <Filter>Core\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="TaikoObject.h">
+      <Filter>Game\Gameplay\Taiko</Filter>
+    </ClInclude>
+    <ClInclude Include="TaikoRuleset.h">
+      <Filter>Game\Gameplay\Taiko</Filter>
+    </ClInclude>
+    <ClInclude Include="TaikoScoreProcessor.h">
+      <Filter>Game\Gameplay\Taiko</Filter>
+    </ClInclude>
+    <ClInclude Include="Crc.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="StdObject.h">
+      <Filter>Game\Gameplay\Std</Filter>
+    </ClInclude>
+    <ClInclude Include="StdRuleset.h">
+      <Filter>Game\Gameplay\Std</Filter>
+    </ClInclude>
+    <ClInclude Include="StdScoreProcessor.h">
+      <Filter>Game\Gameplay\Std</Filter>
+    </ClInclude>
+    <ClInclude Include="BeatmapDownloadingService.h">
+      <Filter>Game\Online</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Core">
@@ -284,6 +328,15 @@
     </Filter>
     <Filter Include="Core\String">
       <UniqueIdentifier>{45d08206-5964-4f5b-85a5-8143697c2c41}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game\Gameplay\Taiko">
+      <UniqueIdentifier>{9080b365-7bc9-4478-b463-0b84bf75bd67}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game\Gameplay\Std">
+      <UniqueIdentifier>{34e76768-9211-4287-90a1-1d40d8645d9d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game\Online">
+      <UniqueIdentifier>{55429e24-03bf-48a1-ad6f-e0c48d80f4a4}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -661,9 +714,6 @@
     <None Include="Samples\*\*" />
     <None Include="Samples\*\*" />
     <None Include="Samples\*\*" />
-    <None Include="Samples\*\*" />
-    <None Include="Samples\*\*" />
-    <None Include="Samples\*\*" />
     <None Include="Samples\Argon\drum-hitfinish.wav" />
     <None Include="Samples\Argon\drum-hitnormal.wav" />
     <None Include="Samples\Argon\drum-hitwhistle.wav" />
@@ -13491,7 +13541,6 @@
     <None Include="Samples\*\*" />
     <None Include="Samples\*\*" />
     <None Include="Samples\*\*" />
-    <None Include="Test.ruleset" />
     <None Include="Samples\*\*" />
     <None Include="Samples\*\*" />
     <None Include="Samples\*\*" />
@@ -13549,5 +13598,6 @@
     <None Include="Samples\*\*" />
     <None Include="Samples\*\*" />
     <None Include=".clang-format" />
+    <None Include="GitInfo.ps1" />
   </ItemGroup>
 </Project>

@@ -4,6 +4,7 @@
 #include "OsuMods.h"
 #include "OsuStatic.h"
 #include "Record.h"
+#include "Ruleset.h"
 
-Screen* MakeGameplayScreen(const std::string& bmp_path, OsuMods mod,int mode);
-Screen* MakeGameplayScreen(Record rec,const std::string& bmp_path,int mode);
+Screen* MakeGameplayScreen(Ruleset* rul,const std::string& bmp_path, OsuMods mod,int mode);
+Screen* MakeGameplayScreen(Ruleset* rul, Record rec, const std::string& bmp_path, int mode);

@@ -61,6 +61,8 @@ struct PixelData {
 class GameBuffer {
 private:
 	std::vector<PixelData> PixelBuffer;
+	int o_w;
+	int o_h;
 
 public:
 	int Width;
@@ -144,6 +146,7 @@ public:
 	void FillPolygon(const std::vector<PointI>& points, PixelData pd);
 
 	void SetPixel(int x, int y, PixelData pd);
+	void SetPixelF(float x, float y, PixelData pd);
 	void DrawLineH(float x, float y1, float y2, PixelData pd);
 	void DrawLineV(float x1, float x2, float y, PixelData pd);
 	void FillRect(float left, float top, float right, float bottom, PixelData pd);
