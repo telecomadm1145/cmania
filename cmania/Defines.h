@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 #include <cmath>
 #include <vector>
 #include <filesystem>
@@ -206,7 +206,7 @@ std::string Hex(T n) {
 	const char hexChars[] = "0123456789abcdef";
 	for (size_t i = 0; i < digits; i++) {
 		hexString[digits - i -1] = hexChars[n & 0xF];
-		n >>= 4; // Î»ÓÒÒÆ 4 Î»Ïàµ±ÓÚ³ıÒÔ 16
+		n >>= 4; // ä½å³ç§» 4 ä½ç›¸å½“äºé™¤ä»¥ 16
 	}
 	return hexString;
 }

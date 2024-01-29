@@ -1,4 +1,4 @@
-#include "Crc.h"
+﻿#include "Crc.h"
 #include <intrin.h>
 uint32_t GetCrc(const char* data, size_t s) {
 	uint32_t crc = ~0u;

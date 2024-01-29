@@ -42,7 +42,7 @@ public:
 		: w(other.w), h(other.h), c(other.c)
 	{
 		scan0 = new unsigned char[w * h * c];
-		std::memcpy(scan0, other.scan0, w * h * c);
+		std::memcpy(scan0, other.scan0, (size_t)w * h * c);
 	}
 
 	// Move constructor

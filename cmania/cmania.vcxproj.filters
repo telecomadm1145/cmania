@@ -713,7 +713,6 @@
     <None Include="Samples\*\*" />
     <None Include="Samples\*\*" />
     <None Include="Samples\*\*" />
-    <None Include="Samples\*\*" />
     <None Include="Samples\Argon\drum-hitfinish.wav" />
     <None Include="Samples\Argon\drum-hitnormal.wav" />
     <None Include="Samples\Argon\drum-hitwhistle.wav" />

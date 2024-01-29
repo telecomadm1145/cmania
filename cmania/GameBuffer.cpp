@@ -1,4 +1,4 @@
-#include "GameBuffer.h"
+﻿#include "GameBuffer.h"
 #include <concepts>
 template <std::integral Int, typename CharT>
 inline void itoa_2(Int num, CharT* out) {
