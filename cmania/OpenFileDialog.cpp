@@ -1,4 +1,4 @@
-#include "OpenFileDialog.h"
+ï»¿#include "OpenFileDialog.h"
 #include <filesystem>
 #include "Animator.h"
 #include <vector>
@@ -46,11 +46,11 @@ public:
 		}
 		auto time = HpetClock();
 		buf.DrawString(Prompt, 0, 0, { 255, 255, 255, 255 }, {});
-		buf.DrawString(u8"µ±Ç°Ä¿Â¼: " + Path.u8string(), 0, 1, { 255, 255, 255, 255 }, {});
+		buf.DrawString(u8"å½“å‰ç›®å½•: " + Path.u8string(), 0, 1, { 255, 255, 255, 255 }, {});
 		buf.FillRect(0, 2, buf.Width, buf.Height - 2, { {}, { 10, 255, 255, 255 }, ' ' });
-		buf.DrawString("ÎÄ¼þÃû|ÐÞ¸ÄÈÕÆÚ", 0, 2, { 255, 255, 255, 255 }, {});
+		buf.DrawString("æ–‡ä»¶å|ä¿®æ”¹æ—¥æœŸ", 0, 2, { 255, 255, 255, 255 }, {});
 		buf.FillRect(33, 2, 38, 3, { {}, { 255, 20, 255, 40 }, ' ' });
-		buf.DrawString("Ä¿Â¼", 40, 2, { 255, 255, 255, 255 }, {});
+		buf.DrawString("ç›®å½•", 40, 2, { 255, 255, 255, 255 }, {});
 		OffsetTrans.SetValue(time, Offset);
 		int i = (int)OffsetTrans.GetCurrentValue(time) + 3;
 		for (auto& ent : Entries) {
@@ -80,14 +80,14 @@ public:
 			buf.DrawString(u8"* " + selected_entry->RealPath.u8string(), 0, buf.Height - 2, { 255, 255, 255, 255 }, {});
 		}
 		else {
-			buf.DrawString(std::format("×Ü¼Æ{}¸öÎÄ¼þ", Entries.size()), 0, buf.Height - 2, { 255, 255, 255, 255 }, {});
+			buf.DrawString(std::format("æ€»è®¡{}ä¸ªæ–‡ä»¶", Entries.size()), 0, buf.Height - 2, { 255, 255, 255, 255 }, {});
 		}
 		Btn1Trans.SetValue(time, btn1hover ? 160 : 40);
 		Btn2Trans.SetValue(time, btn2hover ? 160 : 40);
 		buf.FillRect(buf.Width - 16, buf.Height - 2, buf.Width - 8, buf.Height, { {}, { (unsigned char)Btn1Trans.GetCurrentValue(time), 255, 255, 255 }, ' ' });
-		buf.DrawString("È¡Ïû", buf.Width - 14, buf.Height - 1, {}, {});
+		buf.DrawString("å–æ¶ˆ", buf.Width - 14, buf.Height - 1, {}, {});
 		buf.FillRect(buf.Width - 8, buf.Height - 2, buf.Width, buf.Height, { {}, { (unsigned char)Btn2Trans.GetCurrentValue(time), 255, 255, 255 }, ' ' });
-		buf.DrawString("È·¶¨", buf.Width - 6, buf.Height - 1, {}, {});
+		buf.DrawString("ç¡®å®š", buf.Width - 6, buf.Height - 1, {}, {});
 	};
 	void AddEntry(const std::filesystem::path& d) {
 		Entry ent{};
@@ -107,13 +107,13 @@ public:
 	}
 	void DoConfirm() {
 		if (selected_entry == 0) {
-			game->GetFeature<ILogger>().LogError("ÇëÑ¡ÔñÒ»¸öÎÄ¼þ»òÄ¿Â¼...");
+			game->GetFeature<ILogger>().LogError("è¯·é€‰æ‹©ä¸€ä¸ªæ–‡ä»¶æˆ–ç›®å½•...");
 			return;
 		}
 		if (OnDone) {
 			if (PickFolder) {
 				if (!selected_entry->IsPath) {
-					game->GetFeature<ILogger>().LogError("ÇëÑ¡ÔñÒ»¸öÄ¿Â¼...");
+					game->GetFeature<ILogger>().LogError("è¯·é€‰æ‹©ä¸€ä¸ªç›®å½•...");
 					return;
 				}
 			}
@@ -140,7 +140,7 @@ public:
 						ent.LastModifiedTime = std::format("{}", std::filesystem::last_write_time(p));
 					}
 					catch (...) {
-						ent.LastModifiedTime = "N/A(¾Ü¾ø·ÃÎÊ)";
+						ent.LastModifiedTime = "N/A(æ‹’ç»è®¿é—®)";
 						ent.IsPath = false;
 					}
 					ent.RealPath = p;
@@ -174,7 +174,7 @@ public:
 			catch (...) {
 				Entries.clear();
 				Path = Path.parent_path();
-				game->GetFeature<ILogger>().LogError("ÎÄ¼þ¼Ð´ò¿ªÊ§°Ü...·µ»Ø");
+				game->GetFeature<ILogger>().LogError("æ–‡ä»¶å¤¹æ‰“å¼€å¤±è´¥...è¿”å›ž");
 				return;
 			}
 			dirty = false;

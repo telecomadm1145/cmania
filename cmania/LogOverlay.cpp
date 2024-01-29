@@ -1,4 +1,4 @@
-#include "LogOverlay.h"
+ï»¿#include "LogOverlay.h"
 #include "Hpet.h"
 #include "GameBuffer.h"
 #include <deque>
@@ -55,7 +55,7 @@ class LogOverlay : public GameComponent, public ILogger {
 		}
 	}
 
-	// Í¨¹ý ILogger ¼Ì³Ð
+	// é€šè¿‡ ILogger ç»§æ‰¿
 	void Log(Level level, std::string s) override {
 		double time = HpetClock();
 		ents.push_front(LogEntry{ (LogEntry::LogLevel)level, s, time });

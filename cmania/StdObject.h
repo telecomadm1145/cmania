@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "HitObject.h"
 #include "Defines.h"
 #include "OsuStatic.h"

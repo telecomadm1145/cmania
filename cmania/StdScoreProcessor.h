@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 #include "ScoreProcessor.h"
 #include "StdObject.h"
 #include "Linq.h"
@@ -30,7 +30,7 @@ public:
 		ResultCounter[HitResult::Miss];
 		hit_ranges = GetHitRanges(0);
 	}
-	// Í¨¹ı ScoreProcessor ¼Ì³Ğ
+	// é€šè¿‡ ScoreProcessor ç»§æ‰¿
 	virtual HitResult ApplyHit(StdObject& mo, double err) override {
 		auto is_hold = mo.EndTime != 0;
 		if (mo.HasHit && !is_hold) {
@@ -89,7 +89,7 @@ public:
 		return 0.0;
 	}
 
-	// Í¨¹ı ScoreProcessor ¼Ì³Ğ
+	// é€šè¿‡ ScoreProcessor ç»§æ‰¿
 	virtual void SaveRecord() override {
 		RulesetRecord->Rating = Rating;
 		RulesetRecord->Mean = Mean;

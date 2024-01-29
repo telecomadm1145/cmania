@@ -1,4 +1,4 @@
-#include "Game.h"
+﻿#include "Game.h"
 #include "Defines.h"
 #include "Ruleset.h"
 #include "RulesetManager.h"

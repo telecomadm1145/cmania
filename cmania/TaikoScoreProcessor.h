@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 #include "ScoreProcessor.h"
 #include "Linq.h"
 #include "Defines.h"
@@ -34,7 +34,7 @@ public:
 		ResultCounter[HitResult::Miss];
 		hit_ranges = GetHitRanges(0);
 	}
-	// Í¨¹ı ScoreProcessor ¼Ì³Ğ
+	// é€šè¿‡ ScoreProcessor ç»§æ‰¿
 	virtual HitResult ApplyHit(TaikoObject& to, double err) override {
 		if (HasFlag(to.ObjectType, TaikoObject::Spinner))
 		{
@@ -110,7 +110,7 @@ public:
 		return 0.0;
 	}
 
-	// Í¨¹ı ScoreProcessor ¼Ì³Ğ
+	// é€šè¿‡ ScoreProcessor ç»§æ‰¿
 	virtual void SaveRecord() override {
 		RulesetRecord->Rating = Rating;
 		RulesetRecord->Mean = Mean;

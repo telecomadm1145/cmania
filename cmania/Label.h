@@ -1,7 +1,7 @@
-#pragma once
+ï»¿#pragma once
 #include "GameBuffer.h"
 /// <summary>
-/// ÏÔÊ¾Ö¸¶¨ĞÅÏ¢µÄ¿Ø¼ş(?)Àà
+/// æ˜¾ç¤ºæŒ‡å®šä¿¡æ¯çš„æ§ä»¶(?)ç±»
 /// </summary>
 class Label {
 public:

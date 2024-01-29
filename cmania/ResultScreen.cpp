@@ -1,4 +1,4 @@
-#include "ResultScreen.h"
+﻿#include "ResultScreen.h"
 #include "ScreenController.h"
 #include "BackgroundComponent.h"
 

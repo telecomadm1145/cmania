@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 #include <vector>
 #include "Animator.h"
 #include "TaikoObject.h"
@@ -47,7 +47,7 @@ public:
 		buf.FillRect(0, 0, 50, 50, { {}, {100,20,20,20},' '});
 	}
 	virtual void Load(::Ruleset* rul, ::Beatmap* bmp) override {
-		auto am = GetBassAudioManager(); // »ñÈ¡BassÒıÇæ
+		auto am = GetBassAudioManager(); // è·å–Basså¼•æ“
 
 		if (bmp->RulesetId() != "osutaiko") {
 			throw std::exception("Provide a osu!taiko beatmap to this gameplay.");
@@ -56,7 +56,7 @@ public:
 		this->Beatmap = bmp;
 		this->Ruleset = rul;
 
-		// ¼ÓÔØbgm
+		// åŠ è½½bgm
 		{
 			auto dat = ReadAllBytes(bmp->BgmPath().string());
 			bgm = AudioStream(am->load(dat.data(), dat.size()));
@@ -92,8 +92,8 @@ public:
 		miss_offset = GetHitRanges(od)[HitResult::Meh];
 
 		Clock.SetRate(GetPlaybackRate(Mods));
-		Clock.Offset(std::min(first_obj - 5000, -3000.0)); // ÈÃÍæ¼ÒÓĞÊ±¼ä×¼±¸»÷´ò
-		Clock.Start();									   // ¿ªÊ¼Hpet¼ÆÊ±Æ÷
+		Clock.Offset(std::min(first_obj - 5000, -3000.0)); // è®©ç©å®¶æœ‰æ—¶é—´å‡†å¤‡å‡»æ‰“
+		Clock.Start();									   // å¼€å§‹Hpetè®¡æ—¶å™¨
 
 		GameInputHandler->SetClockSource(Clock);
 
@@ -185,7 +185,7 @@ public:
 
 		if (bgm != 0 && time > -std::max(offset * Clock.ClockRate(), 0.0) - 30 && time < bgm->getDuration() * 1000 - 3000) {
 			if (!bgm->isPlaying()) {
-				if (!bgm->isPaused()) // ÕâÀïÓÃÁËÒ»Ğ©Ğ¡ÇÏÃÅÈÃÒôÆµºÍClock±£³ÖÍ¬²½
+				if (!bgm->isPaused()) // è¿™é‡Œç”¨äº†ä¸€äº›å°çªé—¨è®©éŸ³é¢‘å’ŒClockä¿æŒåŒæ­¥
 				{
 					Clock.Stop();
 					bgm->setPlaybackRate(Clock.ClockRate());
@@ -203,7 +203,7 @@ public:
 			else {
 				auto err = time - bgm->getCurrent() * 1000 - offset * Clock.ClockRate();
 				if (std::abs(err) > 150) {
-					bgm->setCurrent(time / 1000); // µ÷Õû...
+					bgm->setCurrent(time / 1000); // è°ƒæ•´...
 
 					Clock.Stop();
 					while (bgm->getCurrent() < time / 1000 + 0.003) {
@@ -387,7 +387,7 @@ public:
 		buf.DrawLineH(hitpos.X, buf.Height / 4, buf.Height * 2 / 4, { { 255, 255, 255, 255 }, {}, '|' });
 	}
 
-	// Í¨¹ı Ruleset ¼Ì³Ğ
+	// é€šè¿‡ Ruleset ç»§æ‰¿
 	virtual void Pause() override {
 		for (auto& light : KeyHighlight) {
 			light.Reset();
@@ -407,7 +407,7 @@ public:
 		}
 	}
 
-	// Í¨¹ı Ruleset ¼Ì³Ğ
+	// é€šè¿‡ Ruleset ç»§æ‰¿
 	virtual double GetCurrentTime() override {
 		return Clock.Elapsed() - first_obj;
 	}
@@ -415,12 +415,12 @@ public:
 		return end_obj - first_obj;
 	}
 
-	// Í¨¹ı Ruleset ¼Ì³Ğ
+	// é€šè¿‡ Ruleset ç»§æ‰¿
 	virtual std::string GetBgPath() override {
 		return Beatmap->BgPath().string();
 	}
 
-	// Í¨¹ı Ruleset ¼Ì³Ğ
+	// é€šè¿‡ Ruleset ç»§æ‰¿
 	virtual Record GetAutoplayRecord() override {
 		Record record{};
 		record.PlayerName = "Autoplay";
@@ -576,25 +576,25 @@ class TaikoRuleset : public Ruleset {
 						Select([&](const auto& str) -> auto { return (parent / str).string(); })) >
 			AddRangeSet(osub.StoryboardSamples > Select([&](const auto& item) -> auto { return (parent / item.path).string(); }));
 
-		auto SampleIndex = BuildSampleIndex(parent, 1); // ¹¹½¨Æ×Ãæ²ÉÑùË÷Òı(sampleset==1Ä¬ÈÏ)
+		auto SampleIndex = BuildSampleIndex(parent, 1); // æ„å»ºè°±é¢é‡‡æ ·ç´¢å¼•(sampleset==1é»˜è®¤)
 		auto skin_path = (*settings)["SkinPath"].GetString();
 		if (skin_path.empty()) {
 			skin_path = "Samples\\Triangles";
 		}
 		(*settings)["SkinPath"].SetArray(skin_path.data(), skin_path.size());
 		auto wt_mode = (*settings)["WtMode"].Get<bool>();
-		auto SkinSampleIndex = BuildSampleIndex(skin_path, 0); // ¹¹½¨Æ¤·ô²ÉÑùË÷Òı(sampleset==0)
+		auto SkinSampleIndex = BuildSampleIndex(skin_path, 0); // æ„å»ºçš®è‚¤é‡‡æ ·ç´¢å¼•(sampleset==0)
 
 		auto selector = [](const AudioSampleMetadata& md) -> auto {
 			return md.filename.string();
-		}; // linq ²éÑ¯
+		}; // linq æŸ¥è¯¢
 
-		Samples > AddRangeSet(Select(SampleIndex, selector))  // Ìí¼ÓÆ×Ãæ²ÉÑùÂ·¾¶
-			> AddRangeSet(Select(SkinSampleIndex, selector)); // Ìí¼ÓÆ¤·ô²ÉÑùÂ·¾¶
+		Samples > AddRangeSet(Select(SampleIndex, selector))  // æ·»åŠ è°±é¢é‡‡æ ·è·¯å¾„
+			> AddRangeSet(Select(SkinSampleIndex, selector)); // æ·»åŠ çš®è‚¤é‡‡æ ·è·¯å¾„
 
 		auto am = GetBassAudioManager();
 
-		std::map<std::string, AudioSample> SampleCaches; // ²ÉÑù»º´æ
+		std::map<std::string, AudioSample> SampleCaches; // é‡‡æ ·ç¼“å­˜
 
 		Samples > ForEach([&](const std::string& path) {
 			if (load_samples) {
@@ -610,7 +610,7 @@ class TaikoRuleset : public Ruleset {
 			}
 		});
 
-		// ¼ÓÔØÎï¼ş
+		// åŠ è½½ç‰©ä»¶
 		for (auto& obj : beatmap->orig_bmp.HitObjects) {
 			TaikoObject to{};
 			beatmap->first_obj = std::min(beatmap->first_obj, obj.StartTime);

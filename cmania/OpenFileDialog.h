@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "ScreenController.h"
 #include <functional>
 #include <filesystem>

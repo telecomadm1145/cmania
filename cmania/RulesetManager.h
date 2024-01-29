@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 #include "Game.h"
 #include "Ruleset.h"
 class IRulesetManager
@@ -6,7 +6,7 @@ class IRulesetManager
 public:
 	virtual Ruleset& GetRuleset(std::string name) const = 0;
 	/// <summary>
-	/// ×¢²á£¬Õâ½«°Ñ Ruleset µÄ¿ØÖÆÈ¨×ª½»¸ø RulesetManager
+	/// æ³¨å†Œï¼Œè¿™å°†æŠŠ Ruleset çš„æ§åˆ¶æƒè½¬äº¤ç»™ RulesetManager
 	/// </summary>
 	/// <param name="rul"></param>
 	virtual void Register(Ruleset* rul) = 0;

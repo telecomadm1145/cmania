@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 #include <filesystem>
 #include "Ruleset.h"
 #include "StdObject.h"
@@ -40,7 +40,7 @@ private:
 		return &ScoreProcessor;
 	}
 	virtual void Load(::Ruleset* rul, ::Beatmap* bmp) override {
-		auto am = GetBassAudioManager(); // »ñÈ¡BassÒıÇæ
+		auto am = GetBassAudioManager(); // è·å–Basså¼•æ“
 
 		if (bmp->RulesetId() != "osutaiko") {
 			throw std::exception("Provide a osu!taiko beatmap to this gameplay.");
@@ -49,7 +49,7 @@ private:
 		this->Beatmap = bmp;
 		this->Ruleset = rul;
 
-		// ¼ÓÔØbgm
+		// åŠ è½½bgm
 		{
 			auto dat = ReadAllBytes(bmp->BgmPath().string());
 			bgm = AudioStream(am->load(dat.data(), dat.size()));
@@ -88,8 +88,8 @@ private:
 		miss_offset = GetHitRanges(od)[HitResult::Meh];
 
 		Clock.SetRate(GetPlaybackRate(Mods));
-		Clock.Offset(std::min(first_obj - 5000, -3000.0)); // ÈÃÍæ¼ÒÓĞÊ±¼ä×¼±¸»÷´ò
-		Clock.Start();									   // ¿ªÊ¼Hpet¼ÆÊ±Æ÷
+		Clock.Offset(std::min(first_obj - 5000, -3000.0)); // è®©ç©å®¶æœ‰æ—¶é—´å‡†å¤‡å‡»æ‰“
+		Clock.Start();									   // å¼€å§‹Hpetè®¡æ—¶å™¨
 
 		GameInputHandler->SetClockSource(Clock);
 
@@ -109,21 +109,21 @@ private:
 		Rect rect;
 
 		if (aspectRatio > viewportAspectRatio) {
-			// ËõĞ¡¿í¶È
+			// ç¼©å°å®½åº¦
 			rect.x1 = 0;
 			rect.x2 = viewportWidth;
 			rect.y2 = height * (viewportWidth / (float)width);
 			rect.y1 = (viewportHeight - rect.y2) / 2;
 		}
 		else if (aspectRatio < viewportAspectRatio) {
-			// ËõĞ¡¸ß¶È
+			// ç¼©å°é«˜åº¦
 			rect.y1 = 0;
 			rect.y2 = viewportHeight;
 			rect.x2 = width * (viewportHeight / (float)height);
 			rect.x1 = (viewportWidth - rect.x2) / 2;
 		}
 		else {
-			// ²»ĞèÒªËõ·Å
+			// ä¸éœ€è¦ç¼©æ”¾
 			rect.x1 = 0;
 			rect.y1 = 0;
 			rect.x2 = viewportWidth;
@@ -162,7 +162,7 @@ private:
 			}
 
 			if (ho.EndTime != 0 && ho.Path == 0) {
-				// ×ªÅÌ
+				// è½¬ç›˜
 				continue;
 			}
 			Color comboclr{ 255, 120, 160, 240 };
@@ -171,7 +171,7 @@ private:
 			}
 			// Slider
 			if (ho.Path != 0 && t > ho.StartTime - preempt) {
-				// äÖÈ¾»¬ÌõÌå...
+				// æ¸²æŸ“æ»‘æ¡ä½“...
 				// auto points = ho.Path->calcedPath;
 				// for (int i = 0; i < points.size() - 1; i++) {
 				//	PointD currentPoint = points[i];
@@ -212,7 +212,7 @@ private:
 				}
 				buf.FillCircle(vp.x1 + ho.Location.X / 512.0 * vp.x2, vp.y1 + ho.Location.Y / 384.0 * vp.y2, scale, rt, { {}, (comboclr * (alpha * 0.8)), ' ' });
 				// buf.DrawCircle(vp.x1 + ho.Location.X / 512.0 * vp.x2, vp.y1 + ho.Location.Y / 384.0 * vp.y2, scale, 1.5, rt + 1, { {}, (Color{ 255, 255, 255, 255 } * alpha), ' ' });
-				// ËõÈ¦
+				// ç¼©åœˆ
 				auto progress = std::max(1 + (1 - (t - (ho.StartTime - preempt)) / preempt) * 3, 1.0);
 				buf.DrawCircle(vp.x1 + ho.Location.X / 512.0 * vp.x2, vp.y1 + ho.Location.Y / 384.0 * vp.y2, scale * progress, 0.5, rt, { {}, (Color{ 255, 255, 255, 255 } * alpha), ' ' });
 			}
@@ -244,7 +244,7 @@ private:
 			buf.FillCircle(std::get<0>(mpos), std::get<1>(mpos), scale / 4.0, rt, { {}, { 255, 255, 255, 255 }, ' ' });
 		}
 	}
-	// Í¨¹ı Ruleset ¼Ì³Ğ
+	// é€šè¿‡ Ruleset ç»§æ‰¿
 	virtual void Pause() override {
 		for (auto& light : KeyHighlight) {
 			light.Reset();
@@ -264,7 +264,7 @@ private:
 		}
 	}
 
-	// Í¨¹ı Ruleset ¼Ì³Ğ
+	// é€šè¿‡ Ruleset ç»§æ‰¿
 	virtual double GetCurrentTime() override {
 		return Clock.Elapsed() - first_obj;
 	}
@@ -272,12 +272,12 @@ private:
 		return end_obj - first_obj;
 	}
 
-	// Í¨¹ı Ruleset ¼Ì³Ğ
+	// é€šè¿‡ Ruleset ç»§æ‰¿
 	virtual std::string GetBgPath() override {
 		return Beatmap->BgPath().string();
 	}
 
-	// Í¨¹ı Ruleset ¼Ì³Ğ
+	// é€šè¿‡ Ruleset ç»§æ‰¿
 	void Update() override {
 		if (!GameStarted)
 			return;
@@ -300,7 +300,7 @@ private:
 
 		if (bgm != 0 && time > -30 && time < bgm->getDuration() * 1000 - 3000) {
 			if (!bgm->isPlaying()) {
-				if (!bgm->isPaused()) // ÕâÀïÓÃÁËÒ»Ğ©Ğ¡ÇÏÃÅÈÃÒôÆµºÍClock±£³ÖÍ¬²½
+				if (!bgm->isPaused()) // è¿™é‡Œç”¨äº†ä¸€äº›å°çªé—¨è®©éŸ³é¢‘å’ŒClockä¿æŒåŒæ­¥
 				{
 					Clock.Stop();
 					bgm->setPlaybackRate(Clock.ClockRate());
@@ -435,25 +435,25 @@ class StdRuleset : public Ruleset {
 						Select([&](const auto& str) -> auto { return (parent / str).string(); })) >
 			AddRangeSet(osub.StoryboardSamples > Select([&](const auto& item) -> auto { return (parent / item.path).string(); }));
 
-		auto SampleIndex = BuildSampleIndex(parent, 1); // ¹¹½¨Æ×Ãæ²ÉÑùË÷Òı(sampleset==1Ä¬ÈÏ)
+		auto SampleIndex = BuildSampleIndex(parent, 1); // æ„å»ºè°±é¢é‡‡æ ·ç´¢å¼•(sampleset==1é»˜è®¤)
 		auto skin_path = (*settings)["SkinPath"].GetString();
 		if (skin_path.empty()) {
 			skin_path = "Samples\\Triangles";
 		}
 		(*settings)["SkinPath"].SetArray(skin_path.data(), skin_path.size());
 		auto wt_mode = (*settings)["WtMode"].Get<bool>();
-		auto SkinSampleIndex = BuildSampleIndex(skin_path, 0); // ¹¹½¨Æ¤·ô²ÉÑùË÷Òı(sampleset==0)
+		auto SkinSampleIndex = BuildSampleIndex(skin_path, 0); // æ„å»ºçš®è‚¤é‡‡æ ·ç´¢å¼•(sampleset==0)
 
 		auto selector = [](const AudioSampleMetadata& md) -> auto {
 			return md.filename.string();
-		}; // linq ²éÑ¯
+		}; // linq æŸ¥è¯¢
 
-		Samples > AddRangeSet(Select(SampleIndex, selector))  // Ìí¼ÓÆ×Ãæ²ÉÑùÂ·¾¶
-			> AddRangeSet(Select(SkinSampleIndex, selector)); // Ìí¼ÓÆ¤·ô²ÉÑùÂ·¾¶
+		Samples > AddRangeSet(Select(SampleIndex, selector))  // æ·»åŠ è°±é¢é‡‡æ ·è·¯å¾„
+			> AddRangeSet(Select(SkinSampleIndex, selector)); // æ·»åŠ çš®è‚¤é‡‡æ ·è·¯å¾„
 
 		auto am = GetBassAudioManager();
 
-		std::map<std::string, AudioSample> SampleCaches; // ²ÉÑù»º´æ
+		std::map<std::string, AudioSample> SampleCaches; // é‡‡æ ·ç¼“å­˜
 
 		Samples > ForEach([&](const std::string& path) {
 			if (load_samples) {
@@ -469,7 +469,7 @@ class StdRuleset : public Ruleset {
 			}
 		});
 
-		// ¼ÓÔØÎï¼ş
+		// åŠ è½½ç‰©ä»¶
 		beatmap->storage > AddRange(Select(
 					  beatmap->orig_bmp.HitObjects, [&](const OsuBeatmap::HitObject& obj) -> auto {
 						  StdObject so{};
