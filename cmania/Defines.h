@@ -191,9 +191,14 @@ constexpr T zero_v = zero<T>::val;
 using Hash = unsigned int;
 using path = std::filesystem::path;
 using string = std::string;
+using ulonglong = unsigned long long;
 
 #define QUOTE_S(x) #x
 #define QUOTE(x) QUOTE_S(x)
+#ifdef __clang__
+#define __FUNCTION__ "CLANG_COMPILED_MAGIC"
+#endif // __clang__
+
 #define Assert(x)                                                                                             \
 	{                                                                                                         \
 		if (!(x))                                                                                             \

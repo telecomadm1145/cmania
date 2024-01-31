@@ -15,8 +15,13 @@
 #include "KeyBinds.h"
 
 class StdGameplay : public GameplayBase {
+#ifdef __clang__
+	std::vector<Animator<CubicEasingFunction>> KeyHighlight;
+	Animator<CubicEasingFunction> LastHitResultAnimator{ 255, 0, 400 };
+#else
 	std::vector<Animator<PowerEasingFunction<1.5>>> KeyHighlight;
 	Animator<PowerEasingFunction<4.0>> LastHitResultAnimator{ 255, 0, 400 };
+#endif // __clang__
 	HitResult LastHitResult = HitResult::None;
 	AudioStream bgm;
 	double endtime = 0;
@@ -35,15 +40,14 @@ class StdGameplay : public GameplayBase {
 	StdScoreProcessor ScoreProcessor;
 
 private:
-	virtual ScoreProcessorBase* GetScoreProcessor()
-	{
+	virtual ScoreProcessorBase* GetScoreProcessor() {
 		return &ScoreProcessor;
 	}
 	virtual void Load(::Ruleset* rul, ::Beatmap* bmp) override {
 		auto am = GetBassAudioManager(); // 获取Bass引擎
 
-		if (bmp->RulesetId() != "osutaiko") {
-			throw std::exception("Provide a osu!taiko beatmap to this gameplay.");
+		if (bmp->RulesetId() != "osustd") {
+			throw std::exception("Provide a osu!std beatmap to this gameplay.");
 		}
 
 		this->Beatmap = bmp;
@@ -106,7 +110,7 @@ private:
 		float aspectRatio = (float)width / height;
 		float viewportAspectRatio = (float)viewportWidth / viewportHeight;
 
-		Rect rect;
+		Rect rect{};
 
 		if (aspectRatio > viewportAspectRatio) {
 			// 缩小宽度
@@ -334,7 +338,7 @@ public:
 	double last_obj;
 	size_t maxcombo;
 	virtual std::string RulesetId() const noexcept {
-		return "osutaiko";
+		return "osustd";
 	}
 	virtual std::string Title() const noexcept {
 		return orig_bmp.Title;
@@ -471,50 +475,50 @@ class StdRuleset : public Ruleset {
 
 		// 加载物件
 		beatmap->storage > AddRange(Select(
-					  beatmap->orig_bmp.HitObjects, [&](const OsuBeatmap::HitObject& obj) -> auto {
-						  StdObject so{};
-						  so.StartTime = obj.StartTime;
-						  so.Location = { obj.X, obj.Y };
-						  auto tp = GetTimingPointTiming(beatmap->orig_bmp, obj.StartTime);
-						  auto tp2 = GetTimingPointNonTiming(beatmap->orig_bmp, obj.StartTime);
+							   beatmap->orig_bmp.HitObjects, [&](const OsuBeatmap::HitObject& obj) -> auto {
+								   StdObject so{};
+								   so.StartTime = obj.StartTime;
+								   so.Location = { obj.X, obj.Y };
+								   auto& tp = GetTimingPointTiming(beatmap->orig_bmp, obj.StartTime);
+								   auto& tp2 = GetTimingPointNonTiming(beatmap->orig_bmp, obj.StartTime);
 
-						  auto scoringdist = BASE_SCORING_DISTANCE * beatmap->orig_bmp.SliderMultiplier * tp2.SpeedMultiplier();
+								   auto scoringdist = BASE_SCORING_DISTANCE * beatmap->orig_bmp.SliderMultiplier * tp2.SpeedMultiplier();
 
-						  auto velocity = scoringdist / tp.BeatLength;
-						  auto tickdist = scoringdist / beatmap->orig_bmp.SliderTickRate;
-						  if (!obj.PathRecord.empty()) {
-							  SliderPath sp = SliderPath::Parse(obj.PathRecord, { obj.X, obj.Y }, obj.Length);
-							  so.Path = (new SliderPath(sp));
-							  so.EndTime = obj.StartTime + obj.RepeatCount * sp.actualLength / velocity;
-							  so.Velocity = velocity;
-							  bool rev = false;
-							  double time = obj.StartTime;
-							  for (size_t i = 0; i < obj.RepeatCount; i++) {
-								  if (tickdist > 20)
-									  for (double j = tickdist; j < sp.actualLength; j += tickdist) {
-										  Event evt{};
-										  evt.EventType = Event::Tick;
-										  auto prog = j / sp.actualLength;
-										  evt.Location = sp.PositionAt(prog);
-										  evt.StartTime = time + j / velocity;
-										  so.Events.push_back(evt);
-									  }
-								  Event evt2{};
-								  evt2.EventType = Event::Repeat;
-								  time += sp.actualLength / velocity;
-								  evt2.StartTime = time;
-								  evt2.Location = rev ? PointD{ obj.X, obj.Y } : PointD(sp.PositionAt(1));
-								  so.Events.push_back(evt2);
-							  }
-							  so.RepeatCount = obj.RepeatCount;
-						  }
+								   auto velocity = scoringdist / tp.BeatLength;
+								   auto tickdist = scoringdist / beatmap->orig_bmp.SliderTickRate;
+								   if (!obj.PathRecord.empty()) {
+									   SliderPath sp = SliderPath::Parse(obj.PathRecord, { obj.X, obj.Y }, obj.Length);
+									   so.Path = (new SliderPath(sp));
+									   so.EndTime = obj.StartTime + obj.RepeatCount * sp.actualLength / velocity;
+									   so.Velocity = velocity;
+									   bool rev = false;
+									   double time = obj.StartTime;
+									   for (size_t i = 0; i < obj.RepeatCount; i++) {
+										   if (tickdist > 20)
+											   for (double j = tickdist; j < sp.actualLength; j += tickdist) {
+												   Event evt{};
+												   evt.EventType = Event::Tick;
+												   auto prog = j / sp.actualLength;
+												   evt.Location = sp.PositionAt(prog);
+												   evt.StartTime = time + j / velocity;
+												   so.Events.push_back(evt);
+											   }
+										   Event evt2{};
+										   evt2.EventType = Event::Repeat;
+										   time += sp.actualLength / velocity;
+										   evt2.StartTime = time;
+										   evt2.Location = rev ? PointD{ obj.X, obj.Y } : PointD(sp.PositionAt(1));
+										   so.Events.push_back(evt2);
+									   }
+									   so.RepeatCount = obj.RepeatCount;
+								   }
 
-						  beatmap->first_obj = std::min(beatmap->first_obj, obj.StartTime);
-						  beatmap->last_obj = std::max(beatmap->last_obj, obj.StartTime);
-						  if (so.EndTime != 0)
-							  beatmap->last_obj = std::max(beatmap->last_obj, so.EndTime);
-						  return so;
-					  }));
+								   beatmap->first_obj = std::min(beatmap->first_obj, obj.StartTime);
+								   beatmap->last_obj = std::max(beatmap->last_obj, obj.StartTime);
+								   if (so.EndTime != 0)
+									   beatmap->last_obj = std::max(beatmap->last_obj, so.EndTime);
+								   return so;
+							   }));
 		return beatmap;
 	}
 	GameplayBase* GenerateGameplay() {
@@ -538,7 +542,7 @@ class StdRuleset : public Ruleset {
 		return (std::accumulate(diffs.begin(), diffs.end(), 0.0) / diffs.size()) * 100;
 	}
 	DifficultyInfo PopulateDifficultyInfo(Beatmap* bmp) {
-		Assert(bmp->RulesetId() == "osutaiko");
+		Assert(bmp->RulesetId() == "osustd");
 		StdBeatmap& mb = *(StdBeatmap*)bmp;
 		DifficultyInfo di;
 		di.push_back(DifficultyInfoItem::MakeHeader("Metadata"));

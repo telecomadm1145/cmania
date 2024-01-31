@@ -121,11 +121,11 @@ public:
 };
 
 // 过渡模板
-template <class EasingFunction, class EasingDurationCalculator, class Num = double, Num Inital = Num()>
+template <class EasingFunction, class EasingDurationCalculator, class Num = double>
 class Transition {
 public:
 	Transition()
-		: from(Inital), to(Inital) {}
+		: from(Num()), to(Num()) {}
 
 	void SetValue(double clock, Num new_value) {
 		if (to != new_value) {

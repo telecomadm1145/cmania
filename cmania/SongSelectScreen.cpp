@@ -22,7 +22,7 @@
 #include "RulesetManager.h"
 
 class SongSelectScreen : public Screen {
-	BackgroundComponent bg{0.65};
+	BackgroundComponent bg{ 0.65 };
 	std::string bgloc;
 	int h_cache = 0;
 	int w_cache = 0;
@@ -34,7 +34,21 @@ class SongSelectScreen : public Screen {
 	bool ruleset_flyout;
 	std::unordered_set<int> selected_ruleset;
 	OsuMods mods;
-	using TransOut = Transition<EaseOut<PowerEasingFunction<6.0>>, DurationRangeLimiter<1000.0, 2000.0, LinearEasingDurationCalculator<10>>>;
+#ifdef __clang__
+	class DurationRangeLimiter_0 {
+	public:
+		static inline auto Get(auto x) {
+			return std::clamp(10 * x, 800.0, 3500.0);
+		}
+	};
+	using TransOut = Transition<
+		EaseOut<CubicEasingFunction>,
+		DurationRangeLimiter_0>;
+#else
+	using TransOut = Transition<
+		EaseOut<CubicEasingFunction>,
+		DurationRangeLimiter<800.0, 3500.0, LinearEasingDurationCalculator<1>>>;
+#endif
 	Color difficultyToRGBColor(float difficulty) {
 		static constexpr Color ranges[9] = {
 			{ 0, 77, 200, 46 },	 // 灰
@@ -338,8 +352,7 @@ class SongSelectScreen : public Screen {
 	std::vector<SongsCacheEntry> matched_caches;
 	bool ready;
 	bool require_songs_path;
-	~SongSelectScreen()
-	{
+	~SongSelectScreen() {
 		thd_alive = false;
 		background_info_worker.join();
 	}
@@ -580,7 +593,11 @@ class SongSelectScreen : public Screen {
 		std::string str = Utf162Utf8(std::wstring{ search_buf.begin(), search_buf.end() });
 		auto& caches = game->GetFeature<IBeatmapManagement>().GetSongsCache();
 		for (auto sce : caches) {
+#ifdef __clang__
+			bool match = true;
+#else
 			bool match = search_meta(str, sce.artist, sce.title, sce.artistunicode, sce.titleunicode, sce.tags, sce.source);
+#endif
 			if (str.empty())
 				match = true;
 			if (!match)

@@ -17,9 +17,21 @@ public:
 	std::function<void()> OnDone{};
 	std::function<void()> OnCancel{};
 	double Offset = 0;
+	#ifdef __clang__
+	class DurationRangeLimiter_0 {
+	public:
+		static inline auto Get(auto x) {
+			return std::clamp(x, 800.0, 3500.0);
+		}
+	};
+	using TransOut = Transition<
+		EaseOut<CubicEasingFunction>,
+		DurationRangeLimiter_0>;
+	#else
 	using TransOut = Transition<
 		EaseOut<CubicEasingFunction>,
 		DurationRangeLimiter<800.0, 3500.0, LinearEasingDurationCalculator<1>>>;
+	#endif
 	TransOut OffsetTrans{};
 	using TransOut2 = Transition<
 		EaseOut<CubicEasingFunction>,

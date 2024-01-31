@@ -20,7 +20,7 @@ public:
 	double Accuracy = 0;
 	unsigned long long RawScore = 0;
 	double Score = 0;
-	Record* RulesetRecord;
+	Record* RulesetRecord = 0;
 	virtual ~ScoreProcessorBase() {}
 	virtual void SetDifficulty(double diff) = 0;
 	virtual void SetMods(OsuMods mods) = 0;

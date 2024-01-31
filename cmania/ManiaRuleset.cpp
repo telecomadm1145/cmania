@@ -16,8 +16,15 @@
 class ManiaGameplay : public GameplayBase {
 
 public:
+#ifdef __clang__
+
+	std::vector<Animator<CubicEasingFunction>> KeyHighlight;
+	Animator<CubicEasingFunction> LastHitResultAnimator{ 255, 0, 400 };
+#else
+
 	std::vector<Animator<PowerEasingFunction<1.5>>> KeyHighlight;
 	Animator<PowerEasingFunction<4.0>> LastHitResultAnimator{ 255, 0, 400 };
+#endif
 	HitResult LastHitResult = HitResult::None;
 	AudioStream bgm;
 	double scrollspeed = 0;

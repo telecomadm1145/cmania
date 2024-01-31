@@ -16,10 +16,20 @@
 #include "Crc.h"
 
 class TaikoGameplay : public GameplayBase {
+#ifdef __clang__
+	Animator<CubicEasingFunction> KeyHighlight[4]{
+		{ 180, 0, 150 }, { 180, 0, 150 }, { 180, 0, 150 }, { 180,
+			0,
+			150 }
+	};
+	Animator<CubicEasingFunction> LastHitResultAnimator{ 255, 0, 400 };
+#else
+
 	Animator<PowerEasingFunction<1.5>> KeyHighlight[4]{
 		{ 180, 0, 150 }, { 180, 0, 150 }, { 180, 0, 150 }, { 180, 0, 150 }
 	};
 	Animator<PowerEasingFunction<4.0>> LastHitResultAnimator{ 255, 0, 400 };
+#endif
 	HitResult LastHitResult = HitResult::None;
 	AudioStream bgm;
 	double scrollspeed = 0;
@@ -44,7 +54,7 @@ class TaikoGameplay : public GameplayBase {
 
 public:
 	virtual void RenderDebug(GameBuffer& buf) {
-		buf.FillRect(0, 0, 50, 50, { {}, {100,20,20,20},' '});
+		buf.FillRect(0, 0, 50, 50, { {}, { 100, 20, 20, 20 }, ' ' });
 	}
 	virtual void Load(::Ruleset* rul, ::Beatmap* bmp) override {
 		auto am = GetBassAudioManager(); // 获取Bass引擎

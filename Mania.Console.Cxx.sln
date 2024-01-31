@@ -7,15 +7,19 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cmania", "cmania\cmania.vcx
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "解决方案项", "解决方案项", "{D1BE6A95-1044-4DA0-B2FE-70AA4CE6D09A}"
 	ProjectSection(SolutionItems) = preProject
+		.gitignore = .gitignore
 		GB2UTF8.ps1 = GB2UTF8.ps1
 		LICENSE = LICENSE
 		README.en.md = README.en.md
 		README.md = README.md
-		.gitignore = .gitignore
 	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		ClangRelease|ARM = ClangRelease|ARM
+		ClangRelease|ARM64 = ClangRelease|ARM64
+		ClangRelease|x64 = ClangRelease|x64
+		ClangRelease|x86 = ClangRelease|x86
 		Debug|ARM = Debug|ARM
 		Debug|ARM64 = Debug|ARM64
 		Debug|x64 = Debug|x64
@@ -30,6 +34,12 @@ Global
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{2C6018E5-C9FA-4DE3-91F9-9DF55D517E23}.ClangRelease|ARM.ActiveCfg = ClangRelease|x64
+		{2C6018E5-C9FA-4DE3-91F9-9DF55D517E23}.ClangRelease|ARM64.ActiveCfg = ClangRelease|x64
+		{2C6018E5-C9FA-4DE3-91F9-9DF55D517E23}.ClangRelease|x64.ActiveCfg = ClangRelease|x64
+		{2C6018E5-C9FA-4DE3-91F9-9DF55D517E23}.ClangRelease|x64.Build.0 = ClangRelease|x64
+		{2C6018E5-C9FA-4DE3-91F9-9DF55D517E23}.ClangRelease|x86.ActiveCfg = ClangRelease|Win32
+		{2C6018E5-C9FA-4DE3-91F9-9DF55D517E23}.ClangRelease|x86.Build.0 = ClangRelease|Win32
 		{2C6018E5-C9FA-4DE3-91F9-9DF55D517E23}.Debug|ARM.ActiveCfg = Debug|x64
 		{2C6018E5-C9FA-4DE3-91F9-9DF55D517E23}.Debug|ARM.Build.0 = Debug|x64
 		{2C6018E5-C9FA-4DE3-91F9-9DF55D517E23}.Debug|ARM64.ActiveCfg = Debug|x64

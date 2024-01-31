@@ -14,13 +14,13 @@ class GameplayBase {
 public:
 	Ruleset* Ruleset = 0;
 	InputHandler* GameInputHandler = 0;
-	Beatmap* Beatmap;
+	Beatmap* Beatmap = 0;
 	Stopwatch Clock;
 	OsuMods Mods = OsuMods::None;
 	bool GameEnded = false;
 	bool GameStarted = false;
 	Record GameRecord{};
-	virtual void Load(::Ruleset* rul,::Beatmap* bmp) = 0;
+	virtual void Load(::Ruleset* rul, ::Beatmap* bmp) = 0;
 	virtual Record GetAutoplayRecord() = 0;
 	virtual void Update() = 0;
 	virtual void Render(GameBuffer&) = 0;
@@ -32,7 +32,6 @@ public:
 	virtual ScoreProcessorBase* GetScoreProcessor() = 0;
 	virtual std::string GetBgPath() = 0;
 	virtual void RenderDebug(GameBuffer&) {
-
 	}
 
 public:

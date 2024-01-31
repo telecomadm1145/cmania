@@ -92,6 +92,9 @@
     <ClCompile Include="BeatmapDownloadingService.cpp">
       <Filter>Game\Online</Filter>
     </ClCompile>
+    <ClCompile Include="CatchRuleset.cpp">
+      <Filter>Game\Gameplay\Catch</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ConsoleInput.h">
@@ -288,6 +291,9 @@
     <ClInclude Include="BeatmapDownloadingService.h">
       <Filter>Game\Online</Filter>
     </ClInclude>
+    <ClInclude Include="CatchRuleset.h">
+      <Filter>Game\Gameplay\Catch</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Core">
@@ -337,6 +343,9 @@
     </Filter>
     <Filter Include="Game\Online">
       <UniqueIdentifier>{55429e24-03bf-48a1-ad6f-e0c48d80f4a4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game\Gameplay\Catch">
+      <UniqueIdentifier>{3732dfa2-141a-443b-bc28-a62d9c58fa68}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -397,10 +406,6 @@
     <None Include="Samples\Triangles\soft-sliderslide.wav" />
     <None Include="Samples\Triangles\soft-slidertick.wav" />
     <None Include="Samples\Triangles\soft-sliderwhistle.wav" />
-    <None Include="Samples\*\*" />
-    <None Include="Samples\*\*" />
-    <None Include="Samples\*\*" />
-    <None Include="Samples\*\*" />
     <None Include="Samples\*\*" />
     <None Include="Samples\*\*" />
     <None Include="Samples\*\*" />

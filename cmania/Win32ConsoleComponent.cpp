@@ -51,7 +51,7 @@ public:
 		CONSOLE_SCREEN_BUFFER_INFO bufferInfo{};
 		auto sout = GetStdHandle(STD_OUTPUT_HANDLE);
 		GetConsoleScreenBufferInfo(sout, &bufferInfo);
-		bufferInfo.dwSize = COORD{ bufferInfo.srWindow.Right - bufferInfo.srWindow.Left, bufferInfo.srWindow.Bottom - bufferInfo.srWindow.Top };
+		bufferInfo.dwSize = COORD{ (SHORT)(bufferInfo.srWindow.Right - bufferInfo.srWindow.Left), (SHORT)(bufferInfo.srWindow.Bottom - bufferInfo.srWindow.Top) };
 		ResizeEventArgs rea{ bufferInfo.dwSize.X + 1, bufferInfo.dwSize.Y + 1 };
 		parent->Raise("resize", rea);
 	}
