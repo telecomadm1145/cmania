@@ -167,7 +167,11 @@ class SongSelectScreen : public Screen {
 				}
 				else {
 					if (difficulty_val > 0) {
+#ifdef _WIN32
 						auto diff = std::format("{:.1f}", difficulty_val);
+#else
+						auto diff = std::to_string(difficulty_val);
+#endif
 						auto clr = difficultyToRGBColor(difficulty_val);
 						auto clr2 = Color::Blend(clr, Color{ 200, 255, 255, 255 });
 						buf.DrawString(diff, 50 - diff.size() - 1, 3, clr2, clr);
@@ -179,7 +183,11 @@ class SongSelectScreen : public Screen {
 					for (auto& d : di) {
 						if (d.Type == DifficultyInfoItem::ValueBar) {
 							buf.DrawString(d.Text, 0, i, {}, {});
+#ifdef _WIN32
 							std::string v = std::format("{:.2f}", d.Value);
+#else
+							std::string v = std::to_string(d.Value);
+#endif
 							buf.DrawString(v, 50 - v.size() - 1, i, {}, {});
 							buf.DrawLineV(12, 50 - 7 - 2, i, { {}, { 150, 32, 32, 32 }, ' ' });
 							double prog = std::clamp(d.Value / d.MaxValue, 0.0, 1.0);
@@ -203,7 +211,11 @@ class SongSelectScreen : public Screen {
 						}
 						else if (d.Type == DifficultyInfoItem::PlainValue) {
 							buf.DrawString(d.Text, 0, i, {}, {});
+#ifdef _WIN32
 							auto v = std::format("{:.2f}", d.Value);
+#else
+							auto v = std::to_string(d.Value);
+#endif 
 							buf.DrawString(v, 50 - v.size() - 1, i, {}, {});
 							i++;
 						}

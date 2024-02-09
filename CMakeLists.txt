@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.20)
-project(cmania VERSION 0.1)
+project(cmania.linux VERSION 0.1)
 #如果是windows系统
 if (WIN32)
 message(FATAL_ERROR "Use CMake in linux only!")

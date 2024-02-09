@@ -377,3 +377,9 @@ Songs.bin
 
 #忽略自动生成的git信息头
 git_info.h
+
+CMakeFiles
+CMakeCache.txt
+cmake_install.cmake
+cmania.linux
+Makefile
