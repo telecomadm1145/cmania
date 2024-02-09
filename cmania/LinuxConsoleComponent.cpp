@@ -1,11 +1,14 @@
-﻿#include "Game.h"
+﻿#include "ConsoleInput.h"
+#include "Game.h"
 #include <cstddef>
 #include <cstdio>
 #include <cstring>
 #include <optional>
 #include <sys/select.h>
 #include <termios.h>
+#include <sys/ioctl.h>
 #include <thread>
+#include <unistd.h>
 class LinuxConsoleComponent : public GameComponent {
 private:
 	std::thread* input_thread = nullptr;
@@ -24,6 +27,7 @@ private:
 			input_thread->detach();
 			
 		}
+		
 		else if (strcmp(evt, "push") == 0) {
 		}
 		else if (strcmp(evt, "fresize") == 0) {
@@ -34,7 +38,15 @@ private:
 			int res=0;
 			
 			
+			
 		}
+	}
+	static void SendResize(Game* parent) {
+		struct winsize size;
+		ioctl(STDIN_FILENO, TIOCGWINSZ, &size);
+		ResizeEventArgs rea{ size.ws_col, size.ws_row };
+		parent->Raise("resize", rea);
+
 	}
 
 public:

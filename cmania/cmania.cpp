@@ -2,7 +2,6 @@
 //
 
 #include "Game.h"
-#include "Win32ConsoleComponent.h"
 #include "TickSource.h"
 #include <thread>
 #include "BufferController.h"
@@ -14,11 +13,16 @@
 #include "BassAudioManager.h"
 #include "LogOverlay.h"
 #include "RulesetManager.h"
-
 #include "ManiaRuleset.h"
 #include "TaikoRuleset.h"
 #include "StdRuleset.h"
 #include "CatchRuleset.h"
+#ifdef _WIN32
+#include "Win32ConsoleComponent.h"
+#endif
+#ifdef __linux__
+#include "LinuxConsoleComponent.h"
+#endif
 
 // cmania 的入口点
 int main() {
@@ -28,8 +32,14 @@ int main() {
 	EnableConstantDisplayAndPower(true); // 禁止息屏 休眠或者什么东西
 
 	Game game;
-	game.Use(MakeWin32ConsoleComponent)
-		.Use(MakeTickSource)
+#ifdef _WIN32
+	game.Use(MakeWin32ConsoleComponent);
+#endif
+#ifdef __linux__
+	game.Use(MakeLinuxConsoleComponent);
+#endif
+	
+	game.Use(MakeTickSource)
 		.Use(MakeBufferController)
 		.Use(MakeScreenController)
 		.Use(MakeBeatmapManagementService)

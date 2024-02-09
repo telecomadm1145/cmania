@@ -7,6 +7,7 @@ temp
 build
 .ccls-cache
 .ccls
+.vscode
 # User-specific files
 *.rsuser
 *.suo
