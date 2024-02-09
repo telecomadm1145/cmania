@@ -1,6 +1,7 @@
 ﻿#ifdef _WIN32
 #include "Crc.h"
 #include <intrin.h>
+#include "Defines.h"
 uint32_t GetCrc(const char* data, std::size_t s) {
 	uint32_t crc = ~0u;
 	// Process any remaining bytes

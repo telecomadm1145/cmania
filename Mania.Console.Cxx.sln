@@ -16,6 +16,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "解决方案项", "解决�
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		ClangLinuxRelease|ARM = ClangLinuxRelease|ARM
+		ClangLinuxRelease|ARM64 = ClangLinuxRelease|ARM64
+		ClangLinuxRelease|x64 = ClangLinuxRelease|x64
+		ClangLinuxRelease|x86 = ClangLinuxRelease|x86
 		ClangRelease|ARM = ClangRelease|ARM
 		ClangRelease|ARM64 = ClangRelease|ARM64
 		ClangRelease|x64 = ClangRelease|x64
@@ -34,6 +38,14 @@ Global
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{2C6018E5-C9FA-4DE3-91F9-9DF55D517E23}.ClangLinuxRelease|ARM.ActiveCfg = ClangLinuxRelease|x64
+		{2C6018E5-C9FA-4DE3-91F9-9DF55D517E23}.ClangLinuxRelease|ARM.Build.0 = ClangLinuxRelease|x64
+		{2C6018E5-C9FA-4DE3-91F9-9DF55D517E23}.ClangLinuxRelease|ARM64.ActiveCfg = ClangLinuxRelease|x64
+		{2C6018E5-C9FA-4DE3-91F9-9DF55D517E23}.ClangLinuxRelease|ARM64.Build.0 = ClangLinuxRelease|x64
+		{2C6018E5-C9FA-4DE3-91F9-9DF55D517E23}.ClangLinuxRelease|x64.ActiveCfg = ClangLinuxRelease|x64
+		{2C6018E5-C9FA-4DE3-91F9-9DF55D517E23}.ClangLinuxRelease|x64.Build.0 = ClangLinuxRelease|x64
+		{2C6018E5-C9FA-4DE3-91F9-9DF55D517E23}.ClangLinuxRelease|x86.ActiveCfg = ClangLinuxRelease|Win32
+		{2C6018E5-C9FA-4DE3-91F9-9DF55D517E23}.ClangLinuxRelease|x86.Build.0 = ClangLinuxRelease|Win32
 		{2C6018E5-C9FA-4DE3-91F9-9DF55D517E23}.ClangRelease|ARM.ActiveCfg = ClangRelease|x64
 		{2C6018E5-C9FA-4DE3-91F9-9DF55D517E23}.ClangRelease|ARM64.ActiveCfg = ClangRelease|x64
 		{2C6018E5-C9FA-4DE3-91F9-9DF55D517E23}.ClangRelease|x64.ActiveCfg = ClangRelease|x64

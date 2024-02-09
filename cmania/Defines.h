@@ -199,9 +199,9 @@ using ulonglong = unsigned long long;
 #define __FUNCTION__ "CLANG_COMPILED_MAGIC"
 #endif // __clang__
 
-#define Assert(x)                                                                                             \
-	{                                                                                                         \
-		if (!(x))                                                                                             \
+#define Assert(x)                                                                                                 \
+	{                                                                                                             \
+		if (!(x))                                                                                                 \
 			throw std::runtime_error("Assertion at function " __FUNCTION__ "(Line " QUOTE(__LINE__) ") failed."); \
 	}
 template <std::integral T>
@@ -210,8 +210,13 @@ std::string Hex(T n) {
 	std::string hexString(digits, '0');
 	const char hexChars[] = "0123456789abcdef";
 	for (size_t i = 0; i < digits; i++) {
-		hexString[digits - i -1] = hexChars[n & 0xF];
+		hexString[digits - i - 1] = hexChars[n & 0xF];
 		n >>= 4; // 位右移 4 位相当于除以 16
 	}
 	return hexString;
 }
+#ifdef _WIN32
+namespace std {
+	using size_t = ::size_t;
+}
+#endif

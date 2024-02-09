@@ -2,6 +2,7 @@
 #include <string>
 #include <vector>
 #include "Defines.h"
+#include "simdjson.h"
 
 class IDownloadingProvider {
 public:
@@ -45,5 +46,9 @@ public:
 	virtual std::vector<DownloadingItem> GetDownloadingItems() = 0;
 	virtual void CancelDownload(int sid) = 0;
 };
-class BeatmapDownloadingService {
+class BeatmapDownloadingService : public IDownloadingProvider {
+public:
+	void StartDownloading(DownloadingQuery query) override;
+	std::vector<DownloadingItem> GetDownloadingItems() override;
+	 void CancelDownload(int sid) override;
 };
