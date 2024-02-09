@@ -33,7 +33,7 @@ public:
 			SetConsoleOutputCP(65001);
 			input_thread = new std::thread(&InputWorker, parent);
 			input_thread->detach();
-			//TODO: 憨包，就你小子天天写僵尸thread是吧
+			// TODO: 憨包，就你小子天天写僵尸thread是吧
 		}
 		if (strcmp(evt, "push") == 0) {
 			struct PushEventArgs {
@@ -123,6 +123,7 @@ public:
 			}
 			catch (...) {
 				parent->GetFeature<ILogger>().LogError("Error during key.");
+			}
 		}
 	}
 };

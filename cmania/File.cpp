@@ -12,11 +12,10 @@ std::vector<char> ReadAllBytes(const std::string& filePath) {
 	std::istreambuf_iterator<char> end;
 	return std::vector<char>(begin, end);
 }
-
-#endif
 std::vector<char> GetAvaliableDrives() {
 	return std::vector<char>{};
 }
+#endif
 #ifdef _WIN32
 #include <Windows.h>
 std::vector<char> ReadAllBytes(const std::string& filePath) {

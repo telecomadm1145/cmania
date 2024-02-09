@@ -5,5 +5,7 @@
 using _debugbreak = void (*)(void);
 #endif
 #ifdef _WIN32
-using debugbreak = __debugbreak;
+inline void _debugbreak() {
+	__debugbreak();
+}
 #endif
