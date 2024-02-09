@@ -70,7 +70,7 @@ public:
 			return From;
 		}
 		double progress = (clock - StartTime) / Duration;
-		if (progress > 1 || isnan(progress)) {
+		if (progress > 1 || std::isnan(progress)) {
 			StartTime = 1.0 / 0 * 0;
 			return To;
 		}
@@ -140,7 +140,7 @@ public:
 			return from;
 		}
 		double progress = (clock - start_time) / EasingDurationCalculator::Get(std::abs(to - from));
-		if (progress > 1 || isnan(progress)) {
+		if (progress > 1 || std::isnan(progress)) {
 			return to;
 		}
 		return EasingFunction::Ease(progress) * (to - from) + from;

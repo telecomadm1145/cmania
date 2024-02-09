@@ -196,14 +196,14 @@ constexpr std::pair<int, int> wide[] = {
 };
 
 template <typename T>
-bool bisearch(T rune, const std::pair<T, T>* table, size_t max) {
-	size_t num = 0;
+bool bisearch(T rune, const std::pair<T, T>* table, std::size_t max) {
+	std::size_t num = 0;
 	if (rune < table[0].first || rune > table[max].second) {
 		return 0;
 	}
 
 	while (max >= num) {
-		size_t num2 = (num + max) / 2;
+		std::size_t num2 = (num + max) / 2;
 		if (rune > table[num2].second) {
 			num = num2 + 1;
 			continue;

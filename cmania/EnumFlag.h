@@ -1,6 +1,6 @@
 ﻿#pragma once
 #include <type_traits>
-
+#include <cstdint>
 template<typename Num, typename Num2>
 constexpr inline bool HasFlag(Num flags, Num2 flag)
 {

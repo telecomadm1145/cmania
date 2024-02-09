@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "EnumFlag.h"
+#include <string>
 
 // High word: Keys
 enum class OsuMods

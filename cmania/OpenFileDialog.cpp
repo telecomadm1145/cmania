@@ -1,6 +1,7 @@
 ﻿#include "OpenFileDialog.h"
 #include <filesystem>
 #include "Animator.h"
+#include <format>
 #include <vector>
 #include "LogOverlay.h"
 #ifdef _WIN32
@@ -104,7 +105,7 @@ public:
 	void AddEntry(const std::filesystem::path& d) {
 		Entry ent{};
 		ent.DisplayName = d.filename().u8string();
-		ent.LastModifiedTime = std::format("{}", std::filesystem::last_write_time(d));
+		//ent.LastModifiedTime = std::format("{}", std::filesystem::last_write_time(d));
 		ent.IsPath = std::filesystem::is_directory(d);
 		ent.RealPath = d;
 		Entries.push_back(ent);
@@ -112,7 +113,7 @@ public:
 	void AddEntry(const std::filesystem::path& d, std::u8string name) {
 		Entry ent{};
 		ent.DisplayName = name;
-		ent.LastModifiedTime = std::format("{}", std::filesystem::last_write_time(d));
+		//ent.LastModifiedTime = std::format("{}", std::filesystem::last_write_time(d));
 		ent.IsPath = std::filesystem::is_directory(d);
 		ent.RealPath = d;
 		Entries.push_back(ent);

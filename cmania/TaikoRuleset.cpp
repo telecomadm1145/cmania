@@ -1,4 +1,4 @@
-﻿#pragma once
+﻿#include <stdexcept>
 #include <vector>
 #include "Animator.h"
 #include "TaikoObject.h"
@@ -60,7 +60,7 @@ public:
 		auto am = GetBassAudioManager(); // 获取Bass引擎
 
 		if (bmp->RulesetId() != "osutaiko") {
-			throw std::exception("Provide a osu!taiko beatmap to this gameplay.");
+			throw std::runtime_error("Provide a osu!taiko beatmap to this gameplay.");
 		}
 
 		this->Beatmap = bmp;
@@ -562,7 +562,7 @@ class TaikoRuleset : public Ruleset {
 
 		std::ifstream ifs(beatmap_path);
 		if (!ifs.good())
-			throw std::exception("Failed to open beatmap file.");
+			throw std::runtime_error("Failed to open beatmap file.");
 
 		OsuBeatmap osub = OsuBeatmap::Parse(ifs);
 		ifs.close();

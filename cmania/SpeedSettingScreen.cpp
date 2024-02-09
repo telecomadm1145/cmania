@@ -57,9 +57,9 @@ class SpeedSettingScreen :public Screen
 				buf.FillRect(mid - x / 2, y, mid + x / 2, y, { {},clr,' ' });
 				j++;
 			}
-			if (abs(clock - int(elapsedTime / speed / 0.5) * speed * 0.5) < 30 && abs(lastact - clock) > 60)
+			if (std::abs(clock - int(elapsedTime / speed / 0.5) * speed * 0.5) < 30 && std::abs(lastact - clock) > 60)
 			{
-				if (abs(clock - int(elapsedTime / speed / 2) * speed * 2) < 30)
+				if (std::abs(clock - int(elapsedTime / speed / 2) * speed * 2) < 30)
 				{
 					auto stream = hit->generateStream();
 					stream->play();

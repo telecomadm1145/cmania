@@ -202,7 +202,7 @@ using ulonglong = unsigned long long;
 #define Assert(x)                                                                                             \
 	{                                                                                                         \
 		if (!(x))                                                                                             \
-			throw std::exception("Assertion at function " __FUNCTION__ "(Line " QUOTE(__LINE__) ") failed."); \
+			throw std::runtime_error("Assertion at function " __FUNCTION__ "(Line " QUOTE(__LINE__) ") failed."); \
 	}
 template <std::integral T>
 std::string Hex(T n) {

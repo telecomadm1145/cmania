@@ -748,7 +748,7 @@ class SongSelectScreen : public Screen {
 			if (kea.Key == ConsoleKey::F2) {
 				auto& caches = matched_caches;
 				if (HasFlag(kea.KeyState, ControlKeyState::Shift)) {
-					if (!isnan(random_last_off)) {
+					if (!std::isnan(random_last_off)) {
 						offset = random_last_off;
 						MakeSelected(random_last_i, caches[random_last_i % caches.size()]);
 					}
