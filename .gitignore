@@ -5,7 +5,8 @@
 
 temp
 build
-
+.ccls-cache
+.ccls
 # User-specific files
 *.rsuser
 *.suo

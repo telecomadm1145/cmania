@@ -224,7 +224,7 @@ PixelData GameBuffer::GetPixel(int x, int y) {
 	if (x < Width && y < Height && y > -1 && x > -1) {
 		return PixelBuffer[y * Width + x];
 	}
-	throw std::exception("X or Y out of range.");
+	throw std::out_of_range("X or Y out of range.");
 }
 
 void GameBuffer::FillPolygon(const std::vector<PointI>& points, PixelData pd) {

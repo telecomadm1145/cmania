@@ -8,6 +8,7 @@
 #include "OsuBeatmap.h"
 #include "OsuSample.h"
 #include <set>
+#include <stdexcept>
 #include "File.h"
 #include "ConsoleInput.h"
 #include "StdRuleset.h"
@@ -47,7 +48,7 @@ private:
 		auto am = GetBassAudioManager(); // 获取Bass引擎
 
 		if (bmp->RulesetId() != "osustd") {
-			throw std::exception("Provide a osu!std beatmap to this gameplay.");
+			throw std::runtime_error("Provide a osu!std beatmap to this gameplay.");
 		}
 
 		this->Beatmap = bmp;
@@ -415,7 +416,7 @@ class StdRuleset : public Ruleset {
 
 		std::ifstream ifs(beatmap_path);
 		if (!ifs.good())
-			throw std::exception("Failed to open beatmap file.");
+			throw std::runtime_error("Failed to open beatmap file.");
 
 		OsuBeatmap osub = OsuBeatmap::Parse(ifs);
 		ifs.close();

@@ -1,11 +1,11 @@
-﻿#include <thread>
+﻿#ifdef _WIN32
+#include <thread>
 #include <Windows.h>
 #include "Game.h"
 #include "ConsoleInput.h"
 #include "Win32ConsoleComponent.h"
 #include "LogOverlay.h"
 #pragma warning(disable : 4267)
-
 class Win32ConsoleComponent : public GameComponent {
 	static short HighShort(DWORD dw) {
 		DWORD tmp = (dw & 0xffff0000) >> 16;
@@ -33,6 +33,7 @@ public:
 			SetConsoleOutputCP(65001);
 			input_thread = new std::thread(&InputWorker, parent);
 			input_thread->detach();
+			//TODO: 憨包，就你小子天天写僵尸thread是吧
 		}
 		if (strcmp(evt, "push") == 0) {
 			struct PushEventArgs {
@@ -122,7 +123,6 @@ public:
 			}
 			catch (...) {
 				parent->GetFeature<ILogger>().LogError("Error during key.");
-			}
 		}
 	}
 };
@@ -130,3 +130,4 @@ public:
 GameComponent* MakeWin32ConsoleComponent() {
 	return new Win32ConsoleComponent();
 }
+#endif

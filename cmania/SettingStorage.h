@@ -1,9 +1,12 @@
 ﻿#pragma once
 #include <fstream>
+#include <stdexcept>
 #include <vector>
 #include <map>
 #include <type_traits>
 #include <concepts>
+#include <cstring>
+#include "Platform.hpp"
 #pragma warning(push)
 #pragma warning(disable : 4267)
 struct BinaryStorageNode {
@@ -33,7 +36,7 @@ struct BinaryStorageItem {
 		if (Size == 0)
 			Set(T());
 		if (sizeof(T) != Size)
-			throw std::exception("Size mismatched.");
+			throw std::runtime_error("Size mismatched.");
 		return *(T*)Data;
 	}
 	template <typename T>
@@ -94,7 +97,7 @@ public:
 	void Write() {
 		std::ofstream ofs("Setting.bin", std::ios_base::binary | std::ios_base::out);
 		if (!ofs.good())
-			throw std::exception("cannot save file");
+			throw std::runtime_error("cannot save file");
 		unsigned int sig = 0x57524d43;
 		ofs.write((char*)&sig, 4);
 		unsigned int count = items.size();
@@ -181,7 +184,7 @@ public:
 		unsigned long long size = 0;
 		Read(stm, size);
 		if (size > 1ULL << 48) {
-			__debugbreak();
+			_debugbreak();
 		}
 		vec.reserve(size);
 		for (size_t i = 0; i < size; i++) {
@@ -200,14 +203,14 @@ public:
 			sz--;
 		}
 		if (sz != 0)
-			__debugbreak();
+			_debugbreak();
 	}
 	static void Read(std::istream& stm, BinaryMap auto& map) {
 		using ContainerChild = ::ContainerChild<decltype(map)>;
 		unsigned long long size = 0;
 		Read(stm, size);
 		if (size > 1ULL << 48) {
-			__debugbreak();
+			_debugbreak();
 		}
 		for (size_t i = 0; i < size; i++) {
 			if (stm.eof())
@@ -228,7 +231,7 @@ public:
 			sz--;
 		}
 		if (sz != 0)
-			__debugbreak();
+			_debugbreak();
 	}
 };
 #pragma warning(pop)

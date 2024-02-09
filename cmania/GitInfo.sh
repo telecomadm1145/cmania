@@ -1,3 +1,4 @@
+#!/bin/bash
 # 获取最近的标签
 latestTag=$(git branch --show-current)
 gitCommitHash=$(git rev-parse --short HEAD)

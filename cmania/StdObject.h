@@ -63,7 +63,7 @@ struct SliderPath {
 			actualLength += diff.Length();
 			calcedLength.push_back(actualLength);
 		}
-		if (!isnan(expectedLength) && expectedLength != actualLength) {
+		if (!std::isnan(expectedLength) && expectedLength != actualLength) {
 			 auto sz = ControlPoints.size();
 			 if (sz >= 2) {
 				// In osu-stable, if the last two control points of a slider are equal, extension is not performed.

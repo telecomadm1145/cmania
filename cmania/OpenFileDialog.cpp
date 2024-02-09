@@ -1,6 +1,7 @@
 ﻿#include "OpenFileDialog.h"
 #include <filesystem>
 #include "Animator.h"
+#include <format>
 #include <vector>
 #include "LogOverlay.h"
 #ifdef _WIN32

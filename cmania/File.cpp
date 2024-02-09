@@ -1,8 +1,24 @@
 ﻿#include <vector>
 #include <string>
-#include <Windows.h>
 #include "File.h"
+#ifdef __linux__
+#include <fstream>
+std::vector<char> ReadAllBytes(const std::string& filePath) {
+	std::vector<char> buffer;
+	std::ifstream ifs(filePath, std::ios::binary);
+	if (!ifs.good())
+		return buffer;
+	std::istreambuf_iterator<char> begin(ifs);
+	std::istreambuf_iterator<char> end;
+	return std::vector<char>(begin, end);
+}
 
+#endif
+std::vector<char> GetAvaliableDrives() {
+	return std::vector<char>{};
+}
+#ifdef _WIN32
+#include <Windows.h>
 std::vector<char> ReadAllBytes(const std::string& filePath) {
 	std::vector<char> buffer;
 
@@ -50,3 +66,5 @@ std::vector<char> GetAvaliableDrives() {
 	}
 	return res;
 }
+#endif
+

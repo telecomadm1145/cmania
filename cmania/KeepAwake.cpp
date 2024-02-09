@@ -1,5 +1,7 @@
-﻿#include <windows.h>
-#include "KeepAwake.h"
+﻿#include "KeepAwake.h"
+#ifdef _WIN32
+#include <windows.h>
+
 REASON_CONTEXT _PowerRequestContext{};
 HANDLE _PowerRequest = 0;
 
@@ -19,3 +21,10 @@ void EnableConstantDisplayAndPower(bool enableConstantDisplayAndPower) {
 		CloseHandle(_PowerRequest);
 	}
 }
+#endif
+#ifdef __linux__
+void EnableConstantDisplayAndPower(bool enableConstantDisplayAndPower) {
+	// TODO:警告
+	
+}
+#endif

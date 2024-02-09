@@ -182,7 +182,7 @@ public:
 						gameplay->GetScoreProcessor()->SaveRecord();
 						std::filesystem::create_directory("Records");
 
-						__debugbreak();
+						_debugbreak();
 						// TODO: finish new record logic there.
 
 

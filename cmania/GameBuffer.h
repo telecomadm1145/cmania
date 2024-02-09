@@ -6,6 +6,7 @@
 #include <string>
 #include <algorithm>
 #include <functional>
+#include <cstring>
 #include <utility>
 struct Color {
 	unsigned char Alpha;

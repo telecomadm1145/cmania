@@ -1,5 +1,4 @@
-﻿#pragma once
-#include "Defines.h"
+﻿#include "Defines.h"
 #include "Animator.h"
 #include "ManiaObject.h"
 #include "OsuBeatmap.h"
@@ -12,6 +11,7 @@
 #include "Gameplay.h"
 #include "Ruleset.h"
 #include "Crc.h"
+#include <stdexcept>
 
 class ManiaGameplay : public GameplayBase {
 
@@ -63,7 +63,7 @@ public:
 		auto am = GetBassAudioManager(); // 获取Bass引擎
 
 		if (bmp->RulesetId() != "osumania") {
-			throw std::exception("Provide a osu!mania beatmap to this gameplay.");
+			throw std::runtime_error("Provide a osu!mania beatmap to this gameplay.");
 		}
 
 		this->Beatmap = bmp;
@@ -508,18 +508,18 @@ class ManiaRuleset : public Ruleset {
 	BinaryStorage* settings;
 
 public:
-	virtual std::string Id() {
+	virtual std::string Id() override{
 		return "osumania";
 	}
-	virtual std::string DisplayName() {
+	virtual std::string DisplayName() override{
 		return "Mania";
 	}
-	virtual Beatmap* LoadBeatmap(path beatmap_path, bool load_samples) {
+	virtual Beatmap* LoadBeatmap(path beatmap_path, bool load_samples) override{
 		auto beatmap = new ManiaBeatmap();
 
 		std::ifstream ifs(beatmap_path);
 		if (!ifs.good())
-			throw std::exception("Failed to open beatmap file.");
+			throw std::runtime_error("Failed to open beatmap file.");
 
 		OsuBeatmap osub = OsuBeatmap::Parse(ifs);
 		ifs.close();

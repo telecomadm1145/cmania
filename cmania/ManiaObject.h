@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include "AudioManager.h"
 #include "HitObject.h"
+#include <cmath>
 struct ManiaObject : public HitObject {
 	bool Multi;
 	bool HasHold;
@@ -13,6 +14,6 @@ struct ManiaObject : public HitObject {
 	double EndTime = 1.0 / 0.0 * 0.0;
 	double LastHoldOff = -1;
 	bool IsHold() {
-		return !isnan(EndTime);
+		return !std::isnan(EndTime);
 	}
 };
