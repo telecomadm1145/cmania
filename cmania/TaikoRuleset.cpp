@@ -626,8 +626,8 @@ class TaikoRuleset : public Ruleset {
 			beatmap->first_obj = std::min(beatmap->first_obj, obj.StartTime);
 			beatmap->last_obj = std::max(beatmap->last_obj, obj.StartTime);
 			to.StartTime = obj.StartTime;
-			auto tp = GetTimingPointTiming(beatmap->orig_bmp, obj.StartTime);
-			auto soundtp = GetTimingPoint(beatmap->orig_bmp, obj.StartTime);
+			auto& tp = GetTimingPointTiming(beatmap->orig_bmp, obj.StartTime);
+			auto& soundtp = GetTimingPoint(beatmap->orig_bmp, obj.StartTime);
 			auto bpm = tp.BPM();
 			auto blen = 1000 / (bpm / 60.0);
 			auto vec = GetTimingPointNonTiming(beatmap->orig_bmp, obj.StartTime).SpeedMultiplier();
