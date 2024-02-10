@@ -175,7 +175,6 @@ private:
 class LinuxConsoleComponent : public GameComponent {
 private:
 	std::thread* input_thread = nullptr;
-	static inline fd_set fds;
 	struct termios oldsetting, newsetting;
 	void ProcessEvent(const char* evt, const void* evtargs) override {
 		if (strcmp(evt, "start") == 0) {
@@ -184,8 +183,6 @@ private:
 			newsetting = oldsetting;
 			newsetting.c_lflag &= ~(ICANON | ECHO);
 			tcsetattr(fileno(stdin), TCSANOW, &newsetting);
-			FD_ZERO(&fds);
-			FD_SET(fileno(stdin), &fds);
 			input_thread = new std::thread(&InputWorker, parent);
 			input_thread->detach();
 			// 事件
@@ -208,42 +205,27 @@ private:
 		}
 	}
 	static void InputWorker(Game* parent) {
-		struct timeval tv;
-		tv.tv_sec = 0;
-		tv.tv_usec = 5000;
-		while (1) {
-			int res = 0;
-			res = select(1, &fds, NULL, NULL, &tv);
 
-			if (res < 0) {
-				throw std::runtime_error("select failed");
-			}
-			else if (res == 0) {
-				continue;
-			}
-			else {
-				if (FD_ISSET(fileno(stdin), &fds)) {
-					char buf[1024];
-					int len = read(fileno(stdin), buf, 1024);
-					if (len > 0) {
-						InputProcessor::Event* e;
-						int i = InputProcessor::Process(buf, len, e);
-						if (i > 0) {
-							// 遍历每一个事件
-							for (int now = 0; now < i; now++) {
-								switch (e[now].type) {
-								case InputProcessor::EventType::Mouse_Press:
-									// MouseKeyEventArgs meka(e[now].x, e[now].y, 1);
-									// parent->Raise("mousekey", meka);
-									// break;
-								case InputProcessor::EventType::Keyboard_Press:
-									KeyEventArgs kea(0, true, 0, e[now].C, 0);
-									parent->Raise("key", kea);
-									break;
+		//todo:这里读stdin,放到buffer
+		
 
-								}
-							}
-						}
+		char buf[1024];
+		int len = read(fileno(stdin), buf, 1024);
+		if (len > 0) {
+			InputProcessor::Event* e;
+			int i = InputProcessor::Process(buf, len, e);
+			if (i > 0) {
+				// 遍历每一个事件
+				for (int now = 0; now < i; now++) {
+					switch (e[now].type) {
+					case InputProcessor::EventType::Mouse_Press:
+						// MouseKeyEventArgs meka(e[now].x, e[now].y, 1);
+						// parent->Raise("mousekey", meka);
+						// break;
+					case InputProcessor::EventType::Keyboard_Press:
+						KeyEventArgs kea(0, true, 0, e[now].C, 0);
+						parent->Raise("key", kea);
+						break;
 					}
 				}
 			}
