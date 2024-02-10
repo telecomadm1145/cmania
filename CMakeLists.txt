@@ -11,6 +11,7 @@ list(REMOVE_ITEM SOURCE_FILES_LIST "${PROJECT_SOURCE_DIR}/cmania//Win32ConsoleCo
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED 23)
 include_directories("${PROJECT_SOURCE_DIR}/third_party/bass/bass24-linux")
+find_package(simdjson REQUIRED)
 add_library(bass SHARED IMPORTED)
 #TODO: 支持非x86_64的架构的动态库
 set_target_properties(bass PROPERTIES IMPORTED_LOCATION ${PROJECT_SOURCE_DIR}/third_party/bass/bass24-linux/libs/x86_64/libbass.so)
