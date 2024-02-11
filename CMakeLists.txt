@@ -8,8 +8,8 @@ aux_source_directory("${PROJECT_SOURCE_DIR}/cmania/" SOURCE_FILES_LIST)
 #排除windows文件
 list(REMOVE_ITEM SOURCE_FILES_LIST "${PROJECT_SOURCE_DIR}/cmania//Win32ConsoleComponent.cpp")
 
-set(CMAKE_CXX_STANDARD 23)
-set(CMAKE_CXX_STANDARD_REQUIRED 23)
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED 20)
 include_directories("${PROJECT_SOURCE_DIR}/third_party/bass/bass24-linux")
 add_library(bass SHARED IMPORTED)
 #TODO: 支持非x86_64的架构的动态库
