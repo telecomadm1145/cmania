@@ -1,8 +1,8 @@
 ﻿#include "BeatmapDownloadingService.h"
 
 void BeatmapDownloadingService::StartDownloading(DownloadingQuery query) {
-	simdjson::dom::parser parser{};
-	simdjson::json_parse(std::string("{}"), parser);
+	// simdjson::dom::parser parser{};
+	// simdjson::json_parse(std::string("{}"), parser);
 
 }
 

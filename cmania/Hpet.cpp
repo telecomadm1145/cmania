@@ -41,6 +41,6 @@ double HpetClock() {
 	}
 	// now输出毫秒
 	now = tp.tv_sec * 1000 + tp.tv_nsec / 1000000;
-	return double(now) / 1000.0;
+	return double(now);
 }
 #endif
