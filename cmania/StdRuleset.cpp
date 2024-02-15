@@ -1,5 +1,4 @@
-﻿#pragma once
-#include <filesystem>
+﻿#include <filesystem>
 #include "Ruleset.h"
 #include "StdObject.h"
 #include "StdScoreProcessor.h"
