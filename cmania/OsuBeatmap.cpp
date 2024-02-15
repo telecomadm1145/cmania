@@ -1,4 +1,9 @@
 ﻿#include "OsuBeatmap.h"
+#include "OsuStatic.h"
+#include "String.h"
+#include <iosfwd>
+#include <utility>
+#include <vector>
 
 OsuBeatmap OsuBeatmap::Parse(std::istream& sr) {
 	OsuBeatmap bm{};
@@ -48,7 +53,7 @@ OsuBeatmap OsuBeatmap::Parse(std::istream& sr) {
 				bm.TimingPoints.push_back(tp);
 			}
 			else if (category == "HitObjects") {
-				HitObject ho{ 0 };
+				HitObject ho{ };
 				auto args = split(line, ',');
 				ho.X = std::stod(args[0]);
 				ho.Y = std::stod(args[1]);

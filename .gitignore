@@ -4,7 +4,10 @@
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
 temp
-
+build
+.ccls-cache
+.ccls
+.vscode
 # User-specific files
 *.rsuser
 *.suo
@@ -374,3 +377,9 @@ Songs.bin
 
 #忽略自动生成的git信息头
 git_info.h
+
+CMakeFiles
+CMakeCache.txt
+cmake_install.cmake
+cmania.linux
+Makefile

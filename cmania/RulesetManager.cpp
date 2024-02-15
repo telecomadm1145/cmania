@@ -2,6 +2,7 @@
 #include "Defines.h"
 #include "Ruleset.h"
 #include "RulesetManager.h"
+#include <stdexcept>
 
 class RulesetManager : public GameComponent,public IRulesetManager {
 	std::unordered_map<std::string, std::unique_ptr<Ruleset>> rulesets;
@@ -16,7 +17,7 @@ public:
 		rul->Init(parent->Settings);
 		if (rulesets.find(rul->Id()) != rulesets.end())
 		{
-			throw std::exception("Ruleset have registered before");
+			throw std::runtime_error("Ruleset have registered before");
 		}
 		rulesets.insert({ rul->Id(), std::unique_ptr<Ruleset>(rul) });
 	}

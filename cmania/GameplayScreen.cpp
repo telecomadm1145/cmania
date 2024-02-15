@@ -26,10 +26,21 @@ class GameplayScreen : public Screen {
 	BackgroundComponent bg{ 0.2 };
 	bool is_replay = false;
 
+	// Clang doesn't support double as nontype template argument so we need to do it yourself
+#ifdef __clang__
+	class ConstantEasingDurationCalculator_500 {
+	public:
+		static inline auto Get(auto x) {
+			return 500.0;
+		}
+	};
+	using TransOut = Transition<EaseOut<CubicEasingFunction>, ConstantEasingDurationCalculator_500>;
+#else
 	using TransOut = Transition<EaseOut<CubicEasingFunction>, ConstantEasingDurationCalculator<500.0>>;
+#endif
 
 public:
-	GameplayScreen(Ruleset* rul,const std::string& bmp_path, OsuMods mod, int mode) :ruleset(rul), mode(mode), mods(mod), beatmap_path(bmp_path), is_replay(false) {
+	GameplayScreen(Ruleset* rul, const std::string& bmp_path, OsuMods mod, int mode) : ruleset(rul), mode(mode), mods(mod), beatmap_path(bmp_path), is_replay(false) {
 	}
 	void LoadForGameplay(OsuMods mod, const std::string& bmp_path, int mode) {
 		beatmap.reset(ruleset->LoadBeatmap(bmp_path));
@@ -73,7 +84,7 @@ public:
 			buf.DrawString("暂停中，按任意键继续，再按一次Escape返回", 0, 0, {}, {});
 			return;
 		}
-		auto gameplay = &*this->gameplay;
+		auto gameplay = this->gameplay.get();
 		if (gameplay != 0) {
 			if (!gameplay->GameStarted) {
 				buf.DrawString("Loading...", 0, 0, {}, {});
@@ -162,8 +173,8 @@ public:
 		}
 	};
 	virtual void Tick(double) {
-		auto gameplay = &*this->gameplay;
-		if (gameplay != 0 && gameplay->GameStarted) {
+		auto gameplay = this->gameplay.get();
+		if (gameplay != nullptr && gameplay->GameStarted) {
 			gameplay->Update();
 			if (!game_ended) {
 				if (gameplay->GameEnded) {
@@ -171,28 +182,28 @@ public:
 						gameplay->GetScoreProcessor()->SaveRecord();
 						std::filesystem::create_directory("Records");
 
-						__debugbreak();
+						_debugbreak();
 						// TODO: finish new record logic there.
-						
 
-						//RecordPath = "Records/CmaniaRecord_" + std::to_string(HpetClock()) + ".bin";
-						//std::fstream ofs(RecordPath, std::ios::out | std::ios::binary);
-						//if (!ofs.good())
+
+						// RecordPath = "Records/CmaniaRecord_" + std::to_string(HpetClock()) + ".bin";
+						// std::fstream ofs(RecordPath, std::ios::out | std::ios::binary);
+						// if (!ofs.good())
 						//	__debugbreak();
-						//gameplay->GameRecord.PlayerName = std::string((char*)game->Settings["Name"].Data, (char*)game->Settings["Name"].Data + game->Settings["Name"].Size);
-						//auto rec = gameplay->GameRecord;
-						//Binary::Write(ofs, rec);
-						//ofs.close();
-						//auto& caches = game->GetFeature<IBeatmapManagement>().GetSongsCache();
-						//auto match = std::find_if(caches.begin(), caches.end(), [&](SongsCacheEntry& c) { return c.path == std::filesystem::path(beatmap_path).parent_path(); });
-						//if (match != caches.end()) {
+						// gameplay->GameRecord.PlayerName = std::string((char*)game->Settings["Name"].Data, (char*)game->Settings["Name"].Data + game->Settings["Name"].Size);
+						// auto rec = gameplay->GameRecord;
+						// Binary::Write(ofs, rec);
+						// ofs.close();
+						// auto& caches = game->GetFeature<IBeatmapManagement>().GetSongsCache();
+						// auto match = std::find_if(caches.begin(), caches.end(), [&](SongsCacheEntry& c) { return c.path == std::filesystem::path(beatmap_path).parent_path(); });
+						// if (match != caches.end()) {
 						//	auto& diffcache = match->difficulties;
 						//	auto match2 = std::find_if(diffcache.begin(), diffcache.end(), [&](DifficultyCacheEntry& c) { return c.path == std::filesystem::path(beatmap_path); });
 						//	if (match2 != diffcache.end()) {
 						//		match2->records.push_back(RecordPath);
 						//	}
-						//}
-						//game->GetFeature<IBeatmapManagement>().Save();
+						// }
+						// game->GetFeature<IBeatmapManagement>().Save();
 
 						rec_saved = true;
 					}
@@ -252,10 +263,8 @@ public:
 			gameplay = 0;
 		}
 		else {
-			if (gameplay != 0)
-			{
-				if (gameplay->GameEnded)
-				{
+			if (gameplay != 0) {
+				if (gameplay->GameEnded) {
 					parent->Back();
 					return;
 				}
@@ -268,14 +277,12 @@ public:
 					LoadForReplay(rec, beatmap_path, mode);
 				}
 			}
-			catch (std::exception& ex)
-			{
+			catch (std::exception& ex) {
 				game->GetFeature<ILogger>().LogError(ex.what());
 				parent->Back();
 				return;
 			}
-			catch (...)
-			{
+			catch (...) {
 				game->GetFeature<ILogger>().LogError("Failed to load ruleset.");
 				parent->Back();
 				return;
@@ -303,10 +310,10 @@ public:
 	};
 };
 
-Screen* MakeGameplayScreen(Ruleset* rul,const std::string& bmp_path, OsuMods mod, int mode) {
-	return new GameplayScreen(rul,bmp_path, mod, mode);
+Screen* MakeGameplayScreen(Ruleset* rul, const std::string& bmp_path, OsuMods mod, int mode) {
+	return new GameplayScreen(rul, bmp_path, mod, mode);
 }
 
-Screen* MakeGameplayScreen(Ruleset* rul,Record rec, const std::string& bmp_path, int mode) {
-	return new GameplayScreen(rul,rec, bmp_path, mode);
+Screen* MakeGameplayScreen(Ruleset* rul, Record rec, const std::string& bmp_path, int mode) {
+	return new GameplayScreen(rul, rec, bmp_path, mode);
 }

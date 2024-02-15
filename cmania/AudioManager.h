@@ -3,6 +3,7 @@
 #include <chrono>
 #include <vector>
 #include <exception>
+#include <memory>
 
 class IAudioManager {
 public:

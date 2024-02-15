@@ -70,7 +70,7 @@ public:
 			return From;
 		}
 		double progress = (clock - StartTime) / Duration;
-		if (progress > 1 || isnan(progress)) {
+		if (progress > 1 || std::isnan(progress)) {
 			StartTime = 1.0 / 0 * 0;
 			return To;
 		}
@@ -121,11 +121,11 @@ public:
 };
 
 // 过渡模板
-template <class EasingFunction, class EasingDurationCalculator, class Num = double, Num Inital = Num()>
+template <class EasingFunction, class EasingDurationCalculator, class Num = double>
 class Transition {
 public:
 	Transition()
-		: from(Inital), to(Inital) {}
+		: from(Num()), to(Num()) {}
 
 	void SetValue(double clock, Num new_value) {
 		if (to != new_value) {
@@ -140,7 +140,7 @@ public:
 			return from;
 		}
 		double progress = (clock - start_time) / EasingDurationCalculator::Get(std::abs(to - from));
-		if (progress > 1 || isnan(progress)) {
+		if (progress > 1 || std::isnan(progress)) {
 			return to;
 		}
 		return EasingFunction::Ease(progress) * (to - from) + from;

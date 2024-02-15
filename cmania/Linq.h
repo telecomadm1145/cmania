@@ -1,6 +1,7 @@
 ﻿// Makes iters more beautiful.
 #pragma once
 #include <stdexcept>
+#include <vector>
 
 template <class Iter>
 void ForEach(const Iter& begin, const Iter& end, auto func) {
@@ -211,7 +212,7 @@ inline auto First() {
 inline auto FirstOrDefault() {
 	return [](auto& container) -> auto{
 		using ContainerType = std::remove_reference_t<decltype(*container.begin())>;
-		if constexpr (std::is_convertible_v<nullptr_t, ContainerType> && std::is_default_constructible_v<ContainerType>) {
+		if constexpr (std::is_convertible_v<std::nullptr_t, ContainerType> && std::is_default_constructible_v<ContainerType>) {
 			auto cur = container.begin();
 			if (cur != container.end()) {
 				return *cur;

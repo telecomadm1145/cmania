@@ -1,4 +1,4 @@
-﻿#pragma once
+﻿#include <stdexcept>
 #include <vector>
 #include "Animator.h"
 #include "TaikoObject.h"
@@ -16,10 +16,20 @@
 #include "Crc.h"
 
 class TaikoGameplay : public GameplayBase {
+#ifdef __clang__
+	Animator<CubicEasingFunction> KeyHighlight[4]{
+		{ 180, 0, 150 }, { 180, 0, 150 }, { 180, 0, 150 }, { 180,
+			0,
+			150 }
+	};
+	Animator<CubicEasingFunction> LastHitResultAnimator{ 255, 0, 400 };
+#else
+
 	Animator<PowerEasingFunction<1.5>> KeyHighlight[4]{
 		{ 180, 0, 150 }, { 180, 0, 150 }, { 180, 0, 150 }, { 180, 0, 150 }
 	};
 	Animator<PowerEasingFunction<4.0>> LastHitResultAnimator{ 255, 0, 400 };
+#endif
 	HitResult LastHitResult = HitResult::None;
 	AudioStream bgm;
 	double scrollspeed = 0;
@@ -44,13 +54,13 @@ class TaikoGameplay : public GameplayBase {
 
 public:
 	virtual void RenderDebug(GameBuffer& buf) {
-		buf.FillRect(0, 0, 50, 50, { {}, {100,20,20,20},' '});
+		buf.FillRect(0, 0, 50, 50, { {}, { 100, 20, 20, 20 }, ' ' });
 	}
 	virtual void Load(::Ruleset* rul, ::Beatmap* bmp) override {
 		auto am = GetBassAudioManager(); // 获取Bass引擎
 
 		if (bmp->RulesetId() != "osutaiko") {
-			throw std::exception("Provide a osu!taiko beatmap to this gameplay.");
+			throw std::runtime_error("Provide a osu!taiko beatmap to this gameplay.");
 		}
 
 		this->Beatmap = bmp;
@@ -552,7 +562,7 @@ class TaikoRuleset : public Ruleset {
 
 		std::ifstream ifs(beatmap_path);
 		if (!ifs.good())
-			throw std::exception("Failed to open beatmap file.");
+			throw std::runtime_error("Failed to open beatmap file.");
 
 		OsuBeatmap osub = OsuBeatmap::Parse(ifs);
 		ifs.close();
@@ -616,8 +626,8 @@ class TaikoRuleset : public Ruleset {
 			beatmap->first_obj = std::min(beatmap->first_obj, obj.StartTime);
 			beatmap->last_obj = std::max(beatmap->last_obj, obj.StartTime);
 			to.StartTime = obj.StartTime;
-			auto tp = GetTimingPointTiming(beatmap->orig_bmp, obj.StartTime);
-			auto soundtp = GetTimingPoint(beatmap->orig_bmp, obj.StartTime);
+			auto& tp = GetTimingPointTiming(beatmap->orig_bmp, obj.StartTime);
+			auto& soundtp = GetTimingPoint(beatmap->orig_bmp, obj.StartTime);
 			auto bpm = tp.BPM();
 			auto blen = 1000 / (bpm / 60.0);
 			auto vec = GetTimingPointNonTiming(beatmap->orig_bmp, obj.StartTime).SpeedMultiplier();

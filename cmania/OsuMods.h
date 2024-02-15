@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "EnumFlag.h"
+#include <string>
 
 // High word: Keys
 enum class OsuMods
@@ -62,7 +63,7 @@ inline double GetPlaybackRate(OsuMods mods)
 		rate *= 0.75;
 	return rate;
 }
-constexpr inline std::string GetModsAbbr(OsuMods mods) {
+inline std::string GetModsAbbr(OsuMods mods) {
 	std::string s = "";
 	if (HasFlag(mods, OsuMods::Auto))
 		s += "AT";

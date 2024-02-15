@@ -18,7 +18,7 @@ public:
 
 private:
 	std::vector<Component*> records;
-	std::map<const type_info*, void*> features;
+	std::map<const std::type_info*, void*> features;
 
 public:
 	BinaryStorage Settings;

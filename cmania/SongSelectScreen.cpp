@@ -22,7 +22,7 @@
 #include "RulesetManager.h"
 
 class SongSelectScreen : public Screen {
-	BackgroundComponent bg{0.65};
+	BackgroundComponent bg{ 0.65 };
 	std::string bgloc;
 	int h_cache = 0;
 	int w_cache = 0;
@@ -34,7 +34,21 @@ class SongSelectScreen : public Screen {
 	bool ruleset_flyout;
 	std::unordered_set<int> selected_ruleset;
 	OsuMods mods;
-	using TransOut = Transition<EaseOut<PowerEasingFunction<6.0>>, DurationRangeLimiter<1000.0, 2000.0, LinearEasingDurationCalculator<10>>>;
+#ifdef __clang__
+	class DurationRangeLimiter_0 {
+	public:
+		static inline auto Get(auto x) {
+			return std::clamp(10 * x, 800.0, 3500.0);
+		}
+	};
+	using TransOut = Transition<
+		EaseOut<CubicEasingFunction>,
+		DurationRangeLimiter_0>;
+#else
+	using TransOut = Transition<
+		EaseOut<CubicEasingFunction>,
+		DurationRangeLimiter<800.0, 3500.0, LinearEasingDurationCalculator<1>>>;
+#endif
 	Color difficultyToRGBColor(float difficulty) {
 		static constexpr Color ranges[9] = {
 			{ 0, 77, 200, 46 },	 // 灰
@@ -153,7 +167,11 @@ class SongSelectScreen : public Screen {
 				}
 				else {
 					if (difficulty_val > 0) {
+#ifdef _WIN32
 						auto diff = std::format("{:.1f}", difficulty_val);
+#else
+						auto diff = std::to_string(difficulty_val);
+#endif
 						auto clr = difficultyToRGBColor(difficulty_val);
 						auto clr2 = Color::Blend(clr, Color{ 200, 255, 255, 255 });
 						buf.DrawString(diff, 50 - diff.size() - 1, 3, clr2, clr);
@@ -165,7 +183,11 @@ class SongSelectScreen : public Screen {
 					for (auto& d : di) {
 						if (d.Type == DifficultyInfoItem::ValueBar) {
 							buf.DrawString(d.Text, 0, i, {}, {});
+#ifdef _WIN32
 							std::string v = std::format("{:.2f}", d.Value);
+#else
+							std::string v = std::to_string(d.Value);
+#endif
 							buf.DrawString(v, 50 - v.size() - 1, i, {}, {});
 							buf.DrawLineV(12, 50 - 7 - 2, i, { {}, { 150, 32, 32, 32 }, ' ' });
 							double prog = std::clamp(d.Value / d.MaxValue, 0.0, 1.0);
@@ -189,7 +211,11 @@ class SongSelectScreen : public Screen {
 						}
 						else if (d.Type == DifficultyInfoItem::PlainValue) {
 							buf.DrawString(d.Text, 0, i, {}, {});
+#ifdef _WIN32
 							auto v = std::format("{:.2f}", d.Value);
+#else
+							auto v = std::to_string(d.Value);
+#endif 
 							buf.DrawString(v, 50 - v.size() - 1, i, {}, {});
 							i++;
 						}
@@ -338,8 +364,7 @@ class SongSelectScreen : public Screen {
 	std::vector<SongsCacheEntry> matched_caches;
 	bool ready;
 	bool require_songs_path;
-	~SongSelectScreen()
-	{
+	~SongSelectScreen() {
 		thd_alive = false;
 		background_info_worker.join();
 	}
@@ -580,7 +605,11 @@ class SongSelectScreen : public Screen {
 		std::string str = Utf162Utf8(std::wstring{ search_buf.begin(), search_buf.end() });
 		auto& caches = game->GetFeature<IBeatmapManagement>().GetSongsCache();
 		for (auto sce : caches) {
+#ifdef __clang__
+			bool match = true;
+#else
 			bool match = search_meta(str, sce.artist, sce.title, sce.artistunicode, sce.titleunicode, sce.tags, sce.source);
+#endif
 			if (str.empty())
 				match = true;
 			if (!match)
@@ -731,7 +760,7 @@ class SongSelectScreen : public Screen {
 			if (kea.Key == ConsoleKey::F2) {
 				auto& caches = matched_caches;
 				if (HasFlag(kea.KeyState, ControlKeyState::Shift)) {
-					if (!isnan(random_last_off)) {
+					if (!std::isnan(random_last_off)) {
 						offset = random_last_off;
 						MakeSelected(random_last_i, caches[random_last_i % caches.size()]);
 					}
