@@ -17,6 +17,7 @@ double HpetClock() {
 	return (double)now.QuadPart / freq.QuadPart * 1000;
 }
 #endif
+
 #ifdef __linux__
 #include <cstdint>
 #include <ctime>
@@ -25,22 +26,22 @@ double HpetClock() {
 #include <time.h>
 #include <unistd.h>
 #include <chrono>
+
 void BeginHighResClock() {
+	// Linux 上没有类似于 `timeBeginPeriod()` 的函数来提高时钟分辨率。
 }
+
 double HpetClock() {
 	uint64_t now;
 	struct timespec tp;
 	if (syscall(SYS_clock_gettime, CLOCK_MONOTONIC, &tp) < 0) {
-		std::chrono::high_resolution_clock::time_point tp = std::chrono::high_resolution_clock::now();
-		now = std::chrono::duration_cast<std::chrono::microseconds>(tp.time_since_epoch()).count();
-		if (now == 0) {
-			std::chrono::system_clock::time_point tp = std::chrono::system_clock::now();
-			now = std::chrono::duration_cast<std::chrono::microseconds>(tp.time_since_epoch()).count();
-		}
-		return double(now) / 1000.0;
+		throw std::runtime_error("Failed to get HPET clock");
 	}
-	// now输出毫秒
-	now = tp.tv_sec * 1000 + tp.tv_nsec / 1000000;
-	return double(now);
+
+	// `tp.tv_sec` 和 `tp.tv_nsec` 分别表示秒和纳秒。
+	now = tp.tv_sec * 1000000000 + tp.tv_nsec;
+
+	// 将纳秒转换为毫秒。
+	return double(now) / 1000000.0;
 }
 #endif

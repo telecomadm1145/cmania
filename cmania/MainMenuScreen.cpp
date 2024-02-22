@@ -8,7 +8,7 @@
 #ifdef _MSC_VER
 #define _COMPILER_BANNER "Compiled with MSVC v" QUOTE(_MSC_VER)
 #else
-#define _COMPILER_BANNER "Compiled with Clang v17"
+#define _COMPILER_BANNER "Compiled with Clang"
 #endif
 
 class MainMenuScreen : public Screen {
