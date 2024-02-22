@@ -207,7 +207,7 @@ public:
 	virtual void Initalized(){};
 	virtual void Key(KeyEventArgs kea) {
 		if (kea.Pressed) {
-			if (kea.Key == ConsoleKey::Escape) {
+			if (kea.Key == ConsoleKey::Escape || kea.Key == ConsoleKey::LeftArrow) {
 				if (Path.parent_path() == Path) {
 					parent->Back();
 					if (OnCancel)
@@ -218,6 +218,45 @@ public:
 				Path = Path.parent_path();
 				dirty = true;
 				return;
+			}
+			else if (kea.Key == ConsoleKey::UpArrow || kea.Key == ConsoleKey::DownArrow) {
+				if (selected_entry == 0) {
+					selected_entry = &Entries[0];
+				}
+				else {
+					bool up = kea.Key == ConsoleKey::UpArrow;
+					int index = -1;
+					for (int i = 0; i < (int)Entries.size(); i++) {
+						if (&Entries[i] == selected_entry) {
+							index = i;
+							if (up) {
+								index--;
+								if (index == -1)
+									index = Entries.size() - 1;
+							}
+							else {
+								index++;
+								if (index == Entries.size())
+									index = 0;
+							}
+							break;
+						}
+					}
+					selected_entry = &Entries[index];
+				}
+			}
+			else if (kea.Key == ConsoleKey::RightArrow) {
+				if (selected_entry != 0) {
+					if (selected_entry->IsPath) {
+						Offset = 0;
+						Path = selected_entry->RealPath;
+						dirty = true;
+						selected_entry = 0;
+					}
+				}
+			}
+			else if (kea.Key == ConsoleKey::Enter) {
+				DoConfirm();
 			}
 		}
 	};

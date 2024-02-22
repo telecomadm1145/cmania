@@ -9,6 +9,7 @@
 #include "Game.h"
 #include "String.h"
 #include "OsuBeatmap.h"
+#include "LogOverlay.h"
 
 class BeatmapManagementService : public GameComponent, public IBeatmapManagement {
 	SongsCache sc;
@@ -25,7 +26,9 @@ class BeatmapManagementService : public GameComponent, public IBeatmapManagement
 			if (fs.good())
 				Binary::Read(fs, sc);
 			auto tm = std::filesystem::last_write_time(songs_path).time_since_epoch();
+#if _MSC_VER
 			if (tm > sc.lastchanged) {
+#endif
 				std::filesystem::directory_iterator dir(songs_path);
 				std::vector<std::filesystem::directory_entry> dirs;
 				std::move(dir, {}, std::insert_iterator(dirs, dirs.begin()));
@@ -58,16 +61,19 @@ class BeatmapManagementService : public GameComponent, public IBeatmapManagement
 								}
 								if (disk_cache != 0) {
 									auto& ondisk = *disk_cache;
+#if _MSC_VER
 									auto now = song.last_write_time().time_since_epoch();
 									if (now <= ondisk.lastchanged)
 										continue;
 									ondisk.lastchanged = now;
+#endif
 								}
 								SongsCacheEntry cache{};
 								cache.path = song.path().string();
 								for (auto& diff : std::filesystem::directory_iterator(song)) {
 									if (!diff.is_directory()) {
 										if (EndsWith(diff.path().string(), ".osu")) {
+											parent->GetFeature<ILogger>().LogInfo(diff.path().string());
 											std::ifstream stm(diff.path());
 											OsuBeatmap bmp = OsuBeatmap::Parse(stm);
 											if (bmp.CircleSize < 1)
@@ -80,6 +86,7 @@ class BeatmapManagementService : public GameComponent, public IBeatmapManagement
 											cache.artistunicode = bmp.ArtistUnicode;
 											cache.tags = bmp.Tags;
 											cache.source = bmp.Source;
+											parent->GetFeature<ILogger>().LogInfo(cache.title);
 											DifficultyCacheEntry dce{};
 											dce.audio = diff.path().parent_path().append(bmp.AudioFilename).string();
 											dce.background = diff.path().parent_path().append(bmp.Background).string();
@@ -114,7 +121,9 @@ class BeatmapManagementService : public GameComponent, public IBeatmapManagement
 				for (auto& thd : threads) {
 					thd.join();
 				}
+#if _MSC_VER
 			}
+#endif
 			if (!fs.good()) {
 				fs = std::fstream("Songs.bin", std::ios::out | std::ios::binary);
 				if (!fs.good())

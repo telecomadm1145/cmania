@@ -2,7 +2,9 @@
 // if linux
 #include <stdexcept>
 #ifdef __linux__
-using _debugbreak = void (*)(void);
+inline void _debugbreak() {
+	(*(int*)0) = 0;
+}
 #endif
 #ifdef _WIN32
 inline void _debugbreak() {

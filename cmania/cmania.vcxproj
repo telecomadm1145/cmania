@@ -1,515 +1,515 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <ItemGroup Label="ProjectConfigurations">
-    <ProjectConfiguration Include="ClangLinuxRelease|Win32">
-      <Configuration>ClangLinuxRelease</Configuration>
-      <Platform>Win32</Platform>
-    </ProjectConfiguration>
-    <ProjectConfiguration Include="ClangLinuxRelease|x64">
-      <Configuration>ClangLinuxRelease</Configuration>
-      <Platform>x64</Platform>
-    </ProjectConfiguration>
-    <ProjectConfiguration Include="ClangRelease|Win32">
-      <Configuration>ClangRelease</Configuration>
-      <Platform>Win32</Platform>
-    </ProjectConfiguration>
-    <ProjectConfiguration Include="ClangRelease|x64">
-      <Configuration>ClangRelease</Configuration>
-      <Platform>x64</Platform>
-    </ProjectConfiguration>
-    <ProjectConfiguration Include="Debug|Win32">
-      <Configuration>Debug</Configuration>
-      <Platform>Win32</Platform>
-    </ProjectConfiguration>
-    <ProjectConfiguration Include="PatchableRelease|Win32">
-      <Configuration>PatchableRelease</Configuration>
-      <Platform>Win32</Platform>
-    </ProjectConfiguration>
-    <ProjectConfiguration Include="PatchableRelease|x64">
-      <Configuration>PatchableRelease</Configuration>
-      <Platform>x64</Platform>
-    </ProjectConfiguration>
-    <ProjectConfiguration Include="Release|Win32">
-      <Configuration>Release</Configuration>
-      <Platform>Win32</Platform>
-    </ProjectConfiguration>
-    <ProjectConfiguration Include="Debug|x64">
-      <Configuration>Debug</Configuration>
-      <Platform>x64</Platform>
-    </ProjectConfiguration>
-    <ProjectConfiguration Include="Release|x64">
-      <Configuration>Release</Configuration>
-      <Platform>x64</Platform>
-    </ProjectConfiguration>
-  </ItemGroup>
-  <PropertyGroup Label="Globals">
-    <VCProjectVersion>16.0</VCProjectVersion>
-    <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{2c6018e5-c9fa-4de3-91f9-9df55d517e23}</ProjectGuid>
-    <RootNamespace>cmania</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
-  </PropertyGroup>
-  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
-    <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
-    <CharacterSet>Unicode</CharacterSet>
-    <EnableASAN>
-    </EnableASAN>
-    <EnableFuzzer>
-    </EnableFuzzer>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
-    <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
-    <WholeProgramOptimization>true</WholeProgramOptimization>
-    <CharacterSet>Unicode</CharacterSet>
-    <EnableASAN>
-    </EnableASAN>
-    <EnableFuzzer>
-    </EnableFuzzer>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='PatchableRelease|Win32'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
-    <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
-    <WholeProgramOptimization>true</WholeProgramOptimization>
-    <CharacterSet>Unicode</CharacterSet>
-    <EnableASAN>
-    </EnableASAN>
-    <EnableFuzzer>
-    </EnableFuzzer>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
-    <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
-    <CharacterSet>Unicode</CharacterSet>
-    <EnableASAN>
-    </EnableASAN>
-    <EnableFuzzer>
-    </EnableFuzzer>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
-    <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
-    <WholeProgramOptimization>true</WholeProgramOptimization>
-    <CharacterSet>Unicode</CharacterSet>
-    <EnableASAN>
-    </EnableASAN>
-    <EnableFuzzer>
-    </EnableFuzzer>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='PatchableRelease|x64'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
-    <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
-    <WholeProgramOptimization>true</WholeProgramOptimization>
-    <CharacterSet>Unicode</CharacterSet>
-    <EnableASAN>
-    </EnableASAN>
-    <EnableFuzzer>
-    </EnableFuzzer>
-  </PropertyGroup>
-  <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='ClangRelease|Win32'">
-    <PlatformToolset>ClangCL</PlatformToolset>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ClangLinuxRelease|Win32'" Label="Configuration">
-    <PlatformToolset>ClangCL</PlatformToolset>
-  </PropertyGroup>
-  <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='ClangRelease|x64'">
-    <PlatformToolset>ClangCL</PlatformToolset>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ClangLinuxRelease|x64'" Label="Configuration">
-    <PlatformToolset>ClangCL</PlatformToolset>
-  </PropertyGroup>
-  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
-  <ImportGroup Label="ExtensionSettings">
-  </ImportGroup>
-  <ImportGroup Label="Shared">
-  </ImportGroup>
-  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-  </ImportGroup>
-  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-  </ImportGroup>
-  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='PatchableRelease|Win32'" Label="PropertySheets">
-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-  </ImportGroup>
-  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-  </ImportGroup>
-  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-  </ImportGroup>
-  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='PatchableRelease|x64'" Label="PropertySheets">
-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-  </ImportGroup>
-  <PropertyGroup Label="UserMacros" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <CopyCppRuntimeToOutputDir>true</CopyCppRuntimeToOutputDir>
-    <CopyLocalProjectReference>true</CopyLocalProjectReference>
-    <CopyLocalDebugSymbols>true</CopyLocalDebugSymbols>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='PatchableRelease|Win32'">
-    <CopyCppRuntimeToOutputDir>true</CopyCppRuntimeToOutputDir>
-    <CopyLocalProjectReference>true</CopyLocalProjectReference>
-    <CopyLocalDebugSymbols>true</CopyLocalDebugSymbols>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <CopyCppRuntimeToOutputDir>true</CopyCppRuntimeToOutputDir>
-    <CopyLocalProjectReference>true</CopyLocalProjectReference>
-    <CopyLocalDebugSymbols>true</CopyLocalDebugSymbols>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <CopyCppRuntimeToOutputDir>true</CopyCppRuntimeToOutputDir>
-    <CopyLocalProjectReference>true</CopyLocalProjectReference>
-    <CopyLocalDebugSymbols>true</CopyLocalDebugSymbols>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='PatchableRelease|x64'">
-    <CopyCppRuntimeToOutputDir>true</CopyCppRuntimeToOutputDir>
-    <CopyLocalProjectReference>true</CopyLocalProjectReference>
-    <CopyLocalDebugSymbols>true</CopyLocalDebugSymbols>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <CopyCppRuntimeToOutputDir>true</CopyCppRuntimeToOutputDir>
-    <CopyLocalProjectReference>true</CopyLocalProjectReference>
-    <CopyLocalDebugSymbols>true</CopyLocalDebugSymbols>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ClangRelease|Win32'" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ClangLinuxRelease|Win32'" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ClangRelease|x64'" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ClangLinuxRelease|x64'">
-    <IncludePath>$(IncludePath)</IncludePath>
-  </PropertyGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <ClCompile>
-      <WarningLevel>Level1</WarningLevel>
-      <SDLCheck>false</SDLCheck>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <ConformanceMode>true</ConformanceMode>
-      <LanguageStandard>stdcpp20</LanguageStandard>
-      <LanguageStandard_C>stdc17</LanguageStandard_C>
-      <AdditionalOptions>/execution-charset:utf-8 %(AdditionalOptions)</AdditionalOptions>
-      <EnableModules>false</EnableModules>
-      <BuildStlModules>false</BuildStlModules>
-      <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <ScanSourceForModuleDependencies>false</ScanSourceForModuleDependencies>
-      <ExceptionHandling>Async</ExceptionHandling>
-      <DiagnosticsFormat>Caret</DiagnosticsFormat>
-    </ClCompile>
-    <Link>
-      <SubSystem>Console</SubSystem>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
-    </Link>
-    <PreBuildEvent>
-      <Command>powershell $(ProjectDir)GitInfo.ps1</Command>
-    </PreBuildEvent>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <ClCompile>
-      <WarningLevel>Level1</WarningLevel>
-      <FunctionLevelLinking>true</FunctionLevelLinking>
-      <IntrinsicFunctions>true</IntrinsicFunctions>
-      <SDLCheck>false</SDLCheck>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <ConformanceMode>true</ConformanceMode>
-      <LanguageStandard>stdcpp20</LanguageStandard>
-      <LanguageStandard_C>stdc17</LanguageStandard_C>
-      <AdditionalOptions>/execution-charset:utf-8 %(AdditionalOptions)</AdditionalOptions>
-      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <Optimization>MinSpace</Optimization>
-      <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <ScanSourceForModuleDependencies>false</ScanSourceForModuleDependencies>
-      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
-      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
-      <ExceptionHandling>Async</ExceptionHandling>
-      <DiagnosticsFormat>Caret</DiagnosticsFormat>
-    </ClCompile>
-    <Link>
-      <SubSystem>Console</SubSystem>
-      <EnableCOMDATFolding>true</EnableCOMDATFolding>
-      <OptimizeReferences>true</OptimizeReferences>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
-    </Link>
-    <PreBuildEvent>
-      <Command>powershell $(ProjectDir)GitInfo.ps1</Command>
-    </PreBuildEvent>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='PatchableRelease|Win32'">
-    <ClCompile>
-      <WarningLevel>Level1</WarningLevel>
-      <FunctionLevelLinking>true</FunctionLevelLinking>
-      <IntrinsicFunctions>true</IntrinsicFunctions>
-      <SDLCheck>false</SDLCheck>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <ConformanceMode>true</ConformanceMode>
-      <LanguageStandard>stdcpp20</LanguageStandard>
-      <LanguageStandard_C>stdc17</LanguageStandard_C>
-      <AdditionalOptions>/execution-charset:utf-8 %(AdditionalOptions)</AdditionalOptions>
-      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
-      <WholeProgramOptimization>false</WholeProgramOptimization>
-      <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <ScanSourceForModuleDependencies>false</ScanSourceForModuleDependencies>
-      <ExceptionHandling>Async</ExceptionHandling>
-      <DiagnosticsFormat>Caret</DiagnosticsFormat>
-    </ClCompile>
-    <Link>
-      <SubSystem>Console</SubSystem>
-      <EnableCOMDATFolding>false</EnableCOMDATFolding>
-      <OptimizeReferences>false</OptimizeReferences>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
-      <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
-      <AdditionalOptions>/EDITANDCONTINUE %(AdditionalOptions)</AdditionalOptions>
-    </Link>
-    <PreBuildEvent>
-      <Command>powershell $(ProjectDir)GitInfo.ps1</Command>
-    </PreBuildEvent>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <ClCompile>
-      <WarningLevel>Level1</WarningLevel>
-      <SDLCheck>false</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <ConformanceMode>true</ConformanceMode>
-      <LanguageStandard>stdcpp20</LanguageStandard>
-      <LanguageStandard_C>stdc17</LanguageStandard_C>
-      <AdditionalOptions>/execution-charset:utf-8 %(AdditionalOptions)</AdditionalOptions>
-      <EnableModules>false</EnableModules>
-      <BuildStlModules>false</BuildStlModules>
-      <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <ScanSourceForModuleDependencies>false</ScanSourceForModuleDependencies>
-      <ExceptionHandling>Async</ExceptionHandling>
-      <DiagnosticsFormat>Caret</DiagnosticsFormat>
-    </ClCompile>
-    <Link>
-      <SubSystem>Console</SubSystem>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
-    </Link>
-    <PreBuildEvent>
-      <Command>powershell $(ProjectDir)GitInfo.ps1</Command>
-    </PreBuildEvent>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <ClCompile>
-      <WarningLevel>Level1</WarningLevel>
-      <FunctionLevelLinking>true</FunctionLevelLinking>
-      <IntrinsicFunctions>true</IntrinsicFunctions>
-      <SDLCheck>false</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <ConformanceMode>true</ConformanceMode>
-      <LanguageStandard>stdcpp20</LanguageStandard>
-      <LanguageStandard_C>stdc17</LanguageStandard_C>
-      <AdditionalOptions>/execution-charset:utf-8 %(AdditionalOptions)</AdditionalOptions>
-      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <Optimization>MinSpace</Optimization>
-      <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <ScanSourceForModuleDependencies>false</ScanSourceForModuleDependencies>
-      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
-      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
-      <ExceptionHandling>Async</ExceptionHandling>
-      <DiagnosticsFormat>Caret</DiagnosticsFormat>
-    </ClCompile>
-    <Link>
-      <SubSystem>Console</SubSystem>
-      <EnableCOMDATFolding>true</EnableCOMDATFolding>
-      <OptimizeReferences>true</OptimizeReferences>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
-    </Link>
-    <PreBuildEvent>
-      <Command>powershell $(ProjectDir)GitInfo.ps1</Command>
-    </PreBuildEvent>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='PatchableRelease|x64'">
-    <ClCompile>
-      <WarningLevel>Level1</WarningLevel>
-      <FunctionLevelLinking>true</FunctionLevelLinking>
-      <IntrinsicFunctions>true</IntrinsicFunctions>
-      <SDLCheck>false</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <ConformanceMode>true</ConformanceMode>
-      <LanguageStandard>stdcpp20</LanguageStandard>
-      <LanguageStandard_C>stdc17</LanguageStandard_C>
-      <AdditionalOptions>/execution-charset:utf-8 %(AdditionalOptions)</AdditionalOptions>
-      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
-      <WholeProgramOptimization>false</WholeProgramOptimization>
-      <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <ScanSourceForModuleDependencies>false</ScanSourceForModuleDependencies>
-      <ExceptionHandling>Async</ExceptionHandling>
-      <DiagnosticsFormat>Caret</DiagnosticsFormat>
-    </ClCompile>
-    <Link>
-      <SubSystem>Console</SubSystem>
-      <EnableCOMDATFolding>false</EnableCOMDATFolding>
-      <OptimizeReferences>false</OptimizeReferences>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
-      <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
-      <AdditionalOptions>/EDITANDCONTINUE %(AdditionalOptions)</AdditionalOptions>
-    </Link>
-    <PreBuildEvent>
-      <Command>powershell $(ProjectDir)GitInfo.ps1</Command>
-    </PreBuildEvent>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ClangRelease|Win32'">
-    <ClCompile>
-      <LanguageStandard>stdcpplatest</LanguageStandard>
-      <AdditionalOptions>-mcrc32 %(AdditionalOptions)</AdditionalOptions>
-      <DiagnosticsFormat>Caret</DiagnosticsFormat>
-      <WarningLevel>Level1</WarningLevel>
-    </ClCompile>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ClangLinuxRelease|Win32'">
-    <ClCompile>
-      <LanguageStandard>stdcpplatest</LanguageStandard>
-      <AdditionalOptions>-mcrc32 %(AdditionalOptions)</AdditionalOptions>
-      <DiagnosticsFormat>Caret</DiagnosticsFormat>
-      <WarningLevel>Level1</WarningLevel>
-    </ClCompile>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ClangRelease|x64'">
-    <ClCompile>
-      <LanguageStandard>stdcpplatest</LanguageStandard>
-      <AdditionalOptions>-mcrc32 %(AdditionalOptions)</AdditionalOptions>
-      <DiagnosticsFormat>Caret</DiagnosticsFormat>
-      <WarningLevel>Level1</WarningLevel>
-    </ClCompile>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ClangLinuxRelease|x64'">
-    <ClCompile>
-      <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalOptions>-target x86_64-pc-linux-elf %(AdditionalOptions)</AdditionalOptions>
-      <DiagnosticsFormat>Caret</DiagnosticsFormat>
-      <WarningLevel>Level1</WarningLevel>
-    </ClCompile>
-  </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClCompile Include="BassAudioManager.cpp" />
-    <ClCompile Include="BeatmapDownloadingScreen.cpp" />
-    <ClCompile Include="BeatmapDownloadingService.cpp" />
-    <ClCompile Include="BeatmapManagementService.cpp" />
-    <ClCompile Include="BufferController.cpp" />
-    <ClCompile Include="CatchRuleset.cpp" />
-    <ClCompile Include="cmania.cpp" />
-    <ClCompile Include="ConsoleText.cpp" />
-    <ClCompile Include="Crc.cpp" />
-    <ClCompile Include="File.cpp" />
-    <ClCompile Include="FpsOverlay.cpp" />
-    <ClCompile Include="GameBuffer.cpp" />
-    <ClCompile Include="GameplayScreen.cpp" />
-    <ClCompile Include="Hpet.cpp" />
-    <ClCompile Include="KeepAwake.cpp" />
-    <ClCompile Include="KeyBinds.cpp" />
-    <ClCompile Include="LogOverlay.cpp" />
-    <ClCompile Include="MainMenuScreen.cpp" />
-    <ClCompile Include="OpenFileDialog.cpp" />
-    <ClCompile Include="OsuBeatmap.cpp" />
-    <ClCompile Include="ResultScreen.cpp" />
-    <ClCompile Include="RulesetManager.cpp" />
-    <ClCompile Include="ScoreSubmition.cpp" />
-    <ClCompile Include="SettingsScreen.cpp" />
-    <ClCompile Include="simdjson.cpp" />
-    <ClCompile Include="SongSelectScreen.cpp" />
-    <ClCompile Include="SpeedSettingScreen.cpp" />
-    <ClCompile Include="stb.c" />
-    <ClCompile Include="StdRuleset.cpp" />
-    <ClCompile Include="TaikoRuleset.cpp" />
-    <ClCompile Include="TickSource.cpp" />
-    <ClCompile Include="Win32ConsoleComponent.cpp" />
-    <ClCompile Include="ManiaRuleset.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="Animator.h" />
-    <ClInclude Include="BackgroundComponent.h" />
-    <ClInclude Include="Beatmap.h" />
-    <ClInclude Include="BeatmapDownloadingService.h" />
-    <ClInclude Include="CatchRuleset.h" />
-    <ClInclude Include="ConsoleInputHandler.h" />
-    <ClInclude Include="Crc.h" />
-    <ClInclude Include="Defines.h" />
-    <ClInclude Include="Game.h" />
-    <ClInclude Include="GameBuffer.h" />
-    <ClInclude Include="git_info.h" />
-    <ClInclude Include="HitObject.h" />
-    <ClInclude Include="InputEvent.h" />
-    <ClInclude Include="InputHandler.h" />
-    <ClInclude Include="KeyBinds.h" />
-    <ClInclude Include="Label.h" />
-    <ClInclude Include="Linq.h" />
-    <ClInclude Include="AudioManager.h" />
-    <ClInclude Include="BeatmapManagementService.h" />
-    <ClInclude Include="BufferController.h" />
-    <ClInclude Include="ConsoleInput.h" />
-    <ClInclude Include="ConsoleText.h" />
-    <ClInclude Include="EnumFlag.h" />
-    <ClInclude Include="BassAudioManager.h" />
-    <ClInclude Include="File.h" />
-    <ClInclude Include="FpsOverlay.h" />
-    <ClInclude Include="GameplayScreen.h" />
-    <ClInclude Include="Hpet.h" />
-    <ClInclude Include="KeepAwake.h" />
-    <ClInclude Include="Localization.h" />
-    <ClInclude Include="LogOverlay.h" />
-    <ClInclude Include="MainMenuScreen.h" />
-    <ClInclude Include="ManiaObject.h" />
-    <ClInclude Include="ManiaRuleset.h" />
-    <ClInclude Include="ManiaScoreProcessor.h" />
-    <ClInclude Include="OpenFileDialog.h" />
-    <ClInclude Include="OsuBeatmap.h" />
-    <ClInclude Include="OsuMods.h" />
-    <ClInclude Include="OsuSample.h" />
-    <ClInclude Include="OsuStatic.h" />
-    <ClInclude Include="Path.h" />
-    <ClInclude Include="Platform.hpp" />
-    <ClInclude Include="Record.h" />
-    <ClInclude Include="RecordInputHandler.h" />
-    <ClInclude Include="ResultScreen.h" />
-    <ClInclude Include="Gameplay.h" />
-    <ClInclude Include="Ruleset.h" />
-    <ClInclude Include="RulesetManager.h" />
-    <ClInclude Include="ScoreProcessor.h" />
-    <ClInclude Include="ScreenController.h" />
-    <ClInclude Include="SettingsScreen.h" />
-    <ClInclude Include="SettingStorage.h" />
-    <ClInclude Include="simdjson.h" />
-    <ClInclude Include="SongSelectScreen.h" />
-    <ClInclude Include="SpeedSettingScreen.h" />
-    <ClInclude Include="StbImage.h" />
-    <ClInclude Include="stb_image.h" />
-    <ClInclude Include="stb_image_resize.h" />
-    <ClInclude Include="StdObject.h" />
-    <ClInclude Include="StdRuleset.h" />
-    <ClInclude Include="StdScoreProcessor.h" />
-    <ClInclude Include="Stopwatch.h" />
-    <ClInclude Include="String.h" />
-    <ClInclude Include="TaikoObject.h" />
-    <ClInclude Include="TaikoRuleset.h" />
-    <ClInclude Include="TaikoScoreProcessor.h" />
-    <ClInclude Include="TickSource.h" />
-    <ClInclude Include="Unicode.h" />
-    <ClInclude Include="Win32ConsoleComponent.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include=".clang-format" />
-    <None Include="GitInfo.ps1" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="GitInfo.sh" />
-    <None Include="packages.config" />
-  </ItemGroup>
-  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
-  <ImportGroup Label="ExtensionTargets">
-    <Import Project="..\packages\BASS.redist.2.4.12.1\build\native\BASS.redist.targets" Condition="Exists('..\packages\BASS.redist.2.4.12.1\build\native\BASS.redist.targets')" />
-    <Import Project="..\packages\BASS.2.4.12.1\build\native\BASS.targets" Condition="Exists('..\packages\BASS.2.4.12.1\build\native\BASS.targets')" />
-  </ImportGroup>
-  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
-    <PropertyGroup>
-      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
-    </PropertyGroup>
-    <Error Condition="!Exists('..\packages\BASS.redist.2.4.12.1\build\native\BASS.redist.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\BASS.redist.2.4.12.1\build\native\BASS.redist.targets'))" />
-    <Error Condition="!Exists('..\packages\BASS.2.4.12.1\build\native\BASS.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\BASS.2.4.12.1\build\native\BASS.targets'))" />
-  </Target>
+	<ItemGroup Label="ProjectConfigurations">
+		<ProjectConfiguration Include="ClangLinuxRelease|Win32">
+			<Configuration>ClangLinuxRelease</Configuration>
+			<Platform>Win32</Platform>
+		</ProjectConfiguration>
+		<ProjectConfiguration Include="ClangLinuxRelease|x64">
+			<Configuration>ClangLinuxRelease</Configuration>
+			<Platform>x64</Platform>
+		</ProjectConfiguration>
+		<ProjectConfiguration Include="ClangRelease|Win32">
+			<Configuration>ClangRelease</Configuration>
+			<Platform>Win32</Platform>
+		</ProjectConfiguration>
+		<ProjectConfiguration Include="ClangRelease|x64">
+			<Configuration>ClangRelease</Configuration>
+			<Platform>x64</Platform>
+		</ProjectConfiguration>
+		<ProjectConfiguration Include="Debug|Win32">
+			<Configuration>Debug</Configuration>
+			<Platform>Win32</Platform>
+		</ProjectConfiguration>
+		<ProjectConfiguration Include="PatchableRelease|Win32">
+			<Configuration>PatchableRelease</Configuration>
+			<Platform>Win32</Platform>
+		</ProjectConfiguration>
+		<ProjectConfiguration Include="PatchableRelease|x64">
+			<Configuration>PatchableRelease</Configuration>
+			<Platform>x64</Platform>
+		</ProjectConfiguration>
+		<ProjectConfiguration Include="Release|Win32">
+			<Configuration>Release</Configuration>
+			<Platform>Win32</Platform>
+		</ProjectConfiguration>
+		<ProjectConfiguration Include="Debug|x64">
+			<Configuration>Debug</Configuration>
+			<Platform>x64</Platform>
+		</ProjectConfiguration>
+		<ProjectConfiguration Include="Release|x64">
+			<Configuration>Release</Configuration>
+			<Platform>x64</Platform>
+		</ProjectConfiguration>
+	</ItemGroup>
+	<PropertyGroup Label="Globals">
+		<VCProjectVersion>16.0</VCProjectVersion>
+		<Keyword>Win32Proj</Keyword>
+		<ProjectGuid>{2c6018e5-c9fa-4de3-91f9-9df55d517e23}</ProjectGuid>
+		<RootNamespace>cmania</RootNamespace>
+		<WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+	</PropertyGroup>
+	<Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+		<ConfigurationType>Application</ConfigurationType>
+		<UseDebugLibraries>true</UseDebugLibraries>
+		<PlatformToolset>v143</PlatformToolset>
+		<CharacterSet>Unicode</CharacterSet>
+		<EnableASAN>
+		</EnableASAN>
+		<EnableFuzzer>
+		</EnableFuzzer>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+		<ConfigurationType>Application</ConfigurationType>
+		<UseDebugLibraries>false</UseDebugLibraries>
+		<PlatformToolset>v143</PlatformToolset>
+		<WholeProgramOptimization>true</WholeProgramOptimization>
+		<CharacterSet>Unicode</CharacterSet>
+		<EnableASAN>
+		</EnableASAN>
+		<EnableFuzzer>
+		</EnableFuzzer>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='PatchableRelease|Win32'" Label="Configuration">
+		<ConfigurationType>Application</ConfigurationType>
+		<UseDebugLibraries>false</UseDebugLibraries>
+		<PlatformToolset>v143</PlatformToolset>
+		<WholeProgramOptimization>true</WholeProgramOptimization>
+		<CharacterSet>Unicode</CharacterSet>
+		<EnableASAN>
+		</EnableASAN>
+		<EnableFuzzer>
+		</EnableFuzzer>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+		<ConfigurationType>Application</ConfigurationType>
+		<UseDebugLibraries>true</UseDebugLibraries>
+		<PlatformToolset>v143</PlatformToolset>
+		<CharacterSet>Unicode</CharacterSet>
+		<EnableASAN>
+		</EnableASAN>
+		<EnableFuzzer>
+		</EnableFuzzer>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+		<ConfigurationType>Application</ConfigurationType>
+		<UseDebugLibraries>false</UseDebugLibraries>
+		<PlatformToolset>v143</PlatformToolset>
+		<WholeProgramOptimization>true</WholeProgramOptimization>
+		<CharacterSet>Unicode</CharacterSet>
+		<EnableASAN>
+		</EnableASAN>
+		<EnableFuzzer>
+		</EnableFuzzer>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='PatchableRelease|x64'" Label="Configuration">
+		<ConfigurationType>Application</ConfigurationType>
+		<UseDebugLibraries>false</UseDebugLibraries>
+		<PlatformToolset>v143</PlatformToolset>
+		<WholeProgramOptimization>true</WholeProgramOptimization>
+		<CharacterSet>Unicode</CharacterSet>
+		<EnableASAN>
+		</EnableASAN>
+		<EnableFuzzer>
+		</EnableFuzzer>
+	</PropertyGroup>
+	<PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='ClangRelease|Win32'">
+		<PlatformToolset>ClangCL</PlatformToolset>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ClangLinuxRelease|Win32'" Label="Configuration">
+		<PlatformToolset>ClangCL</PlatformToolset>
+	</PropertyGroup>
+	<PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='ClangRelease|x64'">
+		<PlatformToolset>ClangCL</PlatformToolset>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ClangLinuxRelease|x64'" Label="Configuration">
+		<PlatformToolset>ClangCL</PlatformToolset>
+	</PropertyGroup>
+	<Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+	<ImportGroup Label="ExtensionSettings">
+	</ImportGroup>
+	<ImportGroup Label="Shared">
+	</ImportGroup>
+	<ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+		<Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+	</ImportGroup>
+	<ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+		<Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+	</ImportGroup>
+	<ImportGroup Condition="'$(Configuration)|$(Platform)'=='PatchableRelease|Win32'" Label="PropertySheets">
+		<Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+	</ImportGroup>
+	<ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+		<Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+	</ImportGroup>
+	<ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+		<Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+	</ImportGroup>
+	<ImportGroup Condition="'$(Configuration)|$(Platform)'=='PatchableRelease|x64'" Label="PropertySheets">
+		<Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+	</ImportGroup>
+	<PropertyGroup Label="UserMacros" />
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+		<CopyCppRuntimeToOutputDir>true</CopyCppRuntimeToOutputDir>
+		<CopyLocalProjectReference>true</CopyLocalProjectReference>
+		<CopyLocalDebugSymbols>true</CopyLocalDebugSymbols>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='PatchableRelease|Win32'">
+		<CopyCppRuntimeToOutputDir>true</CopyCppRuntimeToOutputDir>
+		<CopyLocalProjectReference>true</CopyLocalProjectReference>
+		<CopyLocalDebugSymbols>true</CopyLocalDebugSymbols>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+		<CopyCppRuntimeToOutputDir>true</CopyCppRuntimeToOutputDir>
+		<CopyLocalProjectReference>true</CopyLocalProjectReference>
+		<CopyLocalDebugSymbols>true</CopyLocalDebugSymbols>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+		<CopyCppRuntimeToOutputDir>true</CopyCppRuntimeToOutputDir>
+		<CopyLocalProjectReference>true</CopyLocalProjectReference>
+		<CopyLocalDebugSymbols>true</CopyLocalDebugSymbols>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='PatchableRelease|x64'">
+		<CopyCppRuntimeToOutputDir>true</CopyCppRuntimeToOutputDir>
+		<CopyLocalProjectReference>true</CopyLocalProjectReference>
+		<CopyLocalDebugSymbols>true</CopyLocalDebugSymbols>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+		<CopyCppRuntimeToOutputDir>true</CopyCppRuntimeToOutputDir>
+		<CopyLocalProjectReference>true</CopyLocalProjectReference>
+		<CopyLocalDebugSymbols>true</CopyLocalDebugSymbols>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ClangRelease|Win32'" />
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ClangLinuxRelease|Win32'" />
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ClangRelease|x64'" />
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ClangLinuxRelease|x64'">
+		<IncludePath>$(IncludePath)</IncludePath>
+	</PropertyGroup>
+	<ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+		<ClCompile>
+			<WarningLevel>Level1</WarningLevel>
+			<SDLCheck>false</SDLCheck>
+			<PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+			<ConformanceMode>true</ConformanceMode>
+			<LanguageStandard>stdcpp20</LanguageStandard>
+			<LanguageStandard_C>stdc17</LanguageStandard_C>
+			<AdditionalOptions>/execution-charset:utf-8 %(AdditionalOptions)</AdditionalOptions>
+			<EnableModules>false</EnableModules>
+			<BuildStlModules>false</BuildStlModules>
+			<MultiProcessorCompilation>true</MultiProcessorCompilation>
+			<ScanSourceForModuleDependencies>false</ScanSourceForModuleDependencies>
+			<ExceptionHandling>Async</ExceptionHandling>
+			<DiagnosticsFormat>Caret</DiagnosticsFormat>
+		</ClCompile>
+		<Link>
+			<SubSystem>Console</SubSystem>
+			<GenerateDebugInformation>true</GenerateDebugInformation>
+		</Link>
+		<PreBuildEvent>
+			<Command>powershell $(ProjectDir)GitInfo.ps1</Command>
+		</PreBuildEvent>
+	</ItemDefinitionGroup>
+	<ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+		<ClCompile>
+			<WarningLevel>Level1</WarningLevel>
+			<FunctionLevelLinking>true</FunctionLevelLinking>
+			<IntrinsicFunctions>true</IntrinsicFunctions>
+			<SDLCheck>false</SDLCheck>
+			<PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+			<ConformanceMode>true</ConformanceMode>
+			<LanguageStandard>stdcpp20</LanguageStandard>
+			<LanguageStandard_C>stdc17</LanguageStandard_C>
+			<AdditionalOptions>/execution-charset:utf-8 %(AdditionalOptions)</AdditionalOptions>
+			<DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+			<Optimization>MinSpace</Optimization>
+			<MultiProcessorCompilation>true</MultiProcessorCompilation>
+			<ScanSourceForModuleDependencies>false</ScanSourceForModuleDependencies>
+			<InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+			<FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+			<ExceptionHandling>Async</ExceptionHandling>
+			<DiagnosticsFormat>Caret</DiagnosticsFormat>
+		</ClCompile>
+		<Link>
+			<SubSystem>Console</SubSystem>
+			<EnableCOMDATFolding>true</EnableCOMDATFolding>
+			<OptimizeReferences>true</OptimizeReferences>
+			<GenerateDebugInformation>true</GenerateDebugInformation>
+		</Link>
+		<PreBuildEvent>
+			<Command>powershell $(ProjectDir)GitInfo.ps1</Command>
+		</PreBuildEvent>
+	</ItemDefinitionGroup>
+	<ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='PatchableRelease|Win32'">
+		<ClCompile>
+			<WarningLevel>Level1</WarningLevel>
+			<FunctionLevelLinking>true</FunctionLevelLinking>
+			<IntrinsicFunctions>true</IntrinsicFunctions>
+			<SDLCheck>false</SDLCheck>
+			<PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+			<ConformanceMode>true</ConformanceMode>
+			<LanguageStandard>stdcpp20</LanguageStandard>
+			<LanguageStandard_C>stdc17</LanguageStandard_C>
+			<AdditionalOptions>/execution-charset:utf-8 %(AdditionalOptions)</AdditionalOptions>
+			<DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+			<WholeProgramOptimization>false</WholeProgramOptimization>
+			<MultiProcessorCompilation>true</MultiProcessorCompilation>
+			<ScanSourceForModuleDependencies>false</ScanSourceForModuleDependencies>
+			<ExceptionHandling>Async</ExceptionHandling>
+			<DiagnosticsFormat>Caret</DiagnosticsFormat>
+		</ClCompile>
+		<Link>
+			<SubSystem>Console</SubSystem>
+			<EnableCOMDATFolding>false</EnableCOMDATFolding>
+			<OptimizeReferences>false</OptimizeReferences>
+			<GenerateDebugInformation>true</GenerateDebugInformation>
+			<LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
+			<AdditionalOptions>/EDITANDCONTINUE %(AdditionalOptions)</AdditionalOptions>
+		</Link>
+		<PreBuildEvent>
+			<Command>powershell $(ProjectDir)GitInfo.ps1</Command>
+		</PreBuildEvent>
+	</ItemDefinitionGroup>
+	<ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+		<ClCompile>
+			<WarningLevel>Level1</WarningLevel>
+			<SDLCheck>false</SDLCheck>
+			<PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+			<ConformanceMode>true</ConformanceMode>
+			<LanguageStandard>stdcpp20</LanguageStandard>
+			<LanguageStandard_C>stdc17</LanguageStandard_C>
+			<AdditionalOptions>/execution-charset:utf-8 %(AdditionalOptions)</AdditionalOptions>
+			<EnableModules>false</EnableModules>
+			<BuildStlModules>false</BuildStlModules>
+			<MultiProcessorCompilation>true</MultiProcessorCompilation>
+			<ScanSourceForModuleDependencies>false</ScanSourceForModuleDependencies>
+			<ExceptionHandling>Async</ExceptionHandling>
+			<DiagnosticsFormat>Caret</DiagnosticsFormat>
+		</ClCompile>
+		<Link>
+			<SubSystem>Console</SubSystem>
+			<GenerateDebugInformation>true</GenerateDebugInformation>
+		</Link>
+		<PreBuildEvent>
+			<Command>powershell $(ProjectDir)GitInfo.ps1</Command>
+		</PreBuildEvent>
+	</ItemDefinitionGroup>
+	<ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+		<ClCompile>
+			<WarningLevel>Level1</WarningLevel>
+			<FunctionLevelLinking>true</FunctionLevelLinking>
+			<IntrinsicFunctions>true</IntrinsicFunctions>
+			<SDLCheck>false</SDLCheck>
+			<PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+			<ConformanceMode>true</ConformanceMode>
+			<LanguageStandard>stdcpp20</LanguageStandard>
+			<LanguageStandard_C>stdc17</LanguageStandard_C>
+			<AdditionalOptions>/execution-charset:utf-8 %(AdditionalOptions)</AdditionalOptions>
+			<DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+			<Optimization>MinSpace</Optimization>
+			<MultiProcessorCompilation>true</MultiProcessorCompilation>
+			<ScanSourceForModuleDependencies>false</ScanSourceForModuleDependencies>
+			<InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+			<FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+			<ExceptionHandling>Async</ExceptionHandling>
+			<DiagnosticsFormat>Caret</DiagnosticsFormat>
+		</ClCompile>
+		<Link>
+			<SubSystem>Console</SubSystem>
+			<EnableCOMDATFolding>true</EnableCOMDATFolding>
+			<OptimizeReferences>true</OptimizeReferences>
+			<GenerateDebugInformation>true</GenerateDebugInformation>
+		</Link>
+		<PreBuildEvent>
+			<Command>powershell $(ProjectDir)GitInfo.ps1</Command>
+		</PreBuildEvent>
+	</ItemDefinitionGroup>
+	<ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='PatchableRelease|x64'">
+		<ClCompile>
+			<WarningLevel>Level1</WarningLevel>
+			<FunctionLevelLinking>true</FunctionLevelLinking>
+			<IntrinsicFunctions>true</IntrinsicFunctions>
+			<SDLCheck>false</SDLCheck>
+			<PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+			<ConformanceMode>true</ConformanceMode>
+			<LanguageStandard>stdcpp20</LanguageStandard>
+			<LanguageStandard_C>stdc17</LanguageStandard_C>
+			<AdditionalOptions>/execution-charset:utf-8 %(AdditionalOptions)</AdditionalOptions>
+			<DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+			<WholeProgramOptimization>false</WholeProgramOptimization>
+			<MultiProcessorCompilation>true</MultiProcessorCompilation>
+			<ScanSourceForModuleDependencies>false</ScanSourceForModuleDependencies>
+			<ExceptionHandling>Async</ExceptionHandling>
+			<DiagnosticsFormat>Caret</DiagnosticsFormat>
+		</ClCompile>
+		<Link>
+			<SubSystem>Console</SubSystem>
+			<EnableCOMDATFolding>false</EnableCOMDATFolding>
+			<OptimizeReferences>false</OptimizeReferences>
+			<GenerateDebugInformation>true</GenerateDebugInformation>
+			<LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
+			<AdditionalOptions>/EDITANDCONTINUE %(AdditionalOptions)</AdditionalOptions>
+		</Link>
+		<PreBuildEvent>
+			<Command>powershell $(ProjectDir)GitInfo.ps1</Command>
+		</PreBuildEvent>
+	</ItemDefinitionGroup>
+	<ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ClangRelease|Win32'">
+		<ClCompile>
+			<LanguageStandard>stdcpplatest</LanguageStandard>
+			<AdditionalOptions>-mcrc32 %(AdditionalOptions)</AdditionalOptions>
+			<DiagnosticsFormat>Caret</DiagnosticsFormat>
+			<WarningLevel>Level1</WarningLevel>
+		</ClCompile>
+	</ItemDefinitionGroup>
+	<ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ClangLinuxRelease|Win32'">
+		<ClCompile>
+			<LanguageStandard>stdcpplatest</LanguageStandard>
+			<AdditionalOptions>-mcrc32 %(AdditionalOptions)</AdditionalOptions>
+			<DiagnosticsFormat>Caret</DiagnosticsFormat>
+			<WarningLevel>Level1</WarningLevel>
+		</ClCompile>
+	</ItemDefinitionGroup>
+	<ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ClangRelease|x64'">
+		<ClCompile>
+			<LanguageStandard>stdcpplatest</LanguageStandard>
+			<AdditionalOptions>-mcrc32 %(AdditionalOptions)</AdditionalOptions>
+			<DiagnosticsFormat>Caret</DiagnosticsFormat>
+			<WarningLevel>Level1</WarningLevel>
+		</ClCompile>
+	</ItemDefinitionGroup>
+	<ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ClangLinuxRelease|x64'">
+		<ClCompile>
+			<LanguageStandard>stdcpp20</LanguageStandard>
+			<AdditionalOptions>-target x86_64-pc-linux-elf %(AdditionalOptions)</AdditionalOptions>
+			<DiagnosticsFormat>Caret</DiagnosticsFormat>
+			<WarningLevel>Level1</WarningLevel>
+		</ClCompile>
+	</ItemDefinitionGroup>
+	<ItemGroup>
+		<ClCompile Include="BassAudioManager.cpp" />
+		<ClCompile Include="BeatmapDownloadingScreen.cpp" />
+		<ClCompile Include="BeatmapDownloadingService.cpp" />
+		<ClCompile Include="BeatmapManagementService.cpp" />
+		<ClCompile Include="BufferController.cpp" />
+		<ClCompile Include="CatchRuleset.cpp" />
+		<ClCompile Include="cmania.cpp" />
+		<ClCompile Include="ConsoleText.cpp" />
+		<ClCompile Include="Crc.cpp" />
+		<ClCompile Include="File.cpp" />
+		<ClCompile Include="FpsOverlay.cpp" />
+		<ClCompile Include="GameBuffer.cpp" />
+		<ClCompile Include="GameplayScreen.cpp" />
+		<ClCompile Include="Hpet.cpp" />
+		<ClCompile Include="KeepAwake.cpp" />
+		<ClCompile Include="KeyBinds.cpp" />
+		<ClCompile Include="LogOverlay.cpp" />
+		<ClCompile Include="MainMenuScreen.cpp" />
+		<ClCompile Include="OpenFileDialog.cpp" />
+		<ClCompile Include="OsuBeatmap.cpp" />
+		<ClCompile Include="ResultScreen.cpp" />
+		<ClCompile Include="RulesetManager.cpp" />
+		<ClCompile Include="ScoreSubmition.cpp" />
+		<ClCompile Include="SettingsScreen.cpp" />
+		<ClCompile Include="SongSelectScreen.cpp" />
+		<ClCompile Include="SpeedSettingScreen.cpp" />
+		<ClCompile Include="stb.c" />
+		<ClCompile Include="StdRuleset.cpp" />
+		<ClCompile Include="TaikoRuleset.cpp" />
+		<ClCompile Include="TickSource.cpp" />
+		<ClCompile Include="Win32ConsoleComponent.cpp" />
+		<ClCompile Include="ManiaRuleset.cpp" />
+	</ItemGroup>
+	<ItemGroup>
+		<ClInclude Include="Animator.h" />
+		<ClInclude Include="BackgroundComponent.h" />
+		<ClInclude Include="Beatmap.h" />
+		<ClInclude Include="BeatmapDownloadingService.h" />
+		<ClInclude Include="CatchRuleset.h" />
+		<ClInclude Include="ConsoleInputHandler.h" />
+		<ClInclude Include="Crc.h" />
+		<ClInclude Include="Defines.h" />
+		<ClInclude Include="Game.h" />
+		<ClInclude Include="GameBuffer.h" />
+		<ClInclude Include="git_info.h" />
+		<ClInclude Include="HitObject.h" />
+		<ClInclude Include="InputEvent.h" />
+		<ClInclude Include="InputHandler.h" />
+		<ClInclude Include="KeyBinds.h" />
+		<ClInclude Include="Label.h" />
+		<ClInclude Include="Linq.h" />
+		<ClInclude Include="AudioManager.h" />
+		<ClInclude Include="BeatmapManagementService.h" />
+		<ClInclude Include="BufferController.h" />
+		<ClInclude Include="ConsoleInput.h" />
+		<ClInclude Include="ConsoleText.h" />
+		<ClInclude Include="EnumFlag.h" />
+		<ClInclude Include="BassAudioManager.h" />
+		<ClInclude Include="File.h" />
+		<ClInclude Include="FpsOverlay.h" />
+		<ClInclude Include="GameplayScreen.h" />
+		<ClInclude Include="Hpet.h" />
+		<ClInclude Include="KeepAwake.h" />
+		<ClInclude Include="Localization.h" />
+		<ClInclude Include="LogOverlay.h" />
+		<ClInclude Include="MainMenuScreen.h" />
+		<ClInclude Include="ManiaObject.h" />
+		<ClInclude Include="ManiaRuleset.h" />
+		<ClInclude Include="ManiaScoreProcessor.h" />
+		<ClInclude Include="OpenFileDialog.h" />
+		<ClInclude Include="OsuBeatmap.h" />
+		<ClInclude Include="OsuMods.h" />
+		<ClInclude Include="OsuSample.h" />
+		<ClInclude Include="OsuStatic.h" />
+		<ClInclude Include="Path.h" />
+		<ClInclude Include="Platform.hpp" />
+		<ClInclude Include="Record.h" />
+		<ClInclude Include="RecordInputHandler.h" />
+		<ClInclude Include="ResultScreen.h" />
+		<ClInclude Include="Gameplay.h" />
+		<ClInclude Include="Ruleset.h" />
+		<ClInclude Include="RulesetManager.h" />
+		<ClInclude Include="ScoreProcessor.h" />
+		<ClInclude Include="ScreenController.h" />
+		<ClInclude Include="SettingsScreen.h" />
+		<ClInclude Include="SettingStorage.h" />
+		<ClInclude Include="SongSelectScreen.h" />
+		<ClInclude Include="SpeedSettingScreen.h" />
+		<ClInclude Include="StbImage.h" />
+		<ClInclude Include="stb_image.h" />
+		<ClInclude Include="stb_image_resize.h" />
+		<ClInclude Include="StdObject.h" />
+		<ClInclude Include="StdRuleset.h" />
+		<ClInclude Include="StdScoreProcessor.h" />
+		<ClInclude Include="Stopwatch.h" />
+		<ClInclude Include="String.h" />
+		<ClInclude Include="TaikoObject.h" />
+		<ClInclude Include="TaikoRuleset.h" />
+		<ClInclude Include="TaikoScoreProcessor.h" />
+		<ClInclude Include="TickSource.h" />
+		<ClInclude Include="Unicode.h" />
+		<ClInclude Include="Win32ConsoleComponent.h" />
+	</ItemGroup>
+	<ItemGroup>
+		<None Include=".clang-format" />
+		<None Include="GitInfo.ps1" />
+		<None Include="LinuxConsoleComponent.h"/>
+		<None Include="LinuxConsoleComponent.cpp"/>
+	</ItemGroup>
+	<ItemGroup>
+		<None Include="GitInfo.sh" />
+		<None Include="packages.config" />
+	</ItemGroup>
+	<Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+	<ImportGroup Label="ExtensionTargets">
+		<Import Project="..\packages\BASS.redist.2.4.12.1\build\native\BASS.redist.targets" Condition="Exists('..\packages\BASS.redist.2.4.12.1\build\native\BASS.redist.targets')" />
+		<Import Project="..\packages\BASS.2.4.12.1\build\native\BASS.targets" Condition="Exists('..\packages\BASS.2.4.12.1\build\native\BASS.targets')" />
+	</ImportGroup>
+	<Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+		<PropertyGroup>
+			<ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+		</PropertyGroup>
+		<Error Condition="!Exists('..\packages\BASS.redist.2.4.12.1\build\native\BASS.redist.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\BASS.redist.2.4.12.1\build\native\BASS.redist.targets'))" />
+		<Error Condition="!Exists('..\packages\BASS.2.4.12.1\build\native\BASS.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\BASS.2.4.12.1\build\native\BASS.targets'))" />
+	</Target>
 </Project>

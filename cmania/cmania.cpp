@@ -24,21 +24,21 @@
 #include "LinuxConsoleComponent.h"
 #endif
 
+Game game;
+
 // cmania 的入口点
 int main() {
 	auto am = GetBassAudioManager();							  // 获取全局的bass引擎包装
 	am->openDevice(AudioManagerExtensions::getDefaultDevice(am)); // 初始化Bass引擎
 
 	EnableConstantDisplayAndPower(true); // 禁止息屏 休眠或者什么东西
-
-	Game game;
 #ifdef _WIN32
 	game.Use(MakeWin32ConsoleComponent);
 #endif
 #ifdef __linux__
 	game.Use(MakeLinuxConsoleComponent);
 #endif
-	
+
 	game.Use(MakeTickSource)
 		.Use(MakeBufferController)
 		.Use(MakeScreenController)

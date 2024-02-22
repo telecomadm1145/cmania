@@ -5,6 +5,11 @@
 #include <utility>
 #include <vector>
 
+#include "LogOverlay.h"
+#include "Game.h"
+
+extern Game game;
+
 OsuBeatmap OsuBeatmap::Parse(std::istream& sr) {
 	OsuBeatmap bm{};
 	std::string line;
@@ -53,7 +58,7 @@ OsuBeatmap OsuBeatmap::Parse(std::istream& sr) {
 				bm.TimingPoints.push_back(tp);
 			}
 			else if (category == "HitObjects") {
-				HitObject ho{ };
+				HitObject ho{};
 				auto args = split(line, ',');
 				ho.X = std::stod(args[0]);
 				ho.Y = std::stod(args[1]);
@@ -157,10 +162,8 @@ OsuBeatmap OsuBeatmap::Parse(std::istream& sr) {
 			}
 		}
 	}
-	catch (...) {
-#if _DEBUG
-		__debugbreak();
-#endif
+	catch (std::exception& ex) {
+		game.GetFeature<ILogger>().LogError(ex.what());
 	}
 	return bm;
 }
