@@ -81,8 +81,8 @@ private:
 			if (c == '\n') {
 				vk = 13;
 			}
-			if (c == '\b') {
-				vk = 8;
+			if (c == 127) {
+				vk = (int)ConsoleKey::Backspace;
 			}
 			if (c >= 'a' && c <= 'z') {
 				vk = c - 'a' + 'A';
@@ -166,6 +166,8 @@ private:
 				c = 0;
 			}
 			KeyEventArgs kea(0, 1, vk, c, 1);
+			parent->Raise("key", kea);
+			kea.Pressed = false;
 			parent->Raise("key", kea);
 		}
 	}

@@ -3,7 +3,7 @@
 #include <stdexcept>
 #ifdef __linux__
 inline void _debugbreak() {
-	__builtin_trap();
+	// __builtin_trap();
 }
 #endif
 #ifdef _WIN32
