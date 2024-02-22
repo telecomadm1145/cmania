@@ -34,7 +34,6 @@ public:
 	double end_obj = -1e300;
 	double resume_time = -1e300;
 	int keys = 0;
-	bool jump_helper = false;
 	bool no_hs = false;
 	bool wt_mode = false;
 	bool tail_hs = false;
@@ -554,6 +553,9 @@ public:
 		}
 		(*settings)["SkinPath"].SetArray(skin_path.data(), skin_path.size());
 		auto wt_mode = (*settings)["WtMode"].Get<bool>();
+#ifdef __linux__
+		wt_mode = true; // Linux 的按键不能弹起 www
+#endif
 		auto SkinSampleIndex = BuildSampleIndex(skin_path, 0); // 构建皮肤采样索引(sampleset==0)
 
 		auto selector = [](const AudioSampleMetadata& md) -> auto {
@@ -653,6 +655,13 @@ public:
 		}
 		obj->scrollspeed = val = std::clamp(val, 10.0, 100000.0);
 		(*settings)["ScrollSpeed"].Set<double>(val);
+		obj->wt_mode = (*settings)["WtMode"].Get<bool>();
+#ifdef __linux__
+		obj->wt_mode = true; // Linux 的按键不能弹起 www
+#endif
+		obj->tail_hs = (*settings)["TailHs"].Get<bool>();
+		obj->no_hs = (*settings)["NoBmpHs"].Get<bool>();
+		obj->offset = (*settings)["Offset"].Get<double>();
 		return obj;
 	}
 	virtual double CalculateDifficulty(Beatmap* bmp, OsuMods mods) {
