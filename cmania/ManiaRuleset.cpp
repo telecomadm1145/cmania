@@ -508,13 +508,13 @@ class ManiaRuleset : public Ruleset {
 	BinaryStorage* settings;
 
 public:
-	virtual std::string Id() override{
+	virtual std::string Id() override {
 		return "osumania";
 	}
-	virtual std::string DisplayName() override{
+	virtual std::string DisplayName() override {
 		return "Mania";
 	}
-	virtual Beatmap* LoadBeatmap(path beatmap_path, bool load_samples) override{
+	virtual Beatmap* LoadBeatmap(path beatmap_path, bool load_samples) override {
 		auto beatmap = new ManiaBeatmap();
 
 		std::ifstream ifs(beatmap_path);
@@ -546,7 +546,11 @@ public:
 		auto SampleIndex = BuildSampleIndex(parent, 1); // 构建谱面采样索引(sampleset==1默认)
 		auto skin_path = (*settings)["SkinPath"].GetString();
 		if (skin_path.empty()) {
+#ifdef _WIN32
 			skin_path = "Samples\\Triangles";
+#else
+			skin_path = "Samples/Triangles";
+#endif
 		}
 		(*settings)["SkinPath"].SetArray(skin_path.data(), skin_path.size());
 		auto wt_mode = (*settings)["WtMode"].Get<bool>();

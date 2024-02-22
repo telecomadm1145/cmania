@@ -589,7 +589,11 @@ class TaikoRuleset : public Ruleset {
 		auto SampleIndex = BuildSampleIndex(parent, 1); // 构建谱面采样索引(sampleset==1默认)
 		auto skin_path = (*settings)["SkinPath"].GetString();
 		if (skin_path.empty()) {
+#ifdef _WIN32
 			skin_path = "Samples\\Triangles";
+#else
+			skin_path = "Samples/Triangles";
+#endif
 		}
 		(*settings)["SkinPath"].SetArray(skin_path.data(), skin_path.size());
 		auto wt_mode = (*settings)["WtMode"].Get<bool>();
