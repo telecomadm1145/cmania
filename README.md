@@ -1,7 +1,7 @@
 # Mania.Console.Cxx
 [English ver.](README.en.md)
 
-在 Windows 终端(也许linux?)上玩 osu!mania
+在终端上玩 osu!mania
 
 ![0](0.png)
 
@@ -29,6 +29,7 @@
 - 谱面难度计算
 - Ruleset api
 - Rating
+- 支持 Windows 和 Linux(实验性)
 
 ## 正在进行中/即将进行的功能
 - ~扩展 Ruleset 支持~ 已完成
