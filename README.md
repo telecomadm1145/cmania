@@ -52,6 +52,8 @@
 
 > 您现在可以直接去此项目的 Github Actions 获取自动构建（不一定每一个自动构建都可用）
 
+### Windows 构建
+
 1. 克隆代码库：（可在 Visual Studio 的图形界面进行）
 
    ```
@@ -68,6 +70,17 @@
 3. 确保你的系统已安装所需的依赖项（如Visual Studio 2022(或者其Build Tools)的C++负载、Bass 音频引擎等），记得还原 Nuget 包。
 
 4. Debug&&启动！
+
+### Linux 构建
+
+```bash
+git clone https://github.com/telecomadm1145/cmania
+cd cmania
+cmake -DCMAKE_C_COMPILER=clang-17 -DCMAKE_CXX_COMPILER=clang++-17 .
+make
+```
+
+记得将`Samples`文件夹和`third_party`文件夹放置到与可执行同一目录，`make`将输出二进制到`cmania.linux`
 
 ## 关于谱面文件夹
 
