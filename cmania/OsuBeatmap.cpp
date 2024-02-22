@@ -16,7 +16,13 @@ OsuBeatmap OsuBeatmap::Parse(std::istream& sr) {
 	std::string category;
 	try {
 		while (std::getline(sr, line)) {
-			if (line[0] == '[' && line[line.length() - 1] == ']') {
+			if (line.empty() || line.substr(0, 2) == "//")
+				continue;
+			if (line[line.size() - 1] == '\r')
+				line.resize(line.size() - 1);
+			if (line.empty())
+				continue;
+			if (line[0] == '[' && line[line.size() - 1] == ']') {
 				category = line.substr(1, line.length() - 2);
 				continue;
 			}

@@ -75,9 +75,11 @@ class BeatmapManagementService : public GameComponent, public IBeatmapManagement
 										if (EndsWith(diff.path().string(), ".osu")) {
 											parent->GetFeature<ILogger>().LogInfo(diff.path().string());
 											std::ifstream stm(diff.path());
+											if (!stm.good())
+												parent->GetFeature<ILogger>().LogError("Cannot open " + diff.path().string());
 											OsuBeatmap bmp = OsuBeatmap::Parse(stm);
-											if (bmp.CircleSize < 1)
-												continue;
+											//if (bmp.CircleSize < 1)
+											//	continue;
 											if (bmp.HitObjects.size() == 0)
 												continue;
 											cache.artist = bmp.Artist;
