@@ -25,7 +25,7 @@ struct Color {
 	}
 	template <class T>
 	Color operator*(T x) {
-		return Color{ (unsigned char)(Alpha*x), Red, Green, Blue };
+		return Color{ (unsigned char)(Alpha * x), Red, Green, Blue };
 	}
 	template <class T>
 	Color operator^(T x) {
@@ -51,7 +51,7 @@ struct PixelData {
 		PixelData pd2 = *this;
 		pd2.Foreground = Foreground * x;
 		pd2.Background = Background * x;
-		return pd2; 
+		return pd2;
 	}
 	template <class T>
 	PixelData& operator^(T x) {
@@ -116,33 +116,31 @@ private:
 public:
 	void Clear();
 	void Output();
-	void DrawString(const std::string& text, int startX, int startY, Color fg, Color bg) {
-		DrawString(Utf82Ucs4(text), startX, startY, fg, bg);
+	void DrawString(const std::string& text, int startX, int startY, Color fg, Color bg, int overflow = 1) {
+		DrawString(Utf82Ucs4(text), startX, startY, fg, bg, overflow);
 	}
-	void DrawString(const std::u8string& text, int startX, int startY, Color fg, Color bg) {
-		DrawString(Utf82Ucs4(text), startX, startY, fg, bg);
+	void DrawString(const std::u8string& text, int startX, int startY, Color fg, Color bg, int overflow = 1) {
+		DrawString(Utf82Ucs4(text), startX, startY, fg, bg, overflow);
 	}
-	void DrawString(const std::wstring& text, int startX, int startY, Color fg, Color bg) {
-		DrawString(Utf162Ucs4(text), startX, startY, fg, bg);
+	void DrawString(const std::wstring& text, int startX, int startY, Color fg, Color bg, int overflow = 1) {
+		DrawString(Utf162Ucs4(text), startX, startY, fg, bg, overflow);
 	}
 	void DrawCircle(float x, float y, float sz, float width, float whratio, PixelData pd);
 
-	void SetBounds(int left, int top, int right, int bottom)
-	{
+	void SetBounds(int left, int top, int right, int bottom) {
 		b_left = left;
 		b_top = top;
 		b_right = right;
 		b_bottom = bottom;
 	}
-	void ResetBounds()
-	{
+	void ResetBounds() {
 		b_left = b_top = 0;
 		b_right = b_bottom = INT_MAX;
 	}
 
 public:
 	void FillCircle(float x, float y, float sz, float whratio, PixelData pd, int aa = 8);
-	void DrawString(const std::u32string& text, int startX, int startY, Color fg, Color bg);
+	void DrawString(const std::u32string& text, int startX, int startY, Color fg, Color bg, int overflow = 1);
 	PixelData GetPixel(int x, int y);
 	void FillPolygon(const std::vector<PointI>& points, PixelData pd);
 
