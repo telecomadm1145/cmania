@@ -5,5 +5,7 @@
 extern Game game;
 
 void LogDebug(const std::string& str) {
-	game.GetFeature<ILogger>().LogError(str);
+#ifdef _DEBUG
+	game.GetFeature<ILogger>().LogInfo(str);
+#endif // _DEBUG
 }

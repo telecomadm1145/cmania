@@ -46,8 +46,10 @@ void GameBuffer::ResizeBuffer(int width, int height) {
 	dirty_buffer = true;
 }
 void GameBuffer::HideCursor() {
+#ifndef __linux__
 	constexpr char buf[] = "\u001b[?25l";
 	write(buf, sizeof(buf));
+#endif
 }
 void GameBuffer::InitConsole() {
 	HideCursor();

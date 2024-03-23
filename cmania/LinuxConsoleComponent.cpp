@@ -13,6 +13,8 @@
 #include <thread>
 #include "signal.h"
 #include <unistd.h>
+#include <poll.h>
+#include <fcntl.h>
 #include <ranges>
 #include <codecvt>
 #include <locale>
@@ -52,6 +54,11 @@ private:
 			tcsetattr(fileno(stdin), TCSANOW, &newsetting);
 			FD_ZERO(&fds);
 			FD_SET(fileno(stdin), &fds);
+
+			int flags = fcntl(STDIN_FILENO, F_GETFL, 0);
+			flags |= O_NONBLOCK;
+			fcntl(STDIN_FILENO, F_SETFL, flags);
+
 			input_thread = new std::thread(&InputWorker, parent);
 			input_thread->detach();
 			LinuxSignalHandler lsh{};
@@ -76,7 +83,15 @@ private:
 		while (1) {
 			// Read a single character
 			char c = getchar();
+			if (c == EOF) {
+				//struct timespec delay;
+				//delay.tv_sec = 0;
+				//delay.tv_nsec = 1000000; // 1毫秒 = 1,000,000纳秒
 
+				//// 延迟一毫秒
+				//nanosleep(&delay, NULL);
+				continue;
+			}
 			auto vk = c;
 			if (c == '\n') {
 				vk = 13;
@@ -163,7 +178,9 @@ private:
 						vk = (int)ConsoleKey::F4;
 					}
 				}
-				c = 0;
+
+				if (d != EOF)
+					c = 0;
 			}
 			KeyEventArgs kea(0, 1, vk, c, 1);
 			parent->Raise("key", kea);
