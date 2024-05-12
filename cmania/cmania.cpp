@@ -12,6 +12,7 @@
 #include "KeepAwake.h"
 #include "BassAudioManager.h"
 #include "LogOverlay.h"
+#include "VolumeOverlay.h"
 #include "RulesetManager.h"
 #include "ManiaRuleset.h"
 #include "TaikoRuleset.h"
@@ -38,7 +39,6 @@ int main() {
 #ifdef __linux__
 	game.Use(MakeLinuxConsoleComponent);
 #endif
-
 	game.Use(MakeTickSource)
 		.Use(MakeBufferController)
 		.Use(MakeScreenController)
@@ -46,9 +46,7 @@ int main() {
 		.Use(MakeLogOverlay)
 		.Use(MakeFpsOverlay)
 		.Use(MakeRulesetManager); // 注入组件依赖
-
 	game.Raise("start"); // 初始化组件
-
 	game.GetFeature<IRulesetManager>().Register(MakeManiaRuleset());
 	game.GetFeature<IRulesetManager>().Register(MakeTaikoRuleset());
 	game.GetFeature<IRulesetManager>().Register(MakeStdRuleset());

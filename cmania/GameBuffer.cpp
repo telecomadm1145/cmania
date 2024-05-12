@@ -290,17 +290,19 @@ void GameBuffer::SetPixel(int x, int y, PixelData pd) {
 	if ((x < Width && y < Height && y > -1 && x > -1) &&
 		(x <= b_right && y <= b_bottom && y >= b_top && x >= b_left)) {
 		auto& ref = PixelBuffer[y * Width + x];
-		if (ref.UcsChar == '\b') {
-			for (int i = x; i >= 0; i--) {
-				auto& ref2 = PixelBuffer[y * Width + i];
-				ref2.UcsChar = ' ';
-				if (ref2.UcsChar != '\b') {
-					break;
+		if (pd.UcsChar != '\0') {
+			if (ref.UcsChar == '\b') {
+				for (int i = x; i >= 0; i--) {
+					auto& ref2 = PixelBuffer[y * Width + i];
+					ref2.UcsChar = ' ';
+					if (ref2.UcsChar != '\b') {
+						break;
+					}
 				}
 			}
+			if (pd.UcsChar != '\1')
+				ref.UcsChar = pd.UcsChar;
 		}
-		if (pd.UcsChar != '\1')
-			ref.UcsChar = pd.UcsChar;
 		ref.Background = Color::Blend(ref.Background, pd.Background);
 		ref.Foreground = Color::Blend(ref.Foreground, pd.Foreground);
 	}

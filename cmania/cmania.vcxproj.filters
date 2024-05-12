@@ -98,6 +98,9 @@
     <ClCompile Include="Debug.cpp">
       <Filter>Core\Components</Filter>
     </ClCompile>
+    <ClCompile Include="VolumeOverlay.cpp">
+      <Filter>Core\Components</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ConsoleInput.h">
@@ -301,6 +304,9 @@
     <ClInclude Include="Debug.h">
       <Filter>Core\Components</Filter>
     </ClInclude>
+    <ClInclude Include="VolumeOverlay.h">
+      <Filter>Core\Components</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Core">
@@ -413,7 +419,6 @@
     <None Include="Samples\Triangles\soft-sliderslide.wav" />
     <None Include="Samples\Triangles\soft-slidertick.wav" />
     <None Include="Samples\Triangles\soft-sliderwhistle.wav" />
-    <None Include="Samples\*\*" />
     <None Include="Samples\*\*" />
     <None Include="Samples\*\*" />
     <None Include="Samples\*\*" />

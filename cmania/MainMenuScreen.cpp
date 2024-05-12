@@ -4,6 +4,7 @@
 #include "ScreenController.h"
 #include "SettingsScreen.h"
 #include "SongSelectScreen.h"
+//#include "VolumeOverlay.h"
 
 #ifdef _MSC_VER
 #define _COMPILER_BANNER "Compiled with MSVC v" QUOTE(_MSC_VER)
@@ -17,15 +18,18 @@ class MainMenuScreen : public Screen {
 	virtual void Activate(bool y) override {
 		if (y) {
 			is_name_exists = !game->Settings["Name"].GetString().empty();
+			//parent->AddOverlay(MakeVolumeOverlay());
 		}
 	}
 	virtual void Render(GameBuffer& buf) {
+		// TODO: make a proper ui for this ?
 		if (!is_name_exists) {
 			buf.DrawString("输入您的大名(仅用于录像):", 0, 0, {}, {});
 			buf.DrawString(input_buf, 0, 1, {}, {});
 			return;
 		}
 		buf.DrawString("Cmania " GIT_LATEST_TAG "\n\n按下 Enter 进入选歌界面\n按下 O 键进行设置\n按下 D 键进入在线谱面下载", 0, 0, {}, {});
+		// TODO: move it to other places
 		buf.DrawString(_COMPILER_BANNER "(git-" GIT_COMMIT_HASH "@" GIT_COMMIT_DATE ")\nOriginal game by peppy( https://osu.ppy.sh )\nCopyright 2023-2024 telecomadm1145( https://github.com/telecomadm1145/cmania )", 0, buf.Height - 3, {}, {});
 		// buf.DrawString("Loading beatmap cache...", 0, 0, {}, {});
 		// buf.DrawString("正在播放", 0, 0, {}, {});
