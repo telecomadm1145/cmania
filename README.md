@@ -1,5 +1,7 @@
-# Mania.Console.Cxx
+# Mania.Console.Cxx(Cmania)
 [English ver.](README.en.md)
+
+![Cmania logo](logo.png)
 
 在终端上玩 osu!mania
 

@@ -1,8 +1,11 @@
-## Mania.Console.Cxx
+## Mania.Console.Cxx (Cmania)
 
 [Chinese ver.](README.md)
 
-*This is translated by AI, see Chinese ver for a more accurate introduction.*
+![Cmania logo](logo.png)
+
+
+*This is translated by AI, see Chinese ver first plz*
 
 Play osu!mania on your Windows Terminal (and maybe linux?)
 
