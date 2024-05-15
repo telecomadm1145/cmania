@@ -12,6 +12,7 @@
 #include "KeepAwake.h"
 #include "BassAudioManager.h"
 #include "LogOverlay.h"
+#include "VolumeOverlay.h"
 #include "RulesetManager.h"
 #include "ManiaRuleset.h"
 #include "TaikoRuleset.h"
@@ -24,21 +25,20 @@
 #include "LinuxConsoleComponent.h"
 #endif
 
+Game game;
+
 // cmania 的入口点
 int main() {
 	auto am = GetBassAudioManager();							  // 获取全局的bass引擎包装
 	am->openDevice(AudioManagerExtensions::getDefaultDevice(am)); // 初始化Bass引擎
 
 	EnableConstantDisplayAndPower(true); // 禁止息屏 休眠或者什么东西
-
-	Game game;
 #ifdef _WIN32
 	game.Use(MakeWin32ConsoleComponent);
 #endif
 #ifdef __linux__
 	game.Use(MakeLinuxConsoleComponent);
 #endif
-	
 	game.Use(MakeTickSource)
 		.Use(MakeBufferController)
 		.Use(MakeScreenController)
@@ -46,9 +46,7 @@ int main() {
 		.Use(MakeLogOverlay)
 		.Use(MakeFpsOverlay)
 		.Use(MakeRulesetManager); // 注入组件依赖
-
 	game.Raise("start"); // 初始化组件
-
 	game.GetFeature<IRulesetManager>().Register(MakeManiaRuleset());
 	game.GetFeature<IRulesetManager>().Register(MakeTaikoRuleset());
 	game.GetFeature<IRulesetManager>().Register(MakeStdRuleset());

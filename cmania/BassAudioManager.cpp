@@ -10,13 +10,9 @@ enum class StreamSystem {
 	BufferPush
 };
 enum class PlaybackState {
-	// Token: 0x040001F0 RID: 496
 	Stopped,
-	// Token: 0x040001F1 RID: 497
 	Playing,
-	// Token: 0x040001F2 RID: 498
 	Stalled,
-	// Token: 0x040001F3 RID: 499
 	Paused
 };
 inline float BASS_ChannelGetAttribute(DWORD handle, DWORD attrib) {
@@ -53,6 +49,9 @@ public:
 
 			deviceOpened = false;
 		}
+	}
+	void SetMasterVolume(double f) override {
+		BASS_SetVolume(f);
 	}
 
 	IAudioManager::IAudioStream* load(std::istream& fileStream) override {
