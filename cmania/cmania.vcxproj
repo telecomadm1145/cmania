@@ -387,6 +387,7 @@
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="AboutScreen.cpp" />
     <ClCompile Include="BassAudioManager.cpp" />
     <ClCompile Include="BeatmapDownloadingScreen.cpp" />
     <ClCompile Include="BeatmapDownloadingService.cpp" />
@@ -423,6 +424,7 @@
     <ClCompile Include="ManiaRuleset.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AboutScreen.h" />
     <ClInclude Include="Animator.h" />
     <ClInclude Include="BackgroundComponent.h" />
     <ClInclude Include="Beatmap.h" />
