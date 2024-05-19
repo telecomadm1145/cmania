@@ -148,5 +148,6 @@ public:
 	void SetPixelF(float x, float y, PixelData pd);
 	void DrawLineH(float x, float y1, float y2, PixelData pd);
 	void DrawLineV(float x1, float x2, float y, PixelData pd);
+	void DrawLine(int x1, int x2, int y1, int y2, PixelData pd);
 	void FillRect(float left, float top, float right, float bottom, PixelData pd);
 };

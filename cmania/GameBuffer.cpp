@@ -385,6 +385,45 @@ void GameBuffer::DrawLineV(float x1, float x2, float y, PixelData pd) {
 		}
 	}
 }
+void GameBuffer::DrawLine(int x1, int x2, int y1, int y2, PixelData pd) {
+	int dx = abs(x2 - x1);
+	int dy = abs(y2 - y1);
+	//if (dx == 0) {
+	//	DrawLineH(x1, y1, y2, pd);
+	//	return;
+	//}
+	//if (dy == 0) {
+	//	DrawLineV(x1, x2, y1, pd);
+	//	return;
+	//}
+	int sx = (x1 < x2) ? 1 : -1;
+	int sy = (y1 < y2) ? 1 : -1;
+	int err = dx - dy;
+
+	while (true) {
+		// 到达终点
+		if (x1 == x2 && y1 == y2) {
+			break;
+		}
+
+		// 绘制当前像素
+		SetPixel(x1, y1, pd);
+
+		int err2 = 2 * err;
+
+		// 调整 x 方向
+		if (err2 > -dy) {
+			err -= dy;
+			x1 += sx;
+		}
+
+		// 调整 y 方向
+		if (err2 < dx) {
+			err += dx;
+			y1 += sy;
+		}
+	}
+}
 /*
 void GameBuffer::DrawLineH(int x, int y1, int y2, PixelData pd) {
 	if (y1 > y2)
