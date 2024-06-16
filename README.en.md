@@ -68,7 +68,13 @@ Please note that the binary files in the Releases section may be outdated. It is
 
 3. Make sure you have the required dependencies installed on your system (such as C++ workload, Bass audio engine, etc.).
 
-4. Run Cmania.
+4. For linux user,you need to configure correct capabilities,which is used for listening input event.
+
+   ```
+   sudo setcap cap_sys_admin=+ep build/cmania
+   ```
+
+5. Run Cmania.
 
 ## About the Songs Folder
 

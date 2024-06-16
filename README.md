@@ -67,7 +67,13 @@
 
 3. 确保你的系统已安装所需的依赖项（如C++负载、Bass 音频引擎等）。
 
-4. 运行 Cmania。
+4. 对于linux用户，请使用如下命令为软件配置正确的Capabilities，我们将使用它来监听输入
+
+   ```
+   sudo setcap cap_sys_admin=+ep build/cmania
+   ```
+
+5. 运行 Cmania。
 
 ## 关于谱面文件夹
 

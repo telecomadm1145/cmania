@@ -16,6 +16,7 @@
 #include <ranges>
 #include <codecvt>
 #include <locale>
+#include "LinuxInputHelper.hpp"
 // class LinuxInput {
 // private:
 // 	static inline std::once_flag flag=std::once_flag();
@@ -59,7 +60,6 @@ public:
 		Keyboard_Release,
 		Mouse_Press,
 		Mouse_Release,
-
 	};
 	struct Event {
 		EventType type;
@@ -208,16 +208,18 @@ private:
 			newsetting = oldsetting;
 			newsetting.c_lflag &= ~(ICANON | ECHO);
 			tcsetattr(fileno(stdin), TCSANOW, &newsetting);
-			input_thread = new std::thread(&InputWorker, parent);
-			input_thread->detach();
+
 			// 事件
 			LinuxSignalHandler lsh{};
 			lsh.RegisterSIGWINCH([this](int signum) {
 				SendResize(this->parent);
-			});
+			});			
+			//输入处理线程
+			input_thread = new std::thread(&InputWorker, parent);
+			input_thread->detach();
 		}
-
 		else if (strcmp(evt, "push") == 0) {
+			//将缓冲区中的字符输出到console
 			struct PushEventArgs {
 				const char* buf;
 				size_t len;
@@ -230,33 +232,17 @@ private:
 		}
 	}
 	static void InputWorker(Game* parent) {
-		char buf[1024];
-		while (1) {
-			int len = read(fileno(stdin), buf, 1024);
-			if (len > 0) {
-				InputProcessor::Event* e;
-				InputProcessor::Process(buf, len, [&](InputProcessor::Event ev) {
-					switch (ev.type) {
-					case InputProcessor::EventType::Mouse_Press:
-						// MouseKeyEventArgs meka(e[now].x, e[now].y, 1);
-						// parent->Raise("mousekey", meka);
-						// break;
-					case InputProcessor::EventType::Keyboard_Press: {
-						KeyEventArgs kea(0, true, 0, ev.C, 0);
-						if (isalpha(int(ev.C))) {
-							kea.Key = (ConsoleKey)(tolower(int(ev.C)) + 4);
-						}
-						parent->Raise("key", kea);
-						break;
-					}
-					default: {
-						break;
-					}
-					}
-				});
-				// 遍历每一个事件
-			}
-		}
+		auto mousePress=[&](int x, int y, MouseKeyEventArgs::Button b,bool pressed) {
+			MouseKeyEventArgs mkea{x, y, b, pressed};
+			parent->Raise("mouse_press", mkea);
+		};
+		auto keyPress = [&](ControlKeyState cks, bool down,ConsoleKey key, wchar_t chr, int rc) {
+			KeyEventArgs kea{ (int)cks, down, (int)key, chr, rc };
+			parent->Raise("key_press", kea);
+		};
+		EventLoop(mousePress, keyPress);
+
+		
 	}
 	static void SendResize(Game* parent) {
 		struct winsize size;
