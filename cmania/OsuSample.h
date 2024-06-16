@@ -5,6 +5,7 @@
 #include "String.h"
 #include "EnumFlag.h"
 #include "OsuBeatmap.h"
+#include "Debug.h"
 struct AudioSampleMetadata {
 	SampleBank sampleBank;
 	HitSoundType hitSoundType;
@@ -13,11 +14,13 @@ struct AudioSampleMetadata {
 };
 static std::vector<AudioSampleMetadata> BuildSampleIndex(std::filesystem::path folder, int defsampleset) {
 	std::vector<AudioSampleMetadata> sampleIndex;
+	LogDebug(folder.string());
 	if (!std::filesystem::exists(folder))
 		return sampleIndex;
 	for (const auto& file : std::filesystem::directory_iterator(folder)) {
 		if (file.is_directory())
 			continue;
+		LogDebug(file.path().string());
 		auto filename = file.path().filename().string();
 		if (!EndsWith(filename, ".wav") && !EndsWith(filename, ".ogg") && !EndsWith(filename, ".mp3"))
 			continue;

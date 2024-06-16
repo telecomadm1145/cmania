@@ -12,6 +12,7 @@ uint32_t GetCrc(const char* data, std::size_t s) {
 }
 #endif
 #ifdef __linux__
+// TODO: this is wrong impl which makes different crc value across windows and linux platform
 #include "Crc.h"
 #include <array>
 // 生成CRC查询表

@@ -15,14 +15,6 @@
 #include "KeyBinds.h"
 
 class StdGameplay : public GameplayBase {
-#ifdef __clang__
-	std::vector<Animator<CubicEasingFunction>> KeyHighlight;
-	Animator<CubicEasingFunction> LastHitResultAnimator{ 255, 0, 400 };
-#else
-	std::vector<Animator<PowerEasingFunction<1.5>>> KeyHighlight;
-	Animator<PowerEasingFunction<4.0>> LastHitResultAnimator{ 255, 0, 400 };
-#endif // __clang__
-	HitResult LastHitResult = HitResult::None;
 	AudioStream bgm;
 	double endtime = 0;
 	std::string skin_path;
@@ -143,8 +135,12 @@ private:
 	constexpr static auto trail_count = 64;
 	Trail cursortrail[trail_count];
 	double lastrec = -1e300;
+	int wid = 0;
+	int hei = 0;
+	static const auto rt = 2;
 	void Render(GameBuffer& buf) override { // 512 , 384 osu pixel
-		const auto rt = 2;
+		wid = buf.Width;
+		hei = buf.Height;
 		auto vp = calcViewport(512 * rt, 384, buf.Width - 4, buf.Height - 4);
 		vp.x1 += 2;
 		vp.y1 += 2;
@@ -158,6 +154,8 @@ private:
 		for (auto& ho : Beatmap->super<StdObject>()) {
 			if (ho.EndTime == 0) {
 				if (t > ho.StartTime + 200)
+					continue;
+				if (ho.HasHit)
 					continue;
 			}
 			else {
@@ -176,25 +174,25 @@ private:
 			// Slider
 			if (ho.Path != 0 && t > ho.StartTime - preempt) {
 				// 渲染滑条体...
-				// auto points = ho.Path->calcedPath;
-				// for (int i = 0; i < points.size() - 1; i++) {
-				//	PointD currentPoint = points[i];
-				//	PointD nextPoint = points[(i + 1) % points.size()];
+				auto points = ho.Path->calcedPath;
+				for (int i = 0; i < points.size() - 1; i++) {
+					PointD currentPoint = points[i];
+					PointD nextPoint = points[(i + 1) % points.size()];
 
-				//	double dx = nextPoint.X - currentPoint.X;
-				//	double dy = nextPoint.Y - currentPoint.Y;
-				//	double distance = std::sqrt(dx * dx + dy * dy);
+					double dx = nextPoint.X - currentPoint.X;
+					double dy = nextPoint.Y - currentPoint.Y;
+					double distance = std::sqrt(dx * dx + dy * dy);
 
-				//	float stepX = static_cast<float>(dx) / distance;
-				//	float stepY = static_cast<float>(dy) / distance;
+					float stepX = static_cast<float>(dx) / distance;
+					float stepY = static_cast<float>(dy) / distance;
 
-				//	for (int j = 0; j < distance; j++) {
-				//		double x = currentPoint.X + static_cast<int>(stepX * j);
-				//		double y = currentPoint.Y + static_cast<int>(stepY * j);
+					for (int j = 0; j < distance; j++) {
+						double x = currentPoint.X + static_cast<int>(stepX * j);
+						double y = currentPoint.Y + static_cast<int>(stepY * j);
 
-				//		buf.FillCircle(vp.x1 + x / 512 * vp.x2, vp.y1 + y / 384 * vp.y2,scale,rt+1, { {}, { 10, 255, 255, 255 }, ' ' });
-				//	}
-				//}
+						buf.FillCircle(vp.x1 + x / 512 * vp.x2, vp.y1 + y / 384 * vp.y2, scale, rt, { {}, { 20, 255, 255, 255 }, ' ' });
+					}
+				}
 				if (t < ho.EndTime && t > ho.StartTime) {
 					auto duration = ho.Path->actualLength / ho.Velocity;
 					auto progress = std::clamp(fmod(t - ho.StartTime, duration * 2) / duration, 0.0, 2.0);
@@ -223,16 +221,16 @@ private:
 		}
 		auto mpos = GameInputHandler->GetMousePosition();
 		auto last = cursortrail[0];
-		// for (size_t i = 1; i < trail_count; i++) {
-		//	auto anim = std::clamp(1 - (t - cursortrail[i].time) / 500.0, 0.0, 1.0);
-		//	if (anim <= 0.01)
-		//		continue;
-		//	if ((cursortrail[i].loc - last.loc).SquaredLength() < 4)
-		//		continue;
-		//	auto clr = Color{ 160, 255, 255, 255 } * anim;
-		//	buf.DrawLine(last.loc.X, cursortrail[i].loc.X, last.loc.Y, cursortrail[i].loc.Y, { {}, clr, ' ' });
-		//	last = cursortrail[i];
-		// }
+		for (size_t i = 1; i < trail_count; i++) {
+			auto anim = std::clamp(1 - (t - cursortrail[i].time) / 500.0, 0.0, 1.0);
+			if (anim <= 0.01)
+				continue;
+			if ((cursortrail[i].loc - last.loc).SquaredLength() < 4)
+				continue;
+			auto clr = Color{ 160, 255, 255, 255 } * anim;
+			buf.DrawLine(last.loc.X, cursortrail[i].loc.X, last.loc.Y, cursortrail[i].loc.Y, { {}, clr, ' ' });
+			last = cursortrail[i];
+		}
 		if (t > lastrec + 20) {
 			const auto t2 = trail_count - 1;
 			Trail buff[t2];
@@ -250,9 +248,6 @@ private:
 	}
 	// 通过 Ruleset 继承
 	virtual void Pause() override {
-		for (auto& light : KeyHighlight) {
-			light.Reset();
-		}
 		bgm->pause(true);
 		Clock.Stop();
 	}
@@ -280,7 +275,47 @@ private:
 	virtual std::string GetBgPath() override {
 		return Beatmap->BgPath().string();
 	}
-
+	void ProcessAction(int action, bool pressed, double clock) {
+		// if (!pressed) {
+		//	auto first_hold = Beatmap->super<StdObject>() > Where([&](StdObject& obj) -> bool {
+		//		return !(obj.HasHold || obj.HoldBroken) && obj.HasHit;
+		//	}) > FirstOrDefault();
+		//	if (first_hold != 0) {
+		//		auto result = ScoreProcessor.ApplyHit(*first_hold, clock - first_hold->EndTime);
+		//		if (result != HitResult::None) {
+		//				first_hold->PlaySample();
+		//		}
+		//	}
+		//	return;
+		// }
+		// else {
+		auto vp = calcViewport(512 * rt, 384, wid - 4, hei - 4);
+		vp.x1 += 2;
+		vp.y1 += 2;
+		// buf.FillRect(vp.x1, vp.y1, vp.x1 + vp.x2, vp.y1 + vp.y2, { {}, { 60, 0, 0, 0 }, ' ' });
+		auto preempt = DifficultyPreempt(ar);
+		auto fadein = DifficultyFadeIn(preempt);
+		auto scale = DifficultyScale(cs) * vp.y2 / 384.0 * 128;
+		auto mpos = GameInputHandler->GetMousePosition();
+		auto first_hit = Beatmap->super<StdObject>() > Where([&](StdObject& obj) -> bool { return !obj.HasHit; }) > FirstOrDefault();
+		if (first_hit != 0) {
+			auto locx = vp.x1 + first_hit->Location.X / 512.0 * vp.x2;
+			auto locy = vp.y1 + first_hit->Location.Y / 384.0 * vp.y2;
+			// if (first_hit->EndTime == 0) {
+			auto dist = std::sqrt(std::pow(std::get<0>(mpos) - locx, 2) + std::pow(std::get<1>(mpos) - locy, 2));
+			LogDebug("mpos:" + std::to_string(std::get<0>(mpos)) + " " + std::to_string(std::get<1>(mpos)));
+			LogDebug("loc:" + std::to_string(locx) + " " + std::to_string(locy));
+			LogDebug("distance:" + std::to_string(dist) + " scale:" + std::to_string(scale));
+			if (dist < scale) {
+				auto result = ScoreProcessor.ApplyHit(*first_hit, clock - first_hit->StartTime);
+				first_hit->PlaySample();
+			}
+			/*}
+			else {
+			}*/
+		}
+		//}
+	}
 	// 通过 Ruleset 继承
 	void Update() override {
 		if (!GameStarted)
@@ -325,6 +360,29 @@ private:
 					bgm->setCurrent(time / 1000);
 				}
 			}
+		}
+		auto preempt = DifficultyPreempt(ar);
+		auto fadein = DifficultyFadeIn(preempt);
+		Beatmap->super<StdObject>() > ForEach([&](StdObject& obj) {
+			if (obj.HasHit)
+				return;
+			if (obj.EndTime == 0) {
+				if (time > obj.StartTime + 200)
+					ScoreProcessor.ApplyHit(obj, (1.0 / 0.0 * 0.0));
+			}
+			else if (time > obj.EndTime + 200)
+				ScoreProcessor.ApplyHit(obj, (1.0 / 0.0 * 0.0));
+		});
+		while (true) {
+			auto evt = GameInputHandler->PollEvent();
+			if (!evt.has_value())
+				break;
+			auto& e = *evt;
+			GameRecord.Events.push_back(e);
+			if (e.Pressed)
+				ProcessAction(e.Action, e.Pressed, e.Clock);
+			// if (wt_mode && e.Pressed)
+			//	KeyHighlight[e.Action].Start(time);
 		}
 	}
 };
@@ -442,7 +500,11 @@ class StdRuleset : public Ruleset {
 		auto SampleIndex = BuildSampleIndex(parent, 1); // 构建谱面采样索引(sampleset==1默认)
 		auto skin_path = (*settings)["SkinPath"].GetString();
 		if (skin_path.empty()) {
+#ifdef _WIN32
 			skin_path = "Samples\\Triangles";
+#else
+			skin_path = "Samples/Triangles";
+#endif
 		}
 		(*settings)["SkinPath"].SetArray(skin_path.data(), skin_path.size());
 		auto wt_mode = (*settings)["WtMode"].Get<bool>();
@@ -474,11 +536,17 @@ class StdRuleset : public Ruleset {
 		});
 
 		// 加载物件
+		int ComboI = 0;
 		beatmap->storage > AddRange(Select(
 							   beatmap->orig_bmp.HitObjects, [&](const OsuBeatmap::HitObject& obj) -> auto {
 								   StdObject so{};
 								   so.StartTime = obj.StartTime;
 								   so.Location = { obj.X, obj.Y };
+								   so.ComboIndex = ++ComboI;
+								   beatmap->maxcombo++;
+								   if (HasFlag(obj.Type, HitObjectType::NewCombo)) {
+									   ComboI = 0; // Reset combo count
+								   }
 								   auto& tp = GetTimingPointTiming(beatmap->orig_bmp, obj.StartTime);
 								   auto& tp2 = GetTimingPointNonTiming(beatmap->orig_bmp, obj.StartTime);
 
@@ -502,6 +570,7 @@ class StdRuleset : public Ruleset {
 												   evt.Location = sp.PositionAt(prog);
 												   evt.StartTime = time + j / velocity;
 												   so.Events.push_back(evt);
+												   beatmap->maxcombo++;
 											   }
 										   Event evt2{};
 										   evt2.EventType = Event::Repeat;
@@ -509,6 +578,7 @@ class StdRuleset : public Ruleset {
 										   evt2.StartTime = time;
 										   evt2.Location = rev ? PointD{ obj.X, obj.Y } : PointD(sp.PositionAt(1));
 										   so.Events.push_back(evt2);
+										   beatmap->maxcombo++;
 									   }
 									   so.RepeatCount = obj.RepeatCount;
 								   }

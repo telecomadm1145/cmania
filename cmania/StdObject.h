@@ -219,7 +219,10 @@ struct StdObject : public HitObject {
 	double EndTime;
 	double LastHoldOff = -1;
 	double Velocity = 1;
+	double HitTime;
+	int ComboIndex = 0;
 	int RepeatCount = 0;
+	Color ComboColor{};
 	std::vector<Event> Events;
 	SliderPath* Path = 0;
 };

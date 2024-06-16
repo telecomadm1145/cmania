@@ -387,6 +387,7 @@
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="AboutScreen.cpp" />
     <ClCompile Include="BassAudioManager.cpp" />
     <ClCompile Include="BeatmapDownloadingScreen.cpp" />
     <ClCompile Include="BeatmapDownloadingService.cpp" />
@@ -403,6 +404,7 @@
     <ClCompile Include="Hpet.cpp" />
     <ClCompile Include="KeepAwake.cpp" />
     <ClCompile Include="KeyBinds.cpp" />
+    <ClCompile Include="Debug.cpp" />
     <ClCompile Include="LogOverlay.cpp" />
     <ClCompile Include="MainMenuScreen.cpp" />
     <ClCompile Include="OpenFileDialog.cpp" />
@@ -411,17 +413,18 @@
     <ClCompile Include="RulesetManager.cpp" />
     <ClCompile Include="ScoreSubmition.cpp" />
     <ClCompile Include="SettingsScreen.cpp" />
-    <ClCompile Include="simdjson.cpp" />
     <ClCompile Include="SongSelectScreen.cpp" />
     <ClCompile Include="SpeedSettingScreen.cpp" />
     <ClCompile Include="stb.c" />
     <ClCompile Include="StdRuleset.cpp" />
     <ClCompile Include="TaikoRuleset.cpp" />
     <ClCompile Include="TickSource.cpp" />
+    <ClCompile Include="VolumeOverlay.cpp" />
     <ClCompile Include="Win32ConsoleComponent.cpp" />
     <ClCompile Include="ManiaRuleset.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AboutScreen.h" />
     <ClInclude Include="Animator.h" />
     <ClInclude Include="BackgroundComponent.h" />
     <ClInclude Include="Beatmap.h" />
@@ -429,6 +432,7 @@
     <ClInclude Include="CatchRuleset.h" />
     <ClInclude Include="ConsoleInputHandler.h" />
     <ClInclude Include="Crc.h" />
+    <ClInclude Include="Debug.h" />
     <ClInclude Include="Defines.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="GameBuffer.h" />
@@ -474,7 +478,6 @@
     <ClInclude Include="ScreenController.h" />
     <ClInclude Include="SettingsScreen.h" />
     <ClInclude Include="SettingStorage.h" />
-    <ClInclude Include="simdjson.h" />
     <ClInclude Include="SongSelectScreen.h" />
     <ClInclude Include="SpeedSettingScreen.h" />
     <ClInclude Include="StbImage.h" />
@@ -490,11 +493,14 @@
     <ClInclude Include="TaikoScoreProcessor.h" />
     <ClInclude Include="TickSource.h" />
     <ClInclude Include="Unicode.h" />
+    <ClInclude Include="VolumeOverlay.h" />
     <ClInclude Include="Win32ConsoleComponent.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".clang-format" />
     <None Include="GitInfo.ps1" />
+    <None Include="LinuxConsoleComponent.h" />
+    <None Include="LinuxConsoleComponent.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="GitInfo.sh" />

@@ -16,6 +16,8 @@
 #include "Crc.h"
 
 class TaikoGameplay : public GameplayBase {
+
+public:
 #ifdef __clang__
 	Animator<CubicEasingFunction> KeyHighlight[4]{
 		{ 180, 0, 150 }, { 180, 0, 150 }, { 180, 0, 150 }, { 180,
@@ -32,7 +34,6 @@ class TaikoGameplay : public GameplayBase {
 #endif
 	HitResult LastHitResult = HitResult::None;
 	AudioStream bgm;
-	double scrollspeed = 0;
 	double endtime = 0;
 	std::string skin_path;
 	OsuBeatmap orig_bmp;
@@ -51,11 +52,6 @@ class TaikoGameplay : public GameplayBase {
 	int SpinnerKatOrDon = 0;
 	TaikoScoreProcessor ScoreProcessor;
 	Transition<CubicEasingFunction, ConstantEasingDurationCalculator<50>> SpinnerHitTrans{};
-
-public:
-	virtual void RenderDebug(GameBuffer& buf) {
-		buf.FillRect(0, 0, 50, 50, { {}, { 100, 20, 20, 20 }, ' ' });
-	}
 	virtual void Load(::Ruleset* rul, ::Beatmap* bmp) override {
 		auto am = GetBassAudioManager(); // 获取Bass引擎
 
@@ -589,7 +585,11 @@ class TaikoRuleset : public Ruleset {
 		auto SampleIndex = BuildSampleIndex(parent, 1); // 构建谱面采样索引(sampleset==1默认)
 		auto skin_path = (*settings)["SkinPath"].GetString();
 		if (skin_path.empty()) {
+#ifdef _WIN32
 			skin_path = "Samples\\Triangles";
+#else
+			skin_path = "Samples/Triangles";
+#endif
 		}
 		(*settings)["SkinPath"].SetArray(skin_path.data(), skin_path.size());
 		auto wt_mode = (*settings)["WtMode"].Get<bool>();
@@ -685,7 +685,15 @@ class TaikoRuleset : public Ruleset {
 		return beatmap;
 	}
 	GameplayBase* GenerateGameplay() {
-		return new TaikoGameplay();
+		auto obj = new TaikoGameplay();
+		obj->wt_mode = (*settings)["WtMode"].Get<bool>();
+#ifdef __linux__
+		obj->wt_mode = true; // Linux 的按键不能弹起 www
+#endif
+		obj->tail_hs = (*settings)["TailHs"].Get<bool>();
+		obj->no_hs = (*settings)["NoBmpHs"].Get<bool>();
+		obj->offset = (*settings)["Offset"].Get<double>();
+		return obj;
 	}
 	double CalculateDifficulty(Beatmap* bmp, OsuMods mods) {
 		auto GetTimeDiff = [&](double t) {

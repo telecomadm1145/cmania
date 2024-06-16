@@ -136,22 +136,10 @@ class SongSelectScreen : public Screen {
 		buf.FillRect(0, 2, 50, 12, { {}, { 150, 32, 32, 32 }, ' ' });
 		auto entry1 = selected_entry;
 		if (entry1 != 0) {
-			auto title = entry1->titleunicode;
-			if (title.empty())
-				title = entry1->title;
-			if (title.size() > 34) {
-				title.resize(34);
-				title += "...";
-			}
-			buf.DrawString(title, 1, 3, {}, {});
-			auto artist = entry1->artistunicode;
-			if (artist.empty())
-				artist = entry1->artist;
-			if (artist.size() > 30) {
-				artist.resize(30);
-				artist += "...";
-			}
-			buf.DrawString(artist, 1, 5, {}, {});
+			buf.SetBounds(0, 0, 40, 6);
+			buf.DrawString(entry1->titleunicode, 1, 3, {}, {});
+			buf.DrawString(entry1->artistunicode, 1, 5, {}, {});
+			buf.ResetBounds();
 			auto entry2 = selected_entry_2;
 			if (entry2 != 0) {
 				auto minutes = int(entry2->length / (1000 * 60));
@@ -167,7 +155,11 @@ class SongSelectScreen : public Screen {
 				}
 				else {
 					if (difficulty_val > 0) {
+#ifdef _WIN32
 						auto diff = std::format("{:.1f}", difficulty_val);
+#else
+						auto diff = std::to_string(difficulty_val);
+#endif
 						auto clr = difficultyToRGBColor(difficulty_val);
 						auto clr2 = Color::Blend(clr, Color{ 200, 255, 255, 255 });
 						buf.DrawString(diff, 50 - diff.size() - 1, 3, clr2, clr);
@@ -175,11 +167,16 @@ class SongSelectScreen : public Screen {
 					buf.SetBounds(0, 15, 50, buf.Height - 4);
 					OffsetTrans2.SetValue(clk, offset2);
 					int z = (int)OffsetTrans2.GetCurrentValue(clk);
+					int max_di_size = buf.Height - 19;
 					int i = 15 - z;
 					for (auto& d : di) {
 						if (d.Type == DifficultyInfoItem::ValueBar) {
 							buf.DrawString(d.Text, 0, i, {}, {});
+#ifdef _WIN32
 							std::string v = std::format("{:.2f}", d.Value);
+#else
+							std::string v = std::to_string(d.Value);
+#endif
 							buf.DrawString(v, 50 - v.size() - 1, i, {}, {});
 							buf.DrawLineV(12, 50 - 7 - 2, i, { {}, { 150, 32, 32, 32 }, ' ' });
 							double prog = std::clamp(d.Value / d.MaxValue, 0.0, 1.0);
@@ -188,11 +185,11 @@ class SongSelectScreen : public Screen {
 						}
 						else if (d.Type == DifficultyInfoItem::Header) {
 							i++;
-							buf.DrawString(d.Text, 0, i, {}, {});
+							buf.DrawString(d.Text, 0, i, {}, {},0);
 							i++;
 						}
 						else if (d.Type == DifficultyInfoItem::Header2) {
-							buf.DrawString(d.Text, 0, i, {}, {});
+							buf.DrawString(d.Text, 0, i, {}, {},0);
 							i++;
 						}
 						else if (d.Type == DifficultyInfoItem::PlainText) {
@@ -203,12 +200,24 @@ class SongSelectScreen : public Screen {
 						}
 						else if (d.Type == DifficultyInfoItem::PlainValue) {
 							buf.DrawString(d.Text, 0, i, {}, {});
+#ifdef _WIN32
 							auto v = std::format("{:.2f}", d.Value);
+#else
+							auto v = std::to_string(d.Value);
+#endif
 							buf.DrawString(v, 50 - v.size() - 1, i, {}, {});
 							i++;
 						}
 					}
 					di_size = i - 15 + z;
+
+					// Draw scrollbar
+					if (di_size > max_di_size) {
+						int scrollbar_height = 1;
+						int scrollbar_pos = z * (max_di_size - scrollbar_height) / (di_size - max_di_size);
+						buf.FillRect(50 - 1, 15, 50, buf.Height - 3, { {}, { 150, 32, 32, 32 }, ' ' });
+						buf.FillRect(50 - 1, 15 + scrollbar_pos, 50, 15 + scrollbar_pos + scrollbar_height, { { 255, 255, 255, 255 }, {}, '|' });
+					}
 					buf.ResetBounds();
 				}
 				/* buf.DrawString("个人最佳: " + (records.size() > 0 ? std::to_string((int)(records[0].Score * 10000000)) : "0"), 1, 14, {}, {});
@@ -229,9 +238,10 @@ class SongSelectScreen : public Screen {
 		buf.DrawString("搜索:", buf.Width - 30, 2, { 255, 100, 255, 150 }, {});
 		buf.DrawString(std::wstring{ search_buf.begin(), search_buf.end() }, buf.Width - 24, 2, { 255, 100, 255, 150 }, {});
 		if (mod_flyout) {
-			buf.FillRect(0, 0, buf.Width, buf.Height, { {}, { 170, 20, 20, 20 }, ' ' });
-			buf.DrawString("Mod 选 择", 5, 6, {}, {});
-			buf.DrawString("Mod 提供了一种让别人相当目害的游戏体验，可以提高或者降(变相)低(提高)游戏难度", 5, 8, {}, {});
+			buf.FillRect(0, 0, buf.Width, buf.Height, { { 255, 255, 255, 255 }, { 150, 20, 20, 20 }, ' ' });
+			buf.FillRect(0, 0, buf.Width, 3, { { 255, 51, 156, 255 }, { 240, 20, 20, 20 }, ' ' });
+			buf.DrawString("Mod 选择", 5, 1, {}, {});
+			// buf.DrawString("", 5, 8, {}, {});
 			std::string line1 = "难度降低: ";
 			line1.push_back('[');
 			line1.push_back(HasFlag(mods, OsuMods::Easy) ? 'x' : ' ');
@@ -252,7 +262,7 @@ class SongSelectScreen : public Screen {
 			line1.push_back(HasFlag(mods, OsuMods::Relax) ? 'x' : ' ');
 			line1.push_back(']');
 			line1.append("Re(l)ax");
-			buf.DrawString(line1, 5, 12, {}, {});
+			buf.DrawString(line1, 5, 8, {}, {});
 			line1 = "难度提高: ";
 			line1.push_back('[');
 			line1.push_back(HasFlag(mods, OsuMods::Hardrock) ? 'x' : ' ');
@@ -273,7 +283,7 @@ class SongSelectScreen : public Screen {
 			line1.push_back(HasFlag(mods, OsuMods::FadeOut) ? 'x' : ' ');
 			line1.push_back(']');
 			line1.append("(F)adeOut");
-			buf.DrawString(line1, 5, 16, {}, {});
+			buf.DrawString(line1, 5, 12, {}, {});
 			line1 = "特殊:     ";
 			line1.push_back('[');
 			line1.push_back(HasFlag(mods, OsuMods::Auto) ? 'x' : ' ');
@@ -303,19 +313,24 @@ class SongSelectScreen : public Screen {
 			line1.push_back(HasFlag(mods, OsuMods::Random) ? 'x' : ' ');
 			line1.push_back(']');
 			line1.append("Rand(o)m");
-			buf.DrawString(line1, 5, 20, {}, {});
+			buf.DrawString(line1, 5, 16, {}, {});
 			auto modscale = GetModScale(mods);
 			auto num = std::to_string(modscale);
 			num.resize(4);
 			auto modscale_tip = "分数倍率:" + num + "x";
-			buf.DrawString(modscale_tip, 5, 24, {}, {});
-			buf.DrawString("需要额外注意的是: Keys mod 需要 Random mod ,用小键盘 1-9 选择.   Relax 忽略除 miss 外判定", 5, 28, {}, {});
-			buf.DrawString("Esc - 返回", 0, buf.Height - 1, {}, {});
+			buf.DrawString(modscale_tip, 5, 22, {}, {});
+
+			buf.DrawString("已选择: " + GetModsAbbr(mods), 5, 20, {}, {});
+
+			buf.FillRect(0, buf.Height - 2, 5, buf.Height, { {}, { 130, 20, 20, 20 }, ' ' });
+			buf.DrawString(" Esc", 0, buf.Height - 2, { 255, 0, 105, 204 }, {});
+			buf.DrawString(" 返回", 0, buf.Height - 1, {}, {});
 		}
 		if (ruleset_flyout) {
-			buf.FillRect(0, 0, buf.Width, buf.Height, { {}, { 170, 20, 20, 20 }, ' ' });
-			buf.DrawString("Ruleset 选择面板", 5, 6, {}, {});
-			buf.DrawString("在此可以选择你想要看到的Rulesets", 5, 8, {}, {});
+			buf.FillRect(0, 0, buf.Width, buf.Height, { { 255, 255, 255, 255 }, { 150, 20, 20, 20 }, ' ' });
+			buf.FillRect(0, 0, buf.Width, 3, { { 255, 51, 156, 255 }, { 240, 20, 20, 20 }, ' ' });
+			buf.DrawString("Ruleset 选择", 5, 1, {}, {});
+			// buf.DrawString("在此可以选择你想要看到的Rulesets", 5, 8, {}, {});
 			std::string line1 = "Osu! Rulesets: ";
 			line1.push_back('[');
 			line1.push_back(IsRulesetToggled(0) ? 'x' : ' ');
@@ -336,7 +351,10 @@ class SongSelectScreen : public Screen {
 			line1.push_back(IsRulesetToggled(3) ? 'x' : ' ');
 			line1.push_back(']');
 			line1.append("(M)ania");
-			buf.DrawString(line1, 5, 12, {}, {});
+			buf.DrawString(line1, 5, 8, {}, {});
+			buf.FillRect(0, buf.Height - 2, 5, buf.Height, { {}, { 130, 20, 20, 20 }, ' ' });
+			buf.DrawString(" Esc", 0, buf.Height - 2, { 255, 0, 105, 204 }, {});
+			buf.DrawString(" 返回", 0, buf.Height - 1, {}, {});
 		}
 	}
 	double random_last_off = 1.0 / 0 * 0;
@@ -404,7 +422,7 @@ class SongSelectScreen : public Screen {
 	}
 	virtual void Wheel(WheelEventArgs wea) {
 		if (!mod_flyout && !ruleset_flyout)
-			offset += wea.Delta;
+			offset += -wea.Delta * 4;
 	}
 	virtual void Move(MoveEventArgs mea) {
 		if (!mod_flyout && !ruleset_flyout) {

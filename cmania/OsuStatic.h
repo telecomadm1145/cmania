@@ -129,7 +129,7 @@ constexpr inline int CalcColumn(double xpos, int keys) {
 #endif
 	return 0;
 }
-constexpr inline std::string GetHitResultName(HitResult res) {
+inline std::string GetHitResultName(HitResult res) {
 	switch (res) {
 	case HitResult::Miss:
 		return "Miss";
@@ -147,7 +147,7 @@ constexpr inline std::string GetHitResultName(HitResult res) {
 		return "Unknown";
 	}
 }
-constexpr inline std::string GetRulesetName(int id) {
+inline std::string GetRulesetName(int id) {
 	switch (id) {
 	case 0:
 		return "Std";
@@ -161,7 +161,7 @@ constexpr inline std::string GetRulesetName(int id) {
 		return "Unknown";
 	}
 }
-constexpr inline std::string GetRulesetId(int id) {
+inline std::string GetRulesetId(int id) {
 	switch (id) {
 	case 0:
 		return "osustd";

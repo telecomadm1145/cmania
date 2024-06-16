@@ -1,10 +1,10 @@
 ﻿#include "OpenFileDialog.h"
 #include <filesystem>
 #include "Animator.h"
-#include <format>
 #include <vector>
 #include "LogOverlay.h"
 #ifdef _WIN32
+#include <format>
 #include "File.h"
 #endif
 class OpenFileDialog : public Screen {
@@ -18,7 +18,7 @@ public:
 	std::function<void()> OnDone{};
 	std::function<void()> OnCancel{};
 	double Offset = 0;
-	#ifdef __clang__
+#ifdef __clang__
 	class DurationRangeLimiter_0 {
 	public:
 		static inline auto Get(auto x) {
@@ -28,11 +28,11 @@ public:
 	using TransOut = Transition<
 		EaseOut<CubicEasingFunction>,
 		DurationRangeLimiter_0>;
-	#else
+#else
 	using TransOut = Transition<
 		EaseOut<CubicEasingFunction>,
 		DurationRangeLimiter<800.0, 3500.0, LinearEasingDurationCalculator<1>>>;
-	#endif
+#endif
 	TransOut OffsetTrans{};
 	using TransOut2 = Transition<
 		EaseOut<CubicEasingFunction>,
@@ -81,7 +81,7 @@ public:
 					str += u8"...";
 				}
 				if (&ent == selected_entry) {
-					buf.FillRect(0, i, buf.Width, i+1, { {}, { 125, 255, 255, 255 }, ' ' });
+					buf.FillRect(0, i, buf.Width, i + 1, { {}, { 125, 255, 255, 255 }, ' ' });
 				}
 				buf.DrawString(str, 0, i, fg, {});
 				buf.DrawString(ent.LastModifiedTime, 45, i, { 255, 255, 255, 255 }, {});
@@ -93,7 +93,10 @@ public:
 			buf.DrawString(u8"* " + selected_entry->RealPath.u8string(), 0, buf.Height - 2, { 255, 255, 255, 255 }, {});
 		}
 		else {
-			buf.DrawString(std::format("总计{}个文件", Entries.size()), 0, buf.Height - 2, { 255, 255, 255, 255 }, {});
+			std::string s = "总计";
+			s += std::to_string(Entries.size());
+			s += "个文件";
+			buf.DrawString(s, 0, buf.Height - 2, { 255, 255, 255, 255 }, {});
 		}
 		Btn1Trans.SetValue(time, btn1hover ? 160 : 40);
 		Btn2Trans.SetValue(time, btn2hover ? 160 : 40);
@@ -105,7 +108,11 @@ public:
 	void AddEntry(const std::filesystem::path& d) {
 		Entry ent{};
 		ent.DisplayName = d.filename().u8string();
-		//ent.LastModifiedTime = std::format("{}", std::filesystem::last_write_time(d));
+#ifdef _WIN32
+		ent.LastModifiedTime = std::format("{}", std::filesystem::last_write_time(d));
+#else
+		ent.LastModifiedTime = "114514:1919810";
+#endif
 		ent.IsPath = std::filesystem::is_directory(d);
 		ent.RealPath = d;
 		Entries.push_back(ent);
@@ -113,7 +120,11 @@ public:
 	void AddEntry(const std::filesystem::path& d, std::u8string name) {
 		Entry ent{};
 		ent.DisplayName = name;
-		//ent.LastModifiedTime = std::format("{}", std::filesystem::last_write_time(d));
+#ifdef _WIN32
+		ent.LastModifiedTime = std::format("{}", std::filesystem::last_write_time(d));
+#else
+		ent.LastModifiedTime = "114514:1919810";
+#endif
 		ent.IsPath = std::filesystem::is_directory(d);
 		ent.RealPath = d;
 		Entries.push_back(ent);
@@ -196,7 +207,7 @@ public:
 	virtual void Initalized(){};
 	virtual void Key(KeyEventArgs kea) {
 		if (kea.Pressed) {
-			if (kea.Key == ConsoleKey::Escape) {
+			if (kea.Key == ConsoleKey::Escape || kea.Key == ConsoleKey::LeftArrow) {
 				if (Path.parent_path() == Path) {
 					parent->Back();
 					if (OnCancel)
@@ -207,6 +218,45 @@ public:
 				Path = Path.parent_path();
 				dirty = true;
 				return;
+			}
+			else if (kea.Key == ConsoleKey::UpArrow || kea.Key == ConsoleKey::DownArrow) {
+				if (selected_entry == 0) {
+					selected_entry = &Entries[0];
+				}
+				else {
+					bool up = kea.Key == ConsoleKey::UpArrow;
+					int index = -1;
+					for (int i = 0; i < (int)Entries.size(); i++) {
+						if (&Entries[i] == selected_entry) {
+							index = i;
+							if (up) {
+								index--;
+								if (index == -1)
+									index = Entries.size() - 1;
+							}
+							else {
+								index++;
+								if (index == Entries.size())
+									index = 0;
+							}
+							break;
+						}
+					}
+					selected_entry = &Entries[index];
+				}
+			}
+			else if (kea.Key == ConsoleKey::RightArrow) {
+				if (selected_entry != 0) {
+					if (selected_entry->IsPath) {
+						Offset = 0;
+						Path = selected_entry->RealPath;
+						dirty = true;
+						selected_entry = 0;
+					}
+				}
+			}
+			else if (kea.Key == ConsoleKey::Enter) {
+				DoConfirm();
 			}
 		}
 	};
@@ -236,7 +286,11 @@ public:
 	virtual void Activate(bool y) {
 		if (y)
 			if (Path.empty()) {
+#ifdef _WIN32
 				Path = getenv("USERPROFILE");
+#else
+				Path = getenv("HOME");
+#endif
 			}
 	};
 	virtual void Resize(){};

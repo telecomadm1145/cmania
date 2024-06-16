@@ -95,7 +95,13 @@
     <ClCompile Include="CatchRuleset.cpp">
       <Filter>Game\Gameplay\Catch</Filter>
     </ClCompile>
-    <ClCompile Include="simdjson.cpp" />
+    <ClCompile Include="Debug.cpp">
+      <Filter>Core\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="VolumeOverlay.cpp">
+      <Filter>Core\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="AboutScreen.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ConsoleInput.h">
@@ -295,8 +301,14 @@
     <ClInclude Include="CatchRuleset.h">
       <Filter>Game\Gameplay\Catch</Filter>
     </ClInclude>
-    <ClInclude Include="simdjson.h" />
     <ClInclude Include="Platform.hpp" />
+    <ClInclude Include="Debug.h">
+      <Filter>Core\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="VolumeOverlay.h">
+      <Filter>Core\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="AboutScreen.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Core">
@@ -409,10 +421,6 @@
     <None Include="Samples\Triangles\soft-sliderslide.wav" />
     <None Include="Samples\Triangles\soft-slidertick.wav" />
     <None Include="Samples\Triangles\soft-sliderwhistle.wav" />
-    <None Include="Samples\*\*" />
-    <None Include="Samples\*\*" />
-    <None Include="Samples\*\*" />
-    <None Include="Samples\*\*" />
     <None Include="Samples\*\*" />
     <None Include="Samples\*\*" />
     <None Include="Samples\*\*" />
@@ -13604,5 +13612,7 @@
     <None Include=".clang-format" />
     <None Include="GitInfo.ps1" />
     <None Include="GitInfo.sh" />
+    <None Include="LinuxConsoleComponent.h" />
+    <None Include="LinuxConsoleComponent.cpp" />
   </ItemGroup>
 </Project>

@@ -46,8 +46,10 @@ void GameBuffer::ResizeBuffer(int width, int height) {
 	dirty_buffer = true;
 }
 void GameBuffer::HideCursor() {
+#ifndef __linux__
 	constexpr char buf[] = "\u001b[?25l";
 	write(buf, sizeof(buf));
+#endif
 }
 void GameBuffer::InitConsole() {
 	HideCursor();
@@ -190,7 +192,7 @@ void GameBuffer::FillCircle(float x, float y, float sz, float whratio, PixelData
 	}
 }
 
-void GameBuffer::DrawString(const std::u32string& text, int startX, int startY, Color fg, Color bg) {
+void GameBuffer::DrawString(const std::u32string& text, int startX, int startY, Color fg, Color bg,int overflow) {
 	int x = startX;
 	int y = startY;
 
@@ -207,8 +209,21 @@ void GameBuffer::DrawString(const std::u32string& text, int startX, int startY, 
 				continue;
 			}
 			int charWidth = Measure(c);
-			if (x + charWidth <= b_right) {
+			if (x + charWidth <= b_right - 1) {
 				// Set the pixel at the current position
+				SetPixel(x, y, PixelData{ fg, bg, c });
+				if (charWidth > 1)
+					for (int i = 1; i < charWidth; i++) {
+						SetPixel(x + i, y, PixelData{ {}, {}, '\b' });
+					}
+				x += charWidth;
+			}
+			else if (overflow == 1) {
+				SetPixel(x - 1, y, PixelData{ {170,0,255,0}, bg, '>' });
+			}
+			else if (overflow == 0) {
+				x = startX;
+				y++;
 				SetPixel(x, y, PixelData{ fg, bg, c });
 				if (charWidth > 1)
 					for (int i = 1; i < charWidth; i++) {
@@ -275,17 +290,19 @@ void GameBuffer::SetPixel(int x, int y, PixelData pd) {
 	if ((x < Width && y < Height && y > -1 && x > -1) &&
 		(x <= b_right && y <= b_bottom && y >= b_top && x >= b_left)) {
 		auto& ref = PixelBuffer[y * Width + x];
-		if (ref.UcsChar == '\b') {
-			for (int i = x; i >= 0; i--) {
-				auto& ref2 = PixelBuffer[y * Width + i];
-				ref2.UcsChar = ' ';
-				if (ref2.UcsChar != '\b') {
-					break;
+		if (pd.UcsChar != '\0') {
+			if (ref.UcsChar == '\b') {
+				for (int i = x; i >= 0; i--) {
+					auto& ref2 = PixelBuffer[y * Width + i];
+					ref2.UcsChar = ' ';
+					if (ref2.UcsChar != '\b') {
+						break;
+					}
 				}
 			}
+			if (pd.UcsChar != '\1')
+				ref.UcsChar = pd.UcsChar;
 		}
-		if (pd.UcsChar != '\1')
-			ref.UcsChar = pd.UcsChar;
 		ref.Background = Color::Blend(ref.Background, pd.Background);
 		ref.Foreground = Color::Blend(ref.Foreground, pd.Foreground);
 	}
@@ -365,6 +382,45 @@ void GameBuffer::DrawLineV(float x1, float x2, float y, PixelData pd) {
 					SetPixel(i, y_i + 1, pd2);
 				}
 			}
+		}
+	}
+}
+void GameBuffer::DrawLine(int x1, int x2, int y1, int y2, PixelData pd) {
+	int dx = abs(x2 - x1);
+	int dy = abs(y2 - y1);
+	//if (dx == 0) {
+	//	DrawLineH(x1, y1, y2, pd);
+	//	return;
+	//}
+	//if (dy == 0) {
+	//	DrawLineV(x1, x2, y1, pd);
+	//	return;
+	//}
+	int sx = (x1 < x2) ? 1 : -1;
+	int sy = (y1 < y2) ? 1 : -1;
+	int err = dx - dy;
+
+	while (true) {
+		// 到达终点
+		if (x1 == x2 && y1 == y2) {
+			break;
+		}
+
+		// 绘制当前像素
+		SetPixel(x1, y1, pd);
+
+		int err2 = 2 * err;
+
+		// 调整 x 方向
+		if (err2 > -dy) {
+			err -= dy;
+			x1 += sx;
+		}
+
+		// 调整 y 方向
+		if (err2 < dx) {
+			err += dx;
+			y1 += sy;
 		}
 	}
 }

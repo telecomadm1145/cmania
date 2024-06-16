@@ -139,7 +139,7 @@ public:
 			centre1.append(rt);
 			buf.DrawString(centre1, (buf.Width - centre1.size()) / 2, 2, { 255, 255, 255, 255 }, {});
 			if (rec_input_handler != 0) {
-				buf.DrawString("Replaying record of \"" + rec.PlayerName + "\"", 0, 1, { 255, 255, 255, 255 }, {});
+				buf.DrawString("播放 \"" + rec.PlayerName + "\" 的录像中...", 0, 1, { 255, 255, 255, 255 }, {});
 			}
 			{
 				int i = buf.Height / 2 + (gameplay->GetScoreProcessor()->ResultCounter.size()) * 5 / 4 + 1;
