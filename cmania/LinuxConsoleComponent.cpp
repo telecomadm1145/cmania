@@ -62,7 +62,7 @@ private:
 	struct termios oldsetting, newsetting;
 	void onExit() {
 		tcsetattr(fileno(stdin), TCSANOW, &oldsetting);
-		write(STDOUT_FILENO, "\e[?1000l", 8);
+		write(STDOUT_FILENO, "\e[?1003l\e[?1006l",24);
 		cap_free(caps);
 	}
 	void ProcessEvent(const char* evt, const void* evtargs) override {
@@ -73,7 +73,9 @@ private:
 			newsetting.c_lflag &= ~(ICANON | ECHO);
 			tcsetattr(fileno(stdin), TCSANOW, &newsetting);
 			// 打开鼠标监听
-			write(STDOUT_FILENO, "\e[?1000h", 8);
+			//兼容多种终端
+			//TODO:增加对\e[?1015h终端的支持
+			write(STDOUT_FILENO, "\e[?1003h\e[?1006h",24);
 			// 启动CAP_SYS_ADMIN，于是可以监听输入
 			
 			cap_value_t cap_sys_admin = CAP_SYS_ADMIN;
@@ -90,7 +92,7 @@ private:
 			lsh.RegisterSIGINT([this](int signum) {
 				std::exit(0);
 			});
-			std::atexit([]() {write(STDOUT_FILENO, "\e[?1000l", 8);});
+			std::atexit([]() {write(STDOUT_FILENO, "\e[?1003l\e[?1006l",24);});
 		}
 		else if (strcmp(evt, "push") == 0) {
 			// 将缓冲区中的字符输出到console
@@ -99,7 +101,7 @@ private:
 				size_t len;
 			};
 			auto pea = *(PushEventArgs*)evtargs;
-			std::cout.write(pea.buf, pea.len);
+			//write(STDOUT_FILENO, pea.buf, pea.len);
 		}
 		else if (strcmp(evt, "fresize") == 0) {
 			SendResize(parent);
