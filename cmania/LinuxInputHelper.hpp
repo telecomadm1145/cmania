@@ -17,6 +17,8 @@
 // 初始化
 
 std::string mouse_device, keyboard_device;
+typedef std::function<void(int x, int y, MouseKeyEventArgs::Button b, bool pressed)> MouseCallback;
+typedef std::function<void(ControlKeyState cks, bool down, ConsoleKey key, wchar_t chr, int rc)> KeyboardCallback;
 enum InputFeature {
 	ONLY_ANSI = 0b00000001,
 	ONLY_DEVICE = 0b00000010,
@@ -57,57 +59,79 @@ std::unordered_map<int, char> keyToANSI = {
 	{ KEY_S, 's' }, { KEY_T, 't' }, { KEY_U, 'u' }, { KEY_V, 'v' }, { KEY_W, 'w' }, { KEY_X, 'x' },
 	{ KEY_Y, 'y' }, { KEY_Z, 'z' }
 };
+std::unordered_map<int, char> ANSItoKey = {
+	{ 'a', KEY_A }, { 'b', KEY_B }, { 'c', KEY_C }, { 'd', KEY_D }, { 'e', KEY_E }, { 'f', KEY_F },
+	{ 'g', KEY_G }, { 'h', KEY_H }, { 'i', KEY_I }, { 'j', KEY_J }, { 'k', KEY_K }, { 'l', KEY_L },
+	{ 'm', KEY_M }, { 'n', KEY_N }, { 'o', KEY_O }, { 'p', KEY_P }, { 'q', KEY_Q }, { 'r', KEY_R },
+	{ 's', KEY_S }, { 't', KEY_T }, { 'u', KEY_U }, { 'v', KEY_V }, { 'w', KEY_W }, { 'x', KEY_X },
+	{ 'y', KEY_Y }, { 'z', KEY_Z }
+};
+
 void keyboardDeviceCallback(evutil_socket_t fd, short event, void* arg) {
-	struct input_event ev;
-	auto* _kp = (std::function<void(ControlKeyState cks, bool down, ConsoleKey key, wchar_t chr, int rc)>*)arg;
-	auto kp = *_kp;
-	while (read(fd, &ev, sizeof(ev)) > 0) {
-		if (ev.type == EV_KEY) {
-			kp(ControlKeyState(0), ev.value == 1, keyMap[ev.code], keyToANSI[ev.code], 0);
-		}
-	}
+	// struct input_event ev;
+	// auto* _kp = (std::function<void(ControlKeyState cks, bool down, ConsoleKey key, wchar_t chr, int rc)>*)arg;
+	// auto kp = *_kp;
+	// while (read(fd, &ev, sizeof(ev)) > 0) {
+	// 	if (ev.type == EV_KEY) {
+	// 		kp(ControlKeyState(0), ev.value == 1, keyMap[ev.code], keyToANSI[ev.code], 0);
+	// 	}
+	// }
 }
-void mouseDeviceCallback(evutil_socket_t fd, short event, void* arg) {
-}
+// 用来辅助匹配stdin输入的类
 class stdinHelper {
 private:
 	std::unordered_map<int, int> flagsOfEachMatcher = {};
 	std::unordered_map<int, std::array<int, 128>> bufOfEachMatcher = {};
-	std::vector<std::function<void(char now_char, std::array<int, 128>& bufForMatcher, int& flag)>> matchers;
+	std::vector<std::function<void(char now_char, std::array<int, 128>& bufForMatcher, int& flag, void* arg)>> matchers;
 
 public:
-	void addMatcher(std::function<void(char, std::array<int, 128>& bufForMatcher, int& flag, std::function<void(std::string infomation, std::any body)>)> matcher, std::function<void(std::string infomation, std::any body)> call_back) {
-		auto f = std::bind(matcher, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, call_back);
+	// 第一个函数是去匹配的函数，第二个是匹配到了之后要call的函数
+	// call_back的args是用来传递一些杂数据的
+	// 憨包看我的超级无敌warpper搞的参数传递
+	void addMatcher(std::function<void(char, std::array<int, 128>& bufForMatcher, int& flag, std::function<void(std::string infomation, std::any body)>)> matcher, std::function<void(std::string infomation, std::any body, void* args)> call_back) {
+		auto wrapper = [=](std::string infomation, std::any body, void* args) {
+			call_back(infomation, body, args);
+		};
+		auto f = [=](char nowchar, std::array<int, 128>& bufForMatcher, int& flag, void* arg) {
+			matcher(nowchar, bufForMatcher, flag, std::bind(wrapper, std::placeholders::_1, std::placeholders::_2, arg));
+		};
 		matchers.push_back(f);
 		int number = matchers.size() - 1;
 		flagsOfEachMatcher[number] = 0;
 		bufOfEachMatcher[number] = { 0 };
 	}
-	void addToMatchBuffer(char nowchar) {
+	void addToMatchBuffer(char nowchar, void* arg) {
 		for (int i = 0; i < matchers.size(); i++) {
-			matchers[i](nowchar, bufOfEachMatcher[i], flagsOfEachMatcher[i]);
+			auto f = matchers[i];
+			f(nowchar, bufOfEachMatcher[i], flagsOfEachMatcher[i], arg);
 		}
 	}
 };
 stdinHelper stdinHelperInstance;
 
-
-void stdinCallback(evutil_socket_t fd, short event, void* arg) {
-	// 鼠标终端报告
+void initMatcherForStdin() {
 	stdinHelperInstance.addMatcher([](char nowchar, std::array<int, 128>& bufForMatcher, int& flag, std::function<void(std::string infomation, std::any body)> call_back) {
 		//[DEBUG]输出现在的字符的10进制和ansi
-		//std::cout<<int(nowchar)<<" "<<nowchar<<" 	"<<std::flush;
+		//std::cout<<int(nowchar)<<" "<<nowchar<<" 	"<<"flag = "<<flag<<"   "<<std::flush;
 		// 检测鼠标回报ansi序列的前缀
 		char prefix[] = { '\033', '[', '<' };
 		if (nowchar == prefix[flag] && flag < 3) {
 			flag++;
 			return;
+		}if(nowchar!=prefix[flag]&& flag<3){
+			flag=0;
+			return;
+			
 		}
 		else if(flag>=3&&nowchar==prefix[0]){
 			flag = 0;
+			return;
 			// TODO:如果没有切换到utf8回报，那么要做好读取老式binary回报的准备
+		}else if(flag==0){
+			return;
 		}
 		// 不考虑序列不完整的情况了
+		//如果能执行到这，代表下面都是鼠标序列了
 		//  flag在3-11之间，全直接push到buf
 		bufForMatcher[flag - 3] = nowchar;
 		flag++;
@@ -120,7 +144,7 @@ void stdinCallback(evutil_socket_t fd, short event, void* arg) {
 			// 按照;分割
 			auto j=std::string(bufForMatcher.begin(), bufForMatcher.end());
 			auto res=split(j, ';');
-			std::cout<<res[0]<<" "<<res[1]<<" "<<res[2]<<std::endl;
+			//std::cout<<std::endl<<res[0]<<" "<<res[1]<<" "<<res[2]<<std::endl;
 			int x=std::stoi(res[1]);
 			int y=std::stoi(res[2].substr(0,res[2].size()-1));
 			bool pressed=nowchar=='M';
@@ -155,38 +179,59 @@ void stdinCallback(evutil_socket_t fd, short event, void* arg) {
 			}
 
 			MouseKeyEventArgs mea(x, y, b, pressed);
-			call_back("mouse", mea);
+			call_back("", mea);
 			bufForMatcher = { 0 };
 		} },
-		[&](std::string infomation, std::any body) {
+		[](std::string infomation, std::any body, void* args) {
+			std::tuple<MouseCallback, KeyboardCallback>* t = (std::tuple<MouseCallback, KeyboardCallback>*)args;
+			auto mousePress = std::get<0>(*t);
 			auto mkea = std::any_cast<MouseKeyEventArgs>(body);
-			auto* _kp = (std::function<void(int x, int y, MouseKeyEventArgs::Button b, bool pressed)>*)arg;
-			auto kp = *_kp;
-			kp(mkea.X,mkea.Y, mkea.MouseButton, mkea.Pressed);
+			mousePress(mkea.X, mkea.Y, mkea.MouseButton, mkea.Pressed);
 		});
+	// 检测ansi键盘输入的
+	stdinHelperInstance.addMatcher([](char nowchar, std::array<int, 128>& bufForMatcher, int& flag, std::function<void(std::string infomation, std::any body)> call_back) {
+		// 暂时只读取字母
+		if ((nowchar >= 'a' && nowchar <= 'z') || (nowchar >= 'A' && nowchar <= 'Z')) {
+			wchar_t w = nowchar;
+			KeyEventArgs kea(0,true,ANSItoKey[std::tolower(nowchar)],w,0);
+			call_back("", kea);
+		}
+		
+	},
+		[](std::string infomation, std::any body, void* args) {
+			std::tuple<MouseCallback, KeyboardCallback>* t = (std::tuple<MouseCallback, KeyboardCallback>*)args;
+			auto keyPress = std::get<1>(*t);
+			auto kea= std::any_cast<KeyEventArgs>(body);
+			keyPress(kea.KeyState, kea.Pressed, kea.Key, kea.UnicodeChar, kea.RepeatCount);
+
+		});
+}
+bool stdinMatcherInited = false;
+void stdinCallback(evutil_socket_t fd, short event, void* arg) {
+	if (!stdinMatcherInited) {
+		initMatcherForStdin();
+		stdinMatcherInited = true;
+	}
 	char buf = 0;
 	while (read(fd, &buf, 1) > 0) {
-		stdinHelperInstance.addToMatchBuffer(buf);
+		stdinHelperInstance.addToMatchBuffer(buf, arg);
 	}
 }
 // TODO: 增加合适的错误处理
 event_base* base;
-void EventLoop(std::function<void(int x, int y, MouseKeyEventArgs::Button b, bool pressed)> mousePress, std::function<void(ControlKeyState cks, bool down, ConsoleKey key, wchar_t chr, int rc)> keyPress, InputFeature withFeature = BOTH) {
+void EventLoop(MouseCallback mousePress, KeyboardCallback keyPressFromStdin, KeyboardCallback keyPressFromDevice, InputFeature withFeature = BOTH) {
 	Init();
-
-	evutil_socket_t fd_mouse, fd_keyboard;
-	event *mouse_ev, *keyboard_ev, *stdin_ev;
+	evutil_socket_t fd_keyboard;
+	event *keyboard_ev, *stdin_ev;
 	base = event_base_new();
 	if ((withFeature & ONLY_ANSI) == ONLY_ANSI) {
-		stdin_ev = event_new(base, fileno(stdin), EV_READ | EV_PERSIST, stdinCallback, nullptr);
+		std::tuple<MouseCallback, KeyboardCallback> t(mousePress, keyPressFromStdin);
+		stdin_ev = event_new(base, fileno(stdin), EV_READ | EV_PERSIST, stdinCallback, &t);
 		int r = event_add(stdin_ev, 0);
 	}
 	if ((withFeature & ONLY_DEVICE) == ONLY_DEVICE) {
-		fd_mouse = open(mouse_device.c_str(), O_RDONLY | O_NONBLOCK);
-		mouse_ev = event_new(base, fd_mouse, EV_READ | EV_PERSIST, mouseDeviceCallback, &mousePress);
-		event_add(mouse_ev, 0);
 		fd_keyboard = open(keyboard_device.c_str(), O_RDONLY | O_NONBLOCK);
-		keyboard_ev = event_new(base, fd_keyboard, EV_READ | EV_PERSIST, keyboardDeviceCallback, &keyPress);
+		keyboard_ev = event_new(base, fd_keyboard, EV_READ | EV_PERSIST, keyboardDeviceCallback, &keyPressFromDevice);
 		event_add(keyboard_ev, 0);
 	}
 	std::atexit([]() { event_base_loopbreak(base); });
@@ -198,10 +243,8 @@ void EventLoop(std::function<void(int x, int y, MouseKeyEventArgs::Button b, boo
 		event_base_free(base);
 	}
 	if ((withFeature & ONLY_DEVICE) == ONLY_DEVICE) {
-		event_free(mouse_ev);
 		event_free(keyboard_ev);
 		event_base_free(base);
-		close(fd_mouse);
 		close(fd_keyboard);
 	}
 }
