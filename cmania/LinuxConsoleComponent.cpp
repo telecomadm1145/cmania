@@ -21,8 +21,6 @@
 #include <sys/capability.h>
 #include <locale>
 #include "LinuxInputHelper.hpp"
-void test() {
-}
 class LinuxSignalHandler {
 public:
 	LinuxSignalHandler() {
@@ -111,7 +109,7 @@ private:
 		}
 	}
 	static void InputWorker(Game* parent) {
-		auto mouseEvent = [&](int x, int y, MouseKeyEventArgs::Button b, bool pressed,bool wheel=false,WheelEventArgs::Direction wd=WheelEventArgs::Direction(0)) {
+		auto mouseEvent = [&](int x, int y, MouseKeyEventArgs::Button b, bool pressed,bool wheel,WheelEventArgs::Direction wd) {
 			if(!wheel){
 				WheelEventArgs wea{120,wd};
 				parent->Raise("wheel", wea);
@@ -123,7 +121,6 @@ private:
 
 		};
 		auto keyboardStdinEvent = [&](ControlKeyState cks, bool down, ConsoleKey key, wchar_t chr, int rc) {
-
 			KeyEventArgs kea{ (int)cks, down, (int)key, chr, rc };
 			parent->Raise("key", kea);
 		};
