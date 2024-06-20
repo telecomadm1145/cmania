@@ -12,12 +12,13 @@
 #include <any>
 #include <linux/input-event-codes.h>
 #include <ranges>
+#include <csignal>
 #include <string>
 #include "String.h"
 // 初始化
 
 std::string mouse_device, keyboard_device;
-typedef std::function<void(int x, int y, MouseKeyEventArgs::Button b, bool pressed)> MouseCallback;
+typedef std::function<void(int x, int y, MouseKeyEventArgs::Button b, bool pressed, bool wheel, WheelEventArgs::Direction wd)> MouseCallback;
 typedef std::function<void(ControlKeyState cks, bool down, ConsoleKey key, wchar_t chr, int rc)> KeyboardCallback;
 enum InputFeature {
 	ONLY_ANSI = 0b00000001,
@@ -112,7 +113,7 @@ stdinHelper stdinHelperInstance;
 void initMatcherForStdin() {
 	stdinHelperInstance.addMatcher([](char nowchar, std::array<int, 128>& bufForMatcher, int& flag, std::function<void(std::string infomation, std::any body)> call_back) {
 		//[DEBUG]输出现在的字符的10进制和ansi
-		//std::cout<<int(nowchar)<<" "<<nowchar<<" 	"<<"flag = "<<flag<<"   "<<std::flush;
+		//std::cout<<int(nowchar)<<" "<<nowchar<<" 	"<<std::flush;
 		// 检测鼠标回报ansi序列的前缀
 		char prefix[] = { '\033', '[', '<' };
 		if (nowchar == prefix[flag] && flag < 3) {
@@ -144,11 +145,20 @@ void initMatcherForStdin() {
 			// 按照;分割
 			auto j=std::string(bufForMatcher.begin(), bufForMatcher.end());
 			auto res=split(j, ';');
-			//std::cout<<std::endl<<res[0]<<" "<<res[1]<<" "<<res[2]<<std::endl;
-			int x=std::stoi(res[1]);
-			int y=std::stoi(res[2].substr(0,res[2].size()-1));
+			std::cout<<std::endl<<res[0]<<" "<<res[1]<<" "<<res[2]<<std::endl;
+			int x,y=0;
+			try{
+				x=std::stoi(res[1]);
+				y=std::stoi(res[2].substr(0,res[2].size()-1));
+			}catch (std::exception e){
+				std::cerr<<e.what()<<std::endl;
+				flag=0;
+				return;
+			}
+			bool isWheelEvent=false;
 			bool pressed=nowchar=='M';
 			MouseKeyEventArgs::Button b;
+			bool wheelUp=true;
 			switch(std::stoi(res[0])){
 				case 0:
 					b = MouseKeyEventArgs::Button::Left;
@@ -174,36 +184,98 @@ void initMatcherForStdin() {
 						pressed = false;
 					}
 					break;
+				case 64:
+					isWheelEvent=true;
+					wheelUp=true;
+					break;
+				case 65:
+					isWheelEvent=true;
+					wheelUp=false;
+					break;
 				default:
 					break;
 			}
+			//解析完了 可以丢出去了
 
-			MouseKeyEventArgs mea(x, y, b, pressed);
-			call_back("", mea);
+			if(isWheelEvent){
+				WheelEventArgs wea{120,WheelEventArgs::Direction::Horizontal};
+			}else{
+				MouseKeyEventArgs mea(x, y, b, pressed);
+				call_back("", mea);
+			}
 			bufForMatcher = { 0 };
 		} },
 		[](std::string infomation, std::any body, void* args) {
+			if (infomation == "wheel") {
+				std::tuple<MouseCallback, KeyboardCallback>* t = (std::tuple<MouseCallback, KeyboardCallback>*)args;
+				auto mousePress = std::get<0>(*t);
+				auto wea = std::any_cast<WheelEventArgs>(body);
+				mousePress(0, 0, MouseKeyEventArgs::Button(0), false, true, wea.WheelDirection);
+				return;
+			}
 			std::tuple<MouseCallback, KeyboardCallback>* t = (std::tuple<MouseCallback, KeyboardCallback>*)args;
 			auto mousePress = std::get<0>(*t);
 			auto mkea = std::any_cast<MouseKeyEventArgs>(body);
-			mousePress(mkea.X, mkea.Y, mkea.MouseButton, mkea.Pressed);
+			mousePress(mkea.X, mkea.Y, mkea.MouseButton, mkea.Pressed, false, WheelEventArgs::Direction(0));
 		});
 	// 检测ansi键盘输入的
 	stdinHelperInstance.addMatcher([](char nowchar, std::array<int, 128>& bufForMatcher, int& flag, std::function<void(std::string infomation, std::any body)> call_back) {
 		// 暂时只读取字母
 		if ((nowchar >= 'a' && nowchar <= 'z') || (nowchar >= 'A' && nowchar <= 'Z')) {
 			wchar_t w = nowchar;
-			KeyEventArgs kea(0,true,ANSItoKey[std::tolower(nowchar)],w,0);
+			KeyEventArgs kea(0, true, (int)keyMap[ANSItoKey[std::tolower(nowchar)]], w, 0);
 			call_back("", kea);
 		}
-		
-	},
+		// 如果是回车键
+		if (nowchar == '\n') {
+			KeyEventArgs kea(0, true, (int)ConsoleKey::Enter, 0, 0);
+			call_back("", kea);
+		}
+		// 方向键
+		switch (nowchar) {
+		case 65: {
+			KeyEventArgs kea(0, true, (int)ConsoleKey::UpArrow, 0, 0);
+			call_back("", kea);
+			break;
+		}
+		case 66: {
+			KeyEventArgs kea(0, true, (int)ConsoleKey::DownArrow, 0, 0);
+			call_back("", kea);
+			break;
+		}
+		case 67: {
+			KeyEventArgs kea(0, true, (int)ConsoleKey::RightArrow, 0, 0);
+			call_back("", kea);
+			break;
+		}
+		case 68: {
+			KeyEventArgs kea(0, true, (int)ConsoleKey::LeftArrow, 0, 0);
+			call_back("", kea);
+			break;
+		}
+		// esc
+		case 27: {
+			KeyEventArgs kea(0, true, (int)ConsoleKey::Escape, 0, 0);
+			//call_back("", kea);
+			break;
+		}
+		// 回车键
+		case 13: {
+			KeyEventArgs kea(0, true, (int)ConsoleKey::Enter, 0, 0);
+			call_back("", kea);
+			break;
+		}
+		// ctrl+c
+		case 3: {
+			raise(SIGINT);
+			break;
+		}
+		} },
 		[](std::string infomation, std::any body, void* args) {
 			std::tuple<MouseCallback, KeyboardCallback>* t = (std::tuple<MouseCallback, KeyboardCallback>*)args;
 			auto keyPress = std::get<1>(*t);
-			auto kea= std::any_cast<KeyEventArgs>(body);
+			auto kea = std::any_cast<KeyEventArgs>(body);
 			keyPress(kea.KeyState, kea.Pressed, kea.Key, kea.UnicodeChar, kea.RepeatCount);
-
 		});
 }
 bool stdinMatcherInited = false;
