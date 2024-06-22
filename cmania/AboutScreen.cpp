@@ -1,17 +1,34 @@
 #include "AboutScreen.h"
 class AboutScreen : public Screen {
 	virtual void Render(GameBuffer& buf) {
+#ifdef _WIN32
 		buf.DrawString(
 			"Cmania\n"
-			"тз©ьжфл╗жу╤кио╣дрТсн\n"
+			"О©╫з©О©╫О©╫О©╫л╗О©╫у╤О©╫О©╫о╣О©╫О©╫О©╫О©╫О©╫\n"
 			"\n"
-			"си telecomadm1145 ©╙╥╒\n"
-			"т╜й╪сно╥: osu (by ppy)\n"
-			"сно╥╢ЗбКй╧сц MIT пМ©иж╓╥ж╥╒\n"
-			"дЗ©иртхнрБобть ╦╢жф пч╦д ты╥ж╥╒╢ксно╥\n"
-			"вёдЗсно╥©╙пд UwU\n"
-			"[Esc] ╥╣╩ь\n", 0, 0, {}, {});
+			"О©╫О©╫ telecomadm1145 О©╫О©╫О©╫О©╫\n"
+			"т╜й╪О©╫О©╫о╥: osu (by ppy)\n"
+			"О©╫О©╫о╥О©╫О©╫О©╫О©╫й╧О©╫О©╫ MIT О©╫О©╫О©╫О©╫ж╓О©╫ж╥О©╫\n"
+			"О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫ч╦О©╫ О©╫ы╥ж╥О©╫О©╫О©╫О©╫О©╫о╥\n"
+			"вёО©╫О©╫О©╫О©╫о╥О©╫О©╫О©╫О©╫ UwU\n"
+			"[Esc] О©╫О©╫О©╫О©╫\n", 0, 0, {}, {});
+#endif
+#ifdef __linux__
+		buf.DrawString(
+			"Cmania\n"
+			"\n"
+			"\n"
+			"Ф²╔Х┤╙telecomadm1145 \n"
+			"linux Г╖╩Ф╓█ by tinyfly\n"
+			"Г▌╘ФЁ∙Е▐┼Е┘┐Г╢═Г┴┬Ф²┐: osu (by ppy)\n"
+			"Е┬├Е▐▒Г┴┬Ф²┐: MIT\n"
+			"\n"
+			"Have fun UwU\n"
+			"[Esc] Ф²╔И──Е┤╨\n", 0, 0, {}, {});
+#endif
 	}
+
+
 	virtual void Key(KeyEventArgs kea) {
 		if (kea.Pressed) {
 			if (kea.Key == ConsoleKey::Escape) {

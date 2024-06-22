@@ -7,6 +7,15 @@
 #include <format>
 #include "File.h"
 #endif
+#ifdef __linux__
+string formatTime(std::chrono::time_point<std::chrono::file_clock> tp){
+	auto cftime=std::chrono::system_clock::to_time_t(std::chrono::file_clock::to_sys(tp));
+	struct tm* timeinfo = localtime(&cftime);
+	char buf[64];
+	strftime(buf, 64, "%Y-%m-%d %H:%M:%S", timeinfo);
+	return std::move(string(buf));
+}
+#endif
 class OpenFileDialog : public Screen {
 public:
 	std::filesystem::path Path{};
@@ -111,7 +120,7 @@ public:
 #ifdef _WIN32
 		ent.LastModifiedTime = std::format("{}", std::filesystem::last_write_time(d));
 #else
-		ent.LastModifiedTime = "114514:1919810";
+		ent.LastModifiedTime = formatTime(std::filesystem::last_write_time(d));
 #endif
 		ent.IsPath = std::filesystem::is_directory(d);
 		ent.RealPath = d;
@@ -123,7 +132,7 @@ public:
 #ifdef _WIN32
 		ent.LastModifiedTime = std::format("{}", std::filesystem::last_write_time(d));
 #else
-		ent.LastModifiedTime = "114514:1919810";
+		ent.LastModifiedTime = formatTime(std::filesystem::last_write_time(d));
 #endif
 		ent.IsPath = std::filesystem::is_directory(d);
 		ent.RealPath = d;

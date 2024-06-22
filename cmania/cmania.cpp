@@ -55,6 +55,5 @@ int main() {
 	auto& scr = *MakeMainMenuScreen(); // 构建主屏幕
 	game.Raise("navigate", scr);	   // 导航到主屏幕
 
-	while (true)
-		std::this_thread::sleep_for(std::chrono::milliseconds(0x7fffffff)); // 防止控制台退出
+	while(true){}
 }

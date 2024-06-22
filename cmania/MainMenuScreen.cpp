@@ -5,7 +5,7 @@
 #include "SettingsScreen.h"
 #include "SongSelectScreen.h"
 #include "AboutScreen.h"
-//#include "VolumeOverlay.h"
+// #include "VolumeOverlay.h"
 
 #ifdef _MSC_VER
 #define _COMPILER_BANNER "Compiled with MSVC v" QUOTE(_MSC_VER)
@@ -19,10 +19,10 @@ class MainMenuScreen : public Screen {
 	virtual void Activate(bool y) override {
 		if (y) {
 			is_name_exists = !game->Settings["Name"].GetString().empty();
-			//parent->AddOverlay(MakeVolumeOverlay());
+			// parent->AddOverlay(MakeVolumeOverlay());
 		}
 	}
-	virtual void Render(GameBuffer& buf) {
+	virtual void Render(GameBuffer& buf) override {
 		// TODO: make a proper ui for this ?
 		if (!is_name_exists) {
 			buf.DrawString("输入您的大名(仅用于录像):", 0, 0, {}, {});
@@ -36,7 +36,7 @@ class MainMenuScreen : public Screen {
 		// buf.DrawString("Loading beatmap cache...", 0, 0, {}, {});
 		// buf.DrawString("正在播放", 0, 0, {}, {});
 	}
-	virtual void Key(KeyEventArgs kea) {
+	virtual void Key(KeyEventArgs kea) override {
 		if (kea.Pressed) {
 			if (!is_name_exists) {
 				if (kea.Key == ConsoleKey::Backspace) {
