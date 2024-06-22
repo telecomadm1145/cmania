@@ -1,6 +1,7 @@
 #include "LinuxInputHelper.hpp"
 stdinSolvePipeline::mouseMatcher stdinSolvePipeline::mM;
 stdinSolvePipeline::keyMatcher stdinSolvePipeline::kM;
+stdinSolvePipeline::arrowMatcher stdinSolvePipeline::aM;
 void Init() {
 	static bool hasRunned = false;
 	if (!hasRunned) {
@@ -108,17 +109,18 @@ std::unordered_map<int, char> ANSItoKey = {
 	{ '9', KEY_9 }
 };
 std::string keyboard_device;
-void stdinSolvePipeline::SetCallback(MouseCallback mcb, KeyboardCallback kcb) {
+void stdinSolvePipeline::SetCallback(MouseCallback* mcb, KeyboardCallback* kcb) {
 	stdinSolvePipeline::mcb = mcb;
 	stdinSolvePipeline::kcb = kcb;
 }
 void EventLoop(MouseCallback mousePress, KeyboardCallback keyPressFromStdin, KeyboardCallback keyPressFromDevice, InputFeature withFeature) {
+
 	Init();
 	evutil_socket_t fd_keyboard;
 	event *keyboard_ev, *stdin_ev;
 	base = event_base_new();
 	if ((withFeature & ONLY_ANSI) == ONLY_ANSI) {
-		std::tuple<MouseCallback, KeyboardCallback> t(mousePress, keyPressFromStdin);
+		std::tuple<MouseCallback*, KeyboardCallback*> t(&mousePress, &keyPressFromStdin);
 		stdin_ev = event_new(base, fileno(stdin), EV_READ | EV_PERSIST, stdinCallback, &t);
 		int r = event_add(stdin_ev, 0);
 	}
@@ -145,7 +147,7 @@ event_base* base;
 bool callbackSet = false;
 void stdinCallback(evutil_socket_t fd, short event, void* arg) {
 	if (!callbackSet) {
-		auto t = (std::tuple<MouseCallback, KeyboardCallback>*)arg;
+		auto t = (std::tuple<MouseCallback*, KeyboardCallback*>*)arg;
 		callbackSet = true;
 		stdinSolvePipeline::SetCallback(std::get<0>(*t), std::get<1>(*t));
 	}

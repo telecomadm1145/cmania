@@ -110,18 +110,22 @@ private:
 	}
 	static void InputWorker(Game* parent) {
 		auto mouseEvent = [&](int x, int y, MouseKeyEventArgs::Button b, bool pressed,bool wheel,WheelEventArgs::Direction wd) {
+			//std::cout<<"mouse "<<x<<" "<<y<<" "<<" "<<pressed<<std::endl;
+
 			if(!wheel){
 				WheelEventArgs wea{120,wd};
 				parent->Raise("wheel", wea);
-				return ;
+				return;
 			}
 			MouseKeyEventArgs mea(x, y, b, pressed);
-			//std::cout<<"x "<<x<<"y "<<y<<"p"<<pressed<<std::endl;
+
 			parent->Raise("mouse", mea);
 
 		};
 		auto keyboardStdinEvent = [&](ControlKeyState cks, bool down, ConsoleKey key, wchar_t chr, int rc) {
 			KeyEventArgs kea{ (int)cks, down, (int)key, chr, rc };
+
+			std::cout<<"key "<<(int)key<<std::endl;
 			parent->Raise("key", kea);
 		};
 		auto KeyboardDeviceEvent = [](ControlKeyState cks, bool down, ConsoleKey key, wchar_t chr, int rc) {
