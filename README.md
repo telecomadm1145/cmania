@@ -75,11 +75,14 @@
 
 ### Linux 构建
 
+为了监听输入设备，将使用 sudo setcap 为软件设置合适的Capabilities
+
 ```bash
 git clone https://github.com/telecomadm1145/cmania
 cd cmania
 cmake -DCMAKE_C_COMPILER=clang-17 -DCMAKE_CXX_COMPILER=clang++-17 .
 make
+sudo setcap cap_sys_admin=+ep cmania.linux
 ```
 
 记得将`Samples`文件夹和`third_party`文件夹放置到与可执行同一目录，`make`将输出二进制到`cmania.linux`
