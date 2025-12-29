@@ -39,10 +39,6 @@ class StdGameplay : public GameplayBase {
 	double ar = 0;
 	StdScoreProcessor ScoreProcessor;
 
-	struct Rect {
-		int x1, y1, x2, y2;
-	};
-
 	Rect cached_vp{};
 	int cached_sw = 0;
 	int cached_sh = 0;
@@ -144,12 +140,84 @@ private:
 		return rect;
 	}
 
-    PointD OsuPixelsToScreen(PointD osu_p) {
-        if (cached_vp.x2 == 0) return {};
-        double x = cached_vp.x1 + osu_p.X / 512.0 * cached_vp.x2;
-        double y = cached_vp.y1 + osu_p.Y / 384.0 * cached_vp.y2;
+    PointD OsuPixelsToScreen(PointD osu_p, const Rect& vp) {
+        if (vp.x2 == 0) return {};
+        double x = vp.x1 + osu_p.X / 512.0 * vp.x2;
+        double y = vp.y1 + osu_p.Y / 384.0 * vp.y2;
         return {x, y};
     }
+
+    PointD OsuPixelsToScreen(PointD osu_p) {
+        return OsuPixelsToScreen(osu_p, cached_vp);
+    }
+
+	void GenerateSliderMesh(StdObject& ho, double radius) {
+		if (ho.Path == nullptr || ho.Path->calcedPath.empty()) return;
+
+		auto& path = ho.Path->calcedPath;
+		ho.BodyPolygon.clear();
+
+		// Check if we need to regenerate based on viewport change?
+		// For now we just check if it is empty.
+		// Ideally we should check if cached_vp changed.
+		// Storing viewport in object is heavy but let's assume it's stable or we clear all meshes on resize.
+
+		if (ho.CachedViewport.x1 == cached_vp.x1 && ho.CachedViewport.x2 == cached_vp.x2 &&
+			ho.CachedViewport.y1 == cached_vp.y1 && ho.CachedViewport.y2 == cached_vp.y2 && !ho.BodyPolygon.empty()) {
+			return; // valid cache
+		}
+
+		ho.CachedViewport.x1 = cached_vp.x1;
+        ho.CachedViewport.x2 = cached_vp.x2;
+        ho.CachedViewport.y1 = cached_vp.y1;
+        ho.CachedViewport.y2 = cached_vp.y2;
+
+		// Generate left and right vertices
+		std::vector<PointD> leftVerts;
+		std::vector<PointD> rightVerts;
+
+		// Calculate screen radius
+		// Radius in osu pixels is radius.
+		// Need to scale to screen pixels.
+		// scale calculation was: auto scale = DifficultyScale(cs) * vp.y2 / 384.0 * 128;
+		// Wait, hit_radius_px is diameter?
+		// DifficultyScale(cs) returns something around 0.5-1.0 range?
+		// No: return (1.0f - 0.7f * (cs - 5) / 5) / 2;
+		// If CS=5 -> 0.5.
+		// 0.5 * 128 = 64. Radius is 64 osu pixels? Yes, OBJECT_RADIUS is 64.
+		// So hit_radius_px is indeed radius (or close to it).
+
+		double screen_radius = hit_radius_px;
+
+		for (size_t i = 0; i < path.size() - 1; ++i) {
+			PointD p1 = OsuPixelsToScreen(path[i]);
+			PointD p2 = OsuPixelsToScreen(path[i+1]);
+
+			VectorD dir = p2 - p1;
+			if (dir.X == 0 && dir.Y == 0) continue;
+			dir.Normalize();
+
+			VectorD normal = { -dir.Y, dir.X };
+
+			leftVerts.push_back(p1 + normal * screen_radius);
+			rightVerts.push_back(p1 - normal * screen_radius);
+
+			// For last point
+			if (i == path.size() - 2) {
+				leftVerts.push_back(p2 + normal * screen_radius);
+				rightVerts.push_back(p2 - normal * screen_radius);
+			}
+		}
+
+		// Combine into a single polygon
+		for (const auto& p : leftVerts) {
+			ho.BodyPolygon.push_back({(int)p.X, (int)p.Y});
+		}
+		// Go back on right side
+		for (auto it = rightVerts.rbegin(); it != rightVerts.rend(); ++it) {
+			ho.BodyPolygon.push_back({(int)it->X, (int)it->Y});
+		}
+	}
 
 	struct Trail {
 		PointD loc{};
@@ -249,40 +317,14 @@ private:
 			// Slider
 			if (ho.Path != 0 && t > ho.StartTime - preempt) {
                 // Render Slider Body
-                // We use circles to draw the body.
-                // To optimize, we step by some pixels.
+                GenerateSliderMesh(ho, scale);
 
-                auto& path = ho.Path->calcedPath;
-                if (!path.empty()) {
-                    // Draw body with reduced opacity
+                if (!ho.BodyPolygon.empty()) {
                      Color bodyColor = { 150, (unsigned char)(comboclr.Red * 0.8), (unsigned char)(comboclr.Green * 0.8), (unsigned char)(comboclr.Blue * 0.8) };
+                     // Draw polygon
+                     buf.FillPolygon(ho.BodyPolygon, { {}, bodyColor, ' ' });
 
-                     // Simply iterate points. Ideally we should interpolate.
-                     // The path points are likely dense enough?
-                     // If not, we interpolate.
-
-                     // Optimization: Skip points outside of view? (Unlikely needed for standard view)
-
-                     // Drawing every point might be heavy if there are thousands.
-                     // Let's iterate with a step.
-                     double step = 5.0; // osu pixels
-
-                     // Use the pre-calculated path
-                     for (size_t i = 0; i < path.size() - 1; ++i) {
-                         PointD p1 = path[i];
-                         PointD p2 = path[i+1];
-
-                         double dist = sqrt(pow(p2.X - p1.X, 2) + pow(p2.Y - p1.Y, 2));
-                         int steps = (int)(dist / step) + 1;
-
-                         for(int j=0; j<steps; ++j) {
-                             double f = (double)j / steps;
-                             double x = p1.X + (p2.X - p1.X) * f;
-                             double y = p1.Y + (p2.Y - p1.Y) * f;
-
-                             buf.FillCircle(vp.x1 + x / 512.0 * vp.x2, vp.y1 + y / 384.0 * vp.y2, scale, rt+1, { {}, bodyColor, ' ' });
-                         }
-                     }
+                     // Draw border? (Optional)
                 }
 
 				if (t < ho.EndTime && t > ho.StartTime) {
