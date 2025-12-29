@@ -220,6 +220,7 @@ struct StdObject : public HitObject {
 	double LastHoldOff = -1;
 	double Velocity = 1;
 	int RepeatCount = 0;
+	size_t NextEventIndex = 0;
 	std::vector<Event> Events;
 	SliderPath* Path = 0;
 };
