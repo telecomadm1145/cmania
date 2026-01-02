@@ -10,6 +10,7 @@ public:
 		class Game* parent = 0;
 
 	public:
+		virtual ~Component() = default;
 		void Init(Game& game_inst) {
 			parent = &game_inst;
 		}
@@ -27,6 +28,9 @@ public:
 	}
 	~Game() {
 		Settings.Write();
+		for (auto rec : records)
+			delete rec;
+		records.clear();
 	}
 	template <typename T>
 	Game& Use() {

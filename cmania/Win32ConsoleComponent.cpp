@@ -1,5 +1,6 @@
-﻿#ifdef _WIN32
+#ifdef _WIN32
 #include <thread>
+#include <atomic>
 #include <Windows.h>
 #include "Game.h"
 #include "ConsoleInput.h"
@@ -18,9 +19,31 @@ class Win32ConsoleComponent : public GameComponent {
 	}
 
 public:
-	std::thread* input_thread = 0;
-	void ProcessEvent(const char* evt, const void* evtargs) {
+	std::thread input_thread;
+	std::atomic<bool> running{ false };
+
+	void Stop() {
+		if (running) {
+			running = false;
+			// Wake up the input thread
+			INPUT_RECORD ir[1] = {};
+			ir[0].EventType = KEY_EVENT;
+			ir[0].Event.KeyEvent.bKeyDown = TRUE;
+			DWORD written;
+			WriteConsoleInputW(GetStdHandle(STD_INPUT_HANDLE), ir, 1, &written);
+
+			if (input_thread.joinable())
+				input_thread.join();
+		}
+	}
+
+	~Win32ConsoleComponent() {
+		Stop();
+	}
+
+	void ProcessEvent(const char* evt, const void* evtargs) override {
 		if (strcmp(evt, "start") == 0) {
+			Stop(); // Ensure previous thread is stopped
 			auto hstdin = GetStdHandle(STD_INPUT_HANDLE);
 			unsigned long mode = 0;
 			GetConsoleMode(hstdin, &mode);
@@ -31,9 +54,8 @@ public:
 			mode = mode | ENABLE_VIRTUAL_TERMINAL_PROCESSING;
 			SetConsoleMode(hstdout, mode);
 			SetConsoleOutputCP(65001);
-			input_thread = new std::thread(&InputWorker, parent);
-			input_thread->detach();
-			// TODO: 憨包，就你小子天天写僵尸thread是吧
+			running = true;
+			input_thread = std::thread(&Win32ConsoleComponent::InputWorker, this);
 		}
 		if (strcmp(evt, "push") == 0) {
 			struct PushEventArgs {
@@ -56,15 +78,17 @@ public:
 		ResizeEventArgs rea{ bufferInfo.dwSize.X + 1, bufferInfo.dwSize.Y + 1 };
 		parent->Raise("resize", rea);
 	}
-	static void InputWorker(Game* parent) {
-		auto hstdin = GetStdHandle(-10);
+	void InputWorker() {
+		auto hstdin = GetStdHandle(STD_INPUT_HANDLE);
 		unsigned long read = 0;
 		INPUT_RECORD record{};
-		while (ReadConsoleInputW(hstdin, &record, 1, &read)) {
+		while (running && ReadConsoleInputW(hstdin, &record, 1, &read)) {
+			if (!running) break;
 			try {
 				switch (record.EventType) {
 				case KEY_EVENT: {
 					auto ke = record.Event.KeyEvent;
+					if (ke.wVirtualKeyCode == 0 && ke.uChar.UnicodeChar == 0) break;
 					KeyEventArgs kea(ke.dwControlKeyState, ke.bKeyDown, ke.wVirtualKeyCode, ke.uChar.UnicodeChar, ke.wRepeatCount);
 					parent->Raise("key", kea);
 					break;
