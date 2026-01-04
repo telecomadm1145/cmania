@@ -208,6 +208,9 @@ struct Event {
 	} EventType;
 	PointD Location;
 };
+struct Rect {
+	int x1, y1, x2, y2;
+};
 struct StdObject : public HitObject {
 	PointD Location;
 	bool HasHold;
@@ -220,6 +223,9 @@ struct StdObject : public HitObject {
 	double LastHoldOff = -1;
 	double Velocity = 1;
 	int RepeatCount = 0;
+	size_t NextEventIndex = 0;
 	std::vector<Event> Events;
 	SliderPath* Path = 0;
+	std::vector<PointI> BodyPolygon;
+	Rect CachedViewport = {};
 };

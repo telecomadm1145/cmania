@@ -196,13 +196,13 @@ using ulonglong = unsigned long long;
 #define QUOTE_S(x) #x
 #define QUOTE(x) QUOTE_S(x)
 #ifdef __clang__
-#define __FUNCTION__ "CLANG_COMPILED_MAGIC"
+// #define __FUNCTION__ "CLANG_COMPILED_MAGIC"
 #endif // __clang__
 
 #define Assert(x)                                                                                                 \
 	{                                                                                                             \
 		if (!(x))                                                                                                 \
-			throw std::runtime_error("Assertion at function " __FUNCTION__ "(Line " QUOTE(__LINE__) ") failed."); \
+			throw std::runtime_error("Assertion failed."); \
 	}
 template <std::integral T>
 std::string Hex(T n) {
