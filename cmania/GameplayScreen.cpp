@@ -8,6 +8,7 @@
 #include "Gameplay.h"
 #include "RulesetManager.h"
 #include "LogOverlay.h"
+#include "UI/UIUtils.h"
 
 class GameplayScreen : public Screen {
 	std::unique_ptr<GameplayBase> gameplay;
@@ -95,80 +96,83 @@ public:
 			auto scp = gameplay->GetScoreProcessor();
 			auto clk = gameplay->Clock.Elapsed();
 
-			std::string centre1 = "";
-			buf.DrawLineV(0, buf.Width, 0, { {}, { 60, 255, 255, 255 }, ' ' });
-			buf.DrawLineV(0, (gameplay->GetCurrentTime() / gameplay->GetDuration()) * buf.Width, 0, { {}, { 60, 90, 255, 100 }, ' ' });
-			auto length_text = std::to_string(int(gameplay->GetDuration() / 1000 / 60)) + ":" + std::to_string(std::abs(int(gameplay->GetDuration() / 1000) % 60));
-			buf.DrawString(length_text, buf.Width - length_text.size() - 1, 0, {}, {});
+			UI::DrawProgressBar(buf, 0, 0, buf.Width, gameplay->GetCurrentTime() / gameplay->GetDuration(), UI::Color_Primary, UI::Color_Bg);
 
+			// Time info
+			auto length_text = std::to_string(int(gameplay->GetDuration() / 1000 / 60)) + ":" + std::to_string(std::abs(int(gameplay->GetDuration() / 1000) % 60));
+			auto current_text = std::to_string(int(gameplay->GetCurrentTime() / 1000 / 60)) + ":" + std::to_string(std::abs(int(gameplay->GetCurrentTime() / 1000) % 60));
+			buf.DrawString(current_text + " / " + length_text, 2, 1, UI::Color_Text, {});
+
+			// Mods & Rate
 			auto clk_txt = std::to_string(gameplay->Clock.ClockRate());
 			clk_txt.resize(4);
 			clk_txt += "x";
-			buf.DrawString(clk_txt, buf.Width - clk_txt.size() - 1, 1, {}, {});
-
 			auto mods_txt = GetModsAbbr(mods);
-			buf.DrawString(mods_txt, buf.Width - mods_txt.size() - 1, 2, {}, {});
+			buf.DrawString(mods_txt + " | " + clk_txt, 2, 2, UI::Color_TextDim, {});
 
-			auto current_text = std::to_string(int(gameplay->GetCurrentTime() / 1000 / 60)) + ":" + std::to_string(std::abs(int(gameplay->GetCurrentTime() / 1000) % 60));
-			buf.DrawString(current_text, 0, 0, {}, {});
-			centre1.append(std::to_string(scp->Combo));
-			centre1.push_back('x');
-			centre1.append("\t\t\t\t\t");
+			// Score Panel (Top Right)
+			int scoreW = 30;
+			int scoreX = buf.Width - scoreW - 2;
+			int scoreY = 1;
+
 			ScoreTrans.SetValue(clk, scp->Score * 1000000);
 			auto scr = std::to_string((int)(ScoreTrans.GetCurrentValue(clk)));
-			centre1.append(scr);
-			centre1.append("\t\t\t\t\t");
+			while (scr.length() < 7)
+				scr = "0" + scr; // Pad score
+
+			UI::DrawHeader(buf, scr, scoreY); // Reusing header style for score background? Maybe too big.
+			// Let's just draw manually for custom look
+			buf.FillRect(scoreX, scoreY, buf.Width, scoreY + 4, { {}, UI::Color_Bg, ' ' });
+
+			buf.DrawString("SCORE", scoreX + 1, scoreY, UI::Color_Primary, {});
+			buf.DrawString(scr, scoreX + 1, scoreY + 1, UI::Color_Text, {});
+
 			AccTrans.SetValue(clk, scp->Accuracy * 100);
 			auto acc = std::to_string(AccTrans.GetCurrentValue(clk));
-			acc.resize(6);
-			centre1.append(acc);
-			centre1.push_back('%');
-			buf.DrawString(centre1, (buf.Width - centre1.size()) / 2, 1, { 255, 255, 255, 255 }, {});
+			acc.resize(5);
+			buf.DrawString(acc + "%", scoreX + 15, scoreY + 1, UI::Color_Accent, {});
 
-			centre1 = "";
-			centre1.append(std::to_string(scp->MaxCombo));
-			centre1.push_back('x');
-			centre1.push_back('(');
-			centre1.append(std::to_string(scp->BeatmapMaxCombo));
-			centre1.push_back('x');
-			centre1.push_back(')');
-			centre1.append("\t\t\t\t");
-			RatingTrans.SetValue(clk, scp->Rating);
-			auto rt = std::to_string(RatingTrans.GetCurrentValue(clk));
-			rt.resize(6);
-			centre1.append(rt);
-			buf.DrawString(centre1, (buf.Width - centre1.size()) / 2, 2, { 255, 255, 255, 255 }, {});
-			if (rec_input_handler != 0) {
-				buf.DrawString("播放 \"" + rec.PlayerName + "\" 的录像中...", 0, 1, { 255, 255, 255, 255 }, {});
-			}
+			// Combo (Center)
+			std::string comboStr = std::to_string(scp->Combo) + "x";
+			int comboX = (buf.Width - comboStr.size()) / 2;
+			int comboY = buf.Height - 10;
+			buf.DrawString(comboStr, comboX, comboY, UI::Color_Primary, {});
+
+			// Stats / Judgements (Left side vertical?) or Bottom Right
 			{
-				int i = buf.Height / 2 + (gameplay->GetScoreProcessor()->ResultCounter.size()) * 5 / 4 + 1;
+				int i = buf.Height / 2 - (gameplay->GetScoreProcessor()->ResultCounter.size()) * 2 / 2;
+				int statX = buf.Width - 12;
 				for (auto& res : gameplay->GetScoreProcessor()->ResultCounter) {
 					auto name = GetHitResultName(res.first);
 					auto clr = GetHitResultColor(res.first);
 					auto val = std::to_string(res.second);
-					clr.Alpha = 20;
-					buf.FillRect(0, i - 2, 7, i + 1, { {}, clr, ' ' });
-					buf.FillRect(buf.Width - 7, i - 2, buf.Width, i + 1, { {}, clr, ' ' });
-					clr.Alpha = 255;
-					buf.DrawString(val, (7 - val.size()) / 2, i - 1, clr, {});
-					buf.DrawString(val, buf.Width - 7 - (val.size() - 7) / 2, i - 1, clr, {});
-					i -= 3;
+
+					buf.FillRect(statX, i, buf.Width, i + 1, { {}, UI::Color_Bg, ' ' });
+					buf.DrawString(name, statX + 1, i, clr, {});
+					buf.DrawString(val, statX + 8, i, UI::Color_Text, {});
+					i++;
 				}
 			}
 
+			// Error Bar / Info
 			std::string corner = "";
 			ErrorTrans.SetValue(clk, scp->Mean);
 			auto err = std::to_string(ErrorTrans.GetCurrentValue(clk));
 			err.resize(5);
 			corner.append(err);
 			corner.append("ms");
-			corner.append("(UR");
+			corner.append(" (UR ");
 			corner.append(std::to_string((int)scp->Error));
 			corner.append(")");
-			buf.DrawString(corner, 0, buf.Height - 1, { 255, 255, 255, 255 }, {});
+			buf.DrawString(corner, buf.Width / 2 - corner.size() / 2, buf.Height - 1, UI::Color_TextDim, {});
+
+			// Replay Label
+			if (rec_input_handler != 0) {
+				buf.DrawString("Playing Replay: " + rec.PlayerName, 0, buf.Height - 2, UI::Color_Accent, {});
+			}
+
 			if (gameplay->GameEnded) {
-				buf.DrawString("按Escape键Continue", buf.Width / 2 - 8, buf.Height - 5, { 255, 255, 255, 255 }, {});
+				buf.DrawString("Press Escape to Continue", buf.Width / 2 - 12, buf.Height - 5, UI::Color_Text, {});
 			}
 		}
 	};
@@ -239,7 +243,7 @@ public:
 						parent->Back();
 					return;
 				}
-				pause = 2;
+				pause = true;
 				gameplay->Pause();
 			}
 			if (kea.Key == ConsoleKey::Spacebar) {

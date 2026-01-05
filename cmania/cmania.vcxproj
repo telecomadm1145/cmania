@@ -207,7 +207,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <PreBuildEvent>
-      <Command>powershell $(ProjectDir)GitInfo.ps1</Command>
+      <Command>powershell -ExecutionPolicy Bypass -File $(ProjectDir)GitInfo.ps1</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -237,7 +237,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <PreBuildEvent>
-      <Command>powershell $(ProjectDir)GitInfo.ps1</Command>
+      <Command>powershell -ExecutionPolicy Bypass -File $(ProjectDir)GitInfo.ps1</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='PatchableRelease|Win32'">
@@ -267,7 +267,7 @@
       <AdditionalOptions>/EDITANDCONTINUE %(AdditionalOptions)</AdditionalOptions>
     </Link>
     <PreBuildEvent>
-      <Command>powershell $(ProjectDir)GitInfo.ps1</Command>
+      <Command>powershell -ExecutionPolicy Bypass -File $(ProjectDir)GitInfo.ps1</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -291,7 +291,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <PreBuildEvent>
-      <Command>powershell $(ProjectDir)GitInfo.ps1</Command>
+      <Command>powershell -ExecutionPolicy Bypass -File $(ProjectDir)GitInfo.ps1</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -321,7 +321,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <PreBuildEvent>
-      <Command>powershell $(ProjectDir)GitInfo.ps1</Command>
+      <Command>powershell -ExecutionPolicy Bypass -File $(ProjectDir)GitInfo.ps1</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='PatchableRelease|x64'">
@@ -351,7 +351,7 @@
       <AdditionalOptions>/EDITANDCONTINUE %(AdditionalOptions)</AdditionalOptions>
     </Link>
     <PreBuildEvent>
-      <Command>powershell $(ProjectDir)GitInfo.ps1</Command>
+      <Command>powershell -ExecutionPolicy Bypass -File $(ProjectDir)GitInfo.ps1</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ClangRelease|Win32'">
@@ -402,6 +402,7 @@
     <ClCompile Include="GameBuffer.cpp" />
     <ClCompile Include="GameplayScreen.cpp" />
     <ClCompile Include="Hpet.cpp" />
+    <ClCompile Include="HttpClient.cpp" />
     <ClCompile Include="KeepAwake.cpp" />
     <ClCompile Include="KeyBinds.cpp" />
     <ClCompile Include="Debug.cpp" />
@@ -409,6 +410,7 @@
     <ClCompile Include="MainMenuScreen.cpp" />
     <ClCompile Include="OpenFileDialog.cpp" />
     <ClCompile Include="OsuBeatmap.cpp" />
+    <ClCompile Include="OszExtractor.cpp" />
     <ClCompile Include="ResultScreen.cpp" />
     <ClCompile Include="RulesetManager.cpp" />
     <ClCompile Include="ScoreSubmition.cpp" />
@@ -428,6 +430,7 @@
     <ClInclude Include="Animator.h" />
     <ClInclude Include="BackgroundComponent.h" />
     <ClInclude Include="Beatmap.h" />
+    <ClInclude Include="BeatmapDownloadingScreen.h" />
     <ClInclude Include="BeatmapDownloadingService.h" />
     <ClInclude Include="CatchRuleset.h" />
     <ClInclude Include="ConsoleInputHandler.h" />
@@ -454,6 +457,7 @@
     <ClInclude Include="FpsOverlay.h" />
     <ClInclude Include="GameplayScreen.h" />
     <ClInclude Include="Hpet.h" />
+    <ClInclude Include="HttpClient.h" />
     <ClInclude Include="KeepAwake.h" />
     <ClInclude Include="Localization.h" />
     <ClInclude Include="LogOverlay.h" />
@@ -466,6 +470,7 @@
     <ClInclude Include="OsuMods.h" />
     <ClInclude Include="OsuSample.h" />
     <ClInclude Include="OsuStatic.h" />
+    <ClInclude Include="OszExtractor.h" />
     <ClInclude Include="Path.h" />
     <ClInclude Include="Platform.hpp" />
     <ClInclude Include="Record.h" />

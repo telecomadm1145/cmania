@@ -123,7 +123,7 @@ public:
 					if (SpinnerKatOrDon == 0) {
 						flag = true;
 					}
-					else if ((SpinnerKatOrDon - 1) == kat) {
+					else if ((SpinnerKatOrDon - 1) == (kat ? 1 : 0)) {
 						flag = true;
 					}
 					if (flag)

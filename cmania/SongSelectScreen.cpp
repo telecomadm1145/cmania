@@ -20,6 +20,10 @@
 #include "Animator.h"
 #include "OpenFileDialog.h"
 #include "RulesetManager.h"
+#include "BeatmapDownloadingScreen.h"
+#include "UI/UIUtils.h"
+#include <algorithm>
+#include "Ruleset.h"
 
 class SongSelectScreen : public Screen {
 	BackgroundComponent bg{ 0.65 };
@@ -114,42 +118,52 @@ class SongSelectScreen : public Screen {
 				int c2 = Itemstrans[(i % 70) + 70].GetCurrentValue(clk) / (buf.Height / 2) * 8;
 				int b2 = buf.Width * 0.7 - c2;
 				if (i == selected) {
-					buf.FillRect(b2, basicoff, buf.Width, basicoff + songheight, { {}, { 60, 255, 255, 255 }, ' ' }); // 高亮
+					// Selected Song Group
+					buf.FillRect(b2, basicoff, buf.Width, basicoff + songheight, { {}, UI::Color_Primary, ' ' });
 					int k = 1;
 					int diffxpos = 3;
 					for (auto& diff : cache.difficulties) {
 						auto diffoff = basicoff + (k * (songheight + gap));
-						buf.FillRect(b2 + diffxpos, diffoff, buf.Width, diffoff + songheight, { {}, { 100, 32, 32, 32 }, ' ' });
+						// Difficulty Item
+						buf.FillRect(b2 + diffxpos, diffoff, buf.Width, diffoff + songheight, { {}, UI::Color_Bg, ' ' });
 						if (&diff == selected_entry_2) {
-							buf.FillRect(b2 + diffxpos, diffoff, buf.Width, diffoff + songheight, { {}, { 40, 255, 255, 255 }, ' ' });
+							// Selected Difficulty
+							buf.FillRect(b2 + diffxpos, diffoff, buf.Width, diffoff + songheight, { {}, UI::Color_Accent, ' ' });
 						}
 						auto rul = GetRulesetName(diff.mode);
 						buf.DrawString(rul, b2 + 1 + diffxpos, std::round(diffoff) + 1, {}, { 255, 120, 120, 120 });
 						buf.DrawString(diff.name, b2 + 1 + diffxpos + rul.size() + 1, std::round(diffoff) + 1, {}, {});
 						k++;
 					}
+					// Song Title in Selected Group
+					buf.DrawString(cache.artist + " - " + cache.title, b2 + 1, std::round(basicoff) + 1, UI::Color_Text, {});
 				}
-				buf.FillRect(b2, basicoff, buf.Width, basicoff + songheight, { {}, { 150, 32, 32, 32 }, ' ' });
-				buf.DrawString(cache.artist + " - " + cache.title, b2 + 1, std::round(basicoff) + 1, {}, {});
+				else {
+					// Normal Song Item
+					buf.FillRect(b2, basicoff, buf.Width, basicoff + songheight, { {}, UI::Color_BgHover, ' ' });
+					buf.DrawString(cache.artist + " - " + cache.title, b2 + 1, std::round(basicoff) + 1, UI::Color_TextDim, {});
+				}
 			}
 		}
-		buf.FillRect(0, 2, 50, 12, { {}, { 150, 32, 32, 32 }, ' ' });
+
+		// Left Panel Background
+		buf.FillRect(0, 2, 50, 12, { {}, UI::Color_Bg, ' ' });
 		auto entry1 = selected_entry;
 		if (entry1 != 0) {
 			buf.SetBounds(0, 0, 40, 6);
-			buf.DrawString(entry1->titleunicode, 1, 3, {}, {});
-			buf.DrawString(entry1->artistunicode, 1, 5, {}, {});
+			buf.DrawString(entry1->titleunicode, 1, 3, UI::Color_Text, {});
+			buf.DrawString(entry1->artistunicode, 1, 5, UI::Color_TextDim, {});
 			buf.ResetBounds();
 			auto entry2 = selected_entry_2;
 			if (entry2 != 0) {
 				auto minutes = int(entry2->length / (1000 * 60));
 				auto seconds = int(entry2->length / 1000) % 60;
 				auto info = GetRulesetName(entry2->mode) + "  " + std::to_string(minutes) + ":" + std::to_string(seconds);
-				buf.DrawString(info, 1, 10, {}, {});
+				buf.DrawString(info, 1, 10, UI::Color_Primary, {});
 				// records
-				buf.FillRect(0, 14, 8, 15, { {}, { 150, 32, 32, 32 }, ' ' });
-				buf.DrawString("Details", 0, 14, {}, {});
-				buf.FillRect(0, 15, 50, buf.Height - 3, { {}, { 150, 32, 32, 32 }, ' ' });
+				buf.FillRect(0, 14, 8, 15, { {}, UI::Color_Bg, ' ' });
+				buf.DrawString("Details", 0, 14, UI::Color_Accent, {});
+				buf.FillRect(0, 15, 50, buf.Height - 3, { {}, UI::Color_Bg, ' ' });
 				if (di_loading) {
 					buf.DrawString("Loading...", 0, 15, {}, {});
 				}
@@ -162,7 +176,7 @@ class SongSelectScreen : public Screen {
 #endif
 						auto clr = difficultyToRGBColor(difficulty_val);
 						auto clr2 = Color::Blend(clr, Color{ 200, 255, 255, 255 });
-						buf.DrawString(diff, 50 - diff.size() - 1, 3, clr2, clr);
+						buf.DrawString(diff + "*", 50 - diff.size() - 2, 3, clr2, clr);
 					}
 					buf.SetBounds(0, 15, 50, buf.Height - 4);
 					OffsetTrans2.SetValue(clk, offset2);
@@ -171,41 +185,45 @@ class SongSelectScreen : public Screen {
 					int i = 15 - z;
 					for (auto& d : di) {
 						if (d.Type == DifficultyInfoItem::ValueBar) {
-							buf.DrawString(d.Text, 0, i, {}, {});
+							buf.DrawString(d.Text, 0, i, UI::Color_TextDim, {});
 #ifdef _WIN32
 							std::string v = std::format("{:.2f}", d.Value);
 #else
 							std::string v = std::to_string(d.Value);
 #endif
-							buf.DrawString(v, 50 - v.size() - 1, i, {}, {});
-							buf.DrawLineV(12, 50 - 7 - 2, i, { {}, { 150, 32, 32, 32 }, ' ' });
+							buf.DrawString(v, 50 - v.size() - 1, i, UI::Color_Text, {});
+							// UI::DrawProgressBar(buf, 12, i, 50 - 7 - 2 - 12, std::clamp(d.Value / d.MaxValue, 0.0, 1.0), UI::Color_Accent, UI::Color_BgHover);
+							// Using manual line for consistency with previous one but cleaner
+							int barX = 12;
+							int barW = 50 - 7 - 2 - 12;
+							buf.DrawLineV(barX, barX + barW, i, { {}, UI::Color_BgHover, ' ' });
 							double prog = std::clamp(d.Value / d.MaxValue, 0.0, 1.0);
-							buf.DrawLineV(12, prog * (50 - 7 - 2 - 12) + 12, i, { {}, { 150, 255, 0, 0 }, ' ' });
+							buf.DrawLineV(barX, prog * barW + barX, i, { {}, UI::Color_Accent, ' ' });
 							i++;
 						}
 						else if (d.Type == DifficultyInfoItem::Header) {
 							i++;
-							buf.DrawString(d.Text, 0, i, {}, {},0);
+							buf.DrawString(d.Text, 0, i, UI::Color_Primary, {}, 0);
 							i++;
 						}
 						else if (d.Type == DifficultyInfoItem::Header2) {
-							buf.DrawString(d.Text, 0, i, {}, {},0);
+							buf.DrawString(d.Text, 0, i, UI::Color_Text, {}, 0);
 							i++;
 						}
 						else if (d.Type == DifficultyInfoItem::PlainText) {
-							buf.DrawString(d.Text, 0, i, {}, {});
+							buf.DrawString(d.Text, 0, i, UI::Color_TextDim, {});
 							auto v = d.Text2;
-							buf.DrawString(v, 50 - v.size() - 1, i, {}, {});
+							buf.DrawString(v, 50 - v.size() - 1, i, UI::Color_Text, {});
 							i++;
 						}
 						else if (d.Type == DifficultyInfoItem::PlainValue) {
-							buf.DrawString(d.Text, 0, i, {}, {});
+							buf.DrawString(d.Text, 0, i, UI::Color_TextDim, {});
 #ifdef _WIN32
 							auto v = std::format("{:.2f}", d.Value);
 #else
 							auto v = std::to_string(d.Value);
 #endif
-							buf.DrawString(v, 50 - v.size() - 1, i, {}, {});
+							buf.DrawString(v, 50 - v.size() - 1, i, UI::Color_Text, {});
 							i++;
 						}
 					}
@@ -215,28 +233,25 @@ class SongSelectScreen : public Screen {
 					if (di_size > max_di_size) {
 						int scrollbar_height = 1;
 						int scrollbar_pos = z * (max_di_size - scrollbar_height) / (di_size - max_di_size);
-						buf.FillRect(50 - 1, 15, 50, buf.Height - 3, { {}, { 150, 32, 32, 32 }, ' ' });
-						buf.FillRect(50 - 1, 15 + scrollbar_pos, 50, 15 + scrollbar_pos + scrollbar_height, { { 255, 255, 255, 255 }, {}, '|' });
+						buf.FillRect(50 - 1, 15, 50, buf.Height - 3, { {}, UI::Color_BgHover, ' ' });
+						buf.FillRect(50 - 1, 15 + scrollbar_pos, 50, 15 + scrollbar_pos + scrollbar_height, { UI::Color_Accent, {}, '|' });
 					}
 					buf.ResetBounds();
 				}
-				/* buf.DrawString("个人最佳: " + (records.size() > 0 ? std::to_string((int)(records[0].Score * 10000000)) : "0"), 1, 14, {}, {});
-				int i = 16;
-				for (auto& rec : records) {
-					buf.DrawString(std::to_string((int)(rec.Score * 10000000)) + "@" + std::to_string(rec.Accuracy * 100) + "%", 1, i, {}, {});
-					i += 2;
-				}*/
 			}
 		}
 		else {
-			buf.DrawString("No song selected.", 1, 3, {}, {});
+			buf.DrawString("No song selected.", 1, 3, UI::Color_TextDim, {});
 		}
-		buf.FillRect(0, buf.Height - 2, 50, buf.Height, { {}, { 130, 20, 20, 20 }, ' ' });
-		buf.DrawString(" Esc      F1       F2      F3      F4      Enter", 0, buf.Height - 2, { 255, 0, 105, 204 }, {});
-		buf.DrawString(" 返回  Rulesets  Random   Mods   Options   进入", 0, buf.Height - 1, {}, {});
-		buf.FillRect(buf.Width - 30, 2, buf.Width - 3, 2, { {}, { 130, 128, 128, 128 }, ' ' });
-		buf.DrawString("搜索:", buf.Width - 30, 2, { 255, 100, 255, 150 }, {});
-		buf.DrawString(std::wstring{ search_buf.begin(), search_buf.end() }, buf.Width - 24, 2, { 255, 100, 255, 150 }, {});
+
+		// Footer Keys
+		buf.FillRect(0, buf.Height - 2, 50, buf.Height, { {}, UI::Color_Bg, ' ' });
+		buf.DrawString(" Esc      F1       F2      F3      F4     F5      Enter", 0, buf.Height - 2, UI::Color_Primary, {});
+		buf.DrawString(" Back  Rulesets  Random   Mods   Option Download  Select", 0, buf.Height - 1, UI::Color_Text, {});
+
+		// Search Bar
+		buf.FillRect(buf.Width - 30, 2, buf.Width - 3, 3, { {}, UI::Color_BgHover, ' ' });
+		buf.DrawString("Search: " + Utf162Utf8(std::wstring{ search_buf.begin(), search_buf.end() }), buf.Width - 29, 2, UI::Color_Text, {});
 		if (mod_flyout) {
 			buf.FillRect(0, 0, buf.Width, buf.Height, { { 255, 255, 255, 255 }, { 150, 20, 20, 20 }, ' ' });
 			buf.FillRect(0, 0, buf.Width, 3, { { 255, 51, 156, 255 }, { 240, 20, 20, 20 }, ' ' });
@@ -738,6 +753,9 @@ class SongSelectScreen : public Screen {
 				}
 				if (kea.Key == ConsoleKey::F4) {
 					parent->Navigate(MakeSettingsScreen());
+				}
+				if (kea.Key == ConsoleKey::F5) {
+					parent->Navigate(MakeBeatmapDownloadingScreen());
 				}
 				if (kea.Key == ConsoleKey::Enter) {
 					if (selected_entry_2 != 0 && selected != INT_MAX) {
