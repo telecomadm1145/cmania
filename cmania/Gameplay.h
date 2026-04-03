@@ -12,9 +12,9 @@ class Ruleset;
 
 class GameplayBase {
 public:
-	Ruleset* Ruleset = 0;
+	::Ruleset* Ruleset = 0;
 	InputHandler* GameInputHandler = 0;
-	Beatmap* Beatmap = 0;
+	::Beatmap* Beatmap = 0;
 	Stopwatch Clock;
 	OsuMods Mods = OsuMods::None;
 	bool GameEnded = false;

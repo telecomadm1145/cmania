@@ -13,7 +13,7 @@ public:
 		double BeatLength = 100;
 		double SampleVolume = 0;
 		EffectFlags Effects = EffectFlags::None;
-		SampleBank SampleBank = SampleBank::Normal;
+		::SampleBank SampleBank = SampleBank::Normal;
 		int TimeSignature = 4;
 		int SampleSet = 0;
 		bool TimingChange = 0;
